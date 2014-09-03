@@ -35,12 +35,13 @@ uneven ground, hole in the ground, etc.
 ### Provided Information
 
 1. There are several end points in a building to represent possible destinations.
---* Each end point will have a unique id for simplicity.
---* The wearer will specify the unique id of the starting and destination end points.
---* Building floor plan can be retrieved through internet.
+  * Each end point will have a unique id for simplicity.
+  * The wearer will specify the unique id of the starting and destination end points.
+  * Building floor plan can be retrieved through internet.
+
 2. Hardware platform:
---* A Raspberry Pi mini‐computer
---* An Arduino mega board
---* A set of standard sensors
---* $300 budget for additional hardware
+  * A Raspberry Pi mini‐computer
+  * An Arduino mega board
+  * A set of standard sensors
+  * $300 budget for additional hardware
 
