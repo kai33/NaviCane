@@ -3,7 +3,7 @@ NaviCane
 
 A portable cane to provide in-building navigation guidance for a visually-impaired person
 
-*** User Story
+### User Story
 
 Cylis is a woman in her 50s. She suffers from cataract since her
 early 40s. The illness has rendered her practically blind now. With the help of her trusted
@@ -14,12 +14,12 @@ the maze‐like interior to get to her destination. Is there anything we can do 
 many others like her?
 
 
-*** Main Theme
+### Main Theme
 
 A __portable__ device to provide **__in-building__** navigation guidance for a __visually-impaired__ person
 
 
-*** Main Requirements
+### Main Requirements
 
 1. Wearable. Example: A cap, backpack, belt, walking stick etc. Weight, form factor and
 comfort are all potential evaluation criteria.
@@ -32,7 +32,7 @@ may be static and or moving. Elevation detection may be needed to handle stairca
 uneven ground, hole in the ground, etc.
 
 
-*** Provided Information
+### Provided Information
 
 1. There are several end points in a building to represent possible destinations.
 --* Each end point will have a unique id for simplicity.
