@@ -49,6 +49,7 @@ def get_scan_results(wifi_name='wlan0'):
 
     return results
 
+
 def _get_address(segment=''):
     addr = None
     if ADDRESS_REPRESENTATION in segment:
