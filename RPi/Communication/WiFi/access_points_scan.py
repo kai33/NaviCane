@@ -1,6 +1,7 @@
 import subprocess
 import re
 
+
 ADDRESS_REPRESENTATION = 'Address'
 ESSID_REPRESENTATION = 'ESSID'
 QUALITY_REPRESENTATION = 'Quality'
@@ -8,6 +9,7 @@ SIGNAL_LEVEL_REPRESENTATION = 'Signal level'
 
 
 class ScanResult(object):
+    """representation of scan result of one access point"""
     def __init__(self, addr, ssid, quality, signal_level):
         self._addr = addr
         self._ssid = ssid
@@ -25,6 +27,9 @@ class ScanResult(object):
 
     def get_signal_level(self):
         return self._signal_level
+
+    def __str__(self):
+        return '{ssid}: {addr}'.format(ssid=self._ssid, addr=self._addr)
 
 
 def get_scan_results(wifi_name='wlan0'):
