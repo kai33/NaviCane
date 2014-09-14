@@ -1,5 +1,9 @@
 #ref: http://ownagezone.wordpress.com/2013/02/25/sssps-shortest-path-algorithm-python-implementation/
 import sys
+if __name__ == '__main__':
+    import os
+    sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                 os.pardir))
 from map import Map
 
 def sssp(graph, start, end):

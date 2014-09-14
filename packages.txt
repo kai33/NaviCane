@@ -14,8 +14,8 @@ pyreadline==2.0
 python-dateutil==2.2
 pyttsx==1.1
 pytz==2014.4
+# for windows only
 pywin32==219
-requests==2.2.1
 scipy==0.9.0rc5
 simplejson==3.3.2
 six==1.5.2

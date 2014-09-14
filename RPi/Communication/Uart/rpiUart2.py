@@ -161,6 +161,7 @@ def check_connection_status():
 	else :
 		return 0
 
-initiate_connection()
-time.sleep(2)
-request_sensor_data()
+if __name__ == '__main__':
+    initiate_connection()
+    time.sleep(2)
+    request_sensor_data()

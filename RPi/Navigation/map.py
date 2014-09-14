@@ -1,8 +1,11 @@
 import urllib2
 import json
 import math
-import sys
-sys.path.append("..")
+if __name__ == '__main__':
+    import sys
+    import os
+    sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                 os.pardir))
 from Communication.WiFi.internet_access import get_floor_plan
 
 class Map:
