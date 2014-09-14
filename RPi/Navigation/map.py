@@ -1,5 +1,3 @@
-import urllib2
-import json
 import math
 if __name__ == '__main__':
     import sys
