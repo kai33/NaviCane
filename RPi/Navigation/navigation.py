@@ -1,6 +1,6 @@
 #ref: http://ownagezone.wordpress.com/2013/02/25/sssps-shortest-path-algorithm-python-implementation/
 import sys
-
+from map import Map
 
 def sssp(graph, start, end):
     infinity = sys.maxint
@@ -31,19 +31,6 @@ def sssp(graph, start, end):
     route.reverse()
     return route
 
-#TODO: separate data into id-name dict & name-distance dict
-graph = {
-    'Entrance' : [('Room 1',200)],
-    'Room 1' : [('Room 2', 100)],
-    'Room 2' : [('Male Toilet', 200), ('Room 3', 300)],
-    'Male Toilet' : [('Corridor', 100)],
-    'Female Toilet' : [('Room 3', 200),('Corridor', 200)],
-    'Corridor' : [('Male Toilet', 100),('Female Toilet', 200),('TO level 2', 200)],
-    'TO level 2' : [('Corridor', 200)],
-    'Room 3' : [('Room 2', 300), ('Female Toilet', 200)]
-    }
-
-
 if __name__ == '__main__':
-    traverse = sssp(graph,'Entrance','TO level 2')
+    traverse = sssp(Map.get_graph("DemoBuilding", "1"),'Entrance','TO level 2')
     print traverse
