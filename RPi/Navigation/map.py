@@ -53,7 +53,8 @@ class Map:
 					distance = cls.get_distance(adjNode["x"], node["x"], adjNode["y"], node["y"])
 					nodeDistPair = (adjNode["nodeName"], distance)
 					data[node["nodeName"]].append(nodeDistPair)
-		print data
+			#cache graph data
+			cls.__graph[building + cls.DELIM + level] = data
 		return data
 
 	@classmethod
