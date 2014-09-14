@@ -1,6 +1,9 @@
 import urllib2
 import json
 import math
+import sys
+sys.path.append("..")
+from Communication.WiFi.internet_access import get_floor_plan
 
 class Map:
 	DELIM = "||"
@@ -11,23 +14,14 @@ class Map:
 	__graph = {}
 
 	@classmethod
-	def __download_map(cls, building, level):
-		print "download map data for " + building + " level " + level
-
-		url = cls.SERVER + "?Building=" + building + "&Level=" + level
-		response = urllib2.urlopen(url)
-		data = json.load(response)
-		#cache map data
-		cls.__map[building + cls.DELIM + level] = data;
-		return data
-
-	@classmethod
 	def get_map(cls, building, level):
 		print "get map data for " + building + " level " + level
 
 		data = cls.__map.get(building + cls.DELIM + level, None)
 		if data is None:
-			data = cls.__download_map(building, level)
+			data = get_floor_plan(building, level)
+			#cache map data
+			cls.__map[building + cls.DELIM + level] = data
 		return data
 
 	@classmethod
