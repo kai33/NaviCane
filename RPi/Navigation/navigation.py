@@ -1,5 +1,7 @@
 #ref: http://ownagezone.wordpress.com/2013/02/25/sssps-shortest-path-algorithm-python-implementation/
 import sys
+
+
 def sssp(graph, start, end):
     infinity = sys.maxint
     distance = dict([(vertex, infinity) for vertex in graph])
@@ -11,7 +13,7 @@ def sssp(graph, start, end):
     def vertexComparator(v):
         return distance[v]
     
-    while pqueue != []:
+    while pqueue:
         u = min(pqueue, key=vertexComparator)
         pqueue.remove(u)
         for v, weight in graph[u]:
@@ -41,5 +43,7 @@ graph = {
     'Room 3' : [('Room 2', 300), ('Female Toilet', 200)]
     }
 
-traverse = sssp(graph,'Entrance','TO level 2')
-print traverse
+
+if __name__ == '__main__':
+    traverse = sssp(graph,'Entrance','TO level 2')
+    print traverse
