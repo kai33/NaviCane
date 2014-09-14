@@ -10,7 +10,6 @@ from Communication.WiFi.internet_access import get_floor_plan
 
 class Map:
 	DELIM = "||"
-	SERVER = "http://showmyway.comp.nus.edu.sg/getMapInfo.php"
 
 	#Flyweight pattern
 	__map = {}
