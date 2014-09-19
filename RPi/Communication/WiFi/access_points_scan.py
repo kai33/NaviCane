@@ -16,7 +16,7 @@ class ScanResult(object):
         self._quality = quality
         self._signal_level = signal_level
 
-    def get_MAC_address(self):
+    def get_mac_addr(self):
         return self._addr
 
     def get_ssid(self):
@@ -62,6 +62,7 @@ def _get_address(segment=''):
             m = re.search('((?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2}))', segment)
             addr = m.group(1)
         except Exception, e:
+            print(str(e))
             addr = ''
     return addr
 
@@ -73,6 +74,7 @@ def _get_ssid(segment=''):
             m = re.search('^ESSID:\"(.+)\"$', segment)
             ssid = m.group(1)
         except Exception, e:
+            print(str(e))
             ssid = ''
     return ssid
 
@@ -84,6 +86,7 @@ def _get_quality(segment=''):
             m = re.search('Quality=([0-9]{2}/[0-9]{2})', segment)
             quality = m.group(1)
         except Exception, e:
+            print(str(e))
             quality = ''
     return quality
 
@@ -95,5 +98,6 @@ def _get_signal_level(segment=''):
             m = re.search('Signal level=(-[0-9]{2}) dBm', segment)
             signal_level = m.group(1)
         except Exception, e:
+            print(str(e))
             signal_level = ''
     return signal_level
