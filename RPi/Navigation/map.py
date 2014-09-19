@@ -16,7 +16,7 @@ class Map:
 
     @classmethod
     def get_map(cls, building, level):
-        print "get map data for " + building + " level " + level
+        # print "get map data for " + building + " level " + level
 
         data = cls.__map.get(building + cls.DELIM + level, None)
         if data is None:
@@ -55,6 +55,26 @@ class Map:
         return data
 
     @classmethod
+    def get_node_by_location_name(cls, building, level, name):
+        rawData = cls.get_map(building, level)
+        mapData = rawData.get("map", {})
+        for node in mapData:
+            if node["nodeName"] == name:
+                return node
+        return {}
+
+    @classmethod
+    def get_node_by_location_id(cls, building, level, id):
+        rawData = cls.get_map(building, level)
+        mapData = rawData.get("map", {})
+        for node in mapData:
+            nodeId = node["nodeId"]
+            if nodeId == id or int(nodeId) == id:
+                return node
+        return {}
+
+
+    @classmethod
     def get_distance(cls, x1, x2, y1, y2):
         return math.sqrt(math.pow(int(x1) - int(x2), 2) +
                          math.pow(int(y1) - int(y2), 2))
@@ -74,3 +94,6 @@ if __name__ == '__main__':
     Map.get_graph("DemoBuilding", "1")
     Map.flush_cache()
     Map.get_graph("DemoBuilding", "1")
+    print Map.get_node_by_location_id("DemoBuilding", "1", 1) #non-empty return
+    print Map.get_node_by_location_id("DemoBuilding", "1", "1") #non-empty return
+    print Map.get_node_by_location_name("DemoBuilding", "1", "Entrance") #non-empty return
