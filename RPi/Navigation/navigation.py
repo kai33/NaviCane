@@ -6,6 +6,7 @@ if __name__ == '__main__':
                                  os.pardir))
 from map import Map
 
+
 class Navigation:
     DELIM = "||"
     REACHED_RANGE = 25
@@ -19,7 +20,8 @@ class Navigation:
         self.start = start
         self.end = end
 
-    def _sssp(self, graph): # single source shortest path
+    def _sssp(self, graph):
+        """single source shortest path"""
         infinity = sys.maxint
         distance = dict([(vertex, infinity) for vertex in graph])
         distance[self.start] = 0
@@ -29,7 +31,7 @@ class Navigation:
         #vertex comparator function
         def vertexComparator(v):
             return distance[v]
-        
+
         while pqueue:
             u = min(pqueue, key=vertexComparator)
             pqueue.remove(u)
@@ -50,21 +52,24 @@ class Navigation:
 
     def get_route(self):
         route = Navigation.__route.get(self.building + Navigation.DELIM +
-                                self.level + Navigation.DELIM +
-                                self.start + Navigation.DELIM +
-                                self.end, None)
+                                       self.level + Navigation.DELIM +
+                                       self.start + Navigation.DELIM +
+                                       self.end, None)
         if route is None:
             graph = Map.get_graph(self.building, self.level)
             route = self._sssp(graph)
             #cache route data
             Navigation.__route[self.building + Navigation.DELIM +
-                        self.level + Navigation.DELIM +
-                        self.start + Navigation.DELIM +
-                        self.end] = route
+                               self.level + Navigation.DELIM +
+                               self.start + Navigation.DELIM +
+                               self.end] = route
         return route
 
-    def get_next_location(self, x, y): #current x, and current y
-        # get the nearest node, and based on it, decide the next location
+    def get_next_location(self, x, y):
+        """
+        current x, and current y
+        get the nearest node, and based on it, decide the next location
+        """
 
         route = self.get_route()
         routeLength = len(route)
@@ -80,8 +85,9 @@ class Navigation:
 
         # get the nearest node
         idx = 0
-        for locationName in route:
-            node = Map.get_node_by_location_name(self.building, self.level, locationName)
+        for location_name in route:
+            node = Map.get_node_by_location_name(self.building,
+                                                 self.level, location_name)
             distance = Map.get_distance(node["x"], x, node["y"], y)
             if distance < minDist:
                 minDist = distance
@@ -90,41 +96,68 @@ class Navigation:
             idx += 1
 
         # decide the next location to return
-        if routeIdxOfMinDistNode == 0: # the nearest node is at the start point
-            return Map.get_node_by_location_name(self.building, self.level, route[1]) # return next node
-        elif routeIdxOfMinDistNode == routeLength - 1: # is at the end point
-            return minDistNode # return end node
-        else: # is at point between start & end
+        if routeIdxOfMinDistNode == 0:
+        # the nearest node is at the start point
+            return Map.get_node_by_location_name(self.building,
+                                                 self.level, route[1])
+        # return next node
+        elif routeIdxOfMinDistNode == routeLength - 1:  # is at the end point
+            return minDistNode  # return end node
+        else:  # is at point between start & end
             # prevNode ----- minDistNode (nearest node) ----- nextNode
             prevNode = Map.get_node_by_location_name(self.building, self.level, route[routeIdxOfMinDistNode - 1])
             nextNode = Map.get_node_by_location_name(self.building, self.level, route[routeIdxOfMinDistNode + 1])
             prevDist = Map.get_distance(prevNode["x"], x, prevNode["y"], y)
             nextDist = Map.get_distance(nextNode["x"], x, nextNode["y"], y)
-            if nextDist <= prevDist: # if nearer to the next node
-                return nextNode # return next node
-            else: # nextDist > prevDist -- nearer to the previous node
-                if is_reach_node(minDistNode, x, y): # already reached the nearest node
-                    return nextNode #return next node
+            if nextDist <= prevDist:  # if nearer to the next node
+                return nextNode  # return next node
+            else:  # nextDist > prevDist -- nearer to the previous node
+                if is_reach_node(minDistNode, x, y):  # already reached the nearest node
+                    return nextNode  #return next node
                 else:
-                    return minDistNode #return the nearest node
+                    return minDistNode  #return the nearest node
 
-    def is_reach_end(self, x, y): #current x, and current y
+    def is_reach_end(self, x, y):  #current x, and current y
         return self.is_reach_location(self.end, x, y)
 
-    def is_reach_location(self, locationName, x, y): #current x, and current y
-        node = Map.get_node_by_location_name(self.building, self.level, locationName)
+    def is_reach_location(self, location_name, x, y):
+        """current x, and current y"""
+        node = Map.get_node_by_location_name(self.building,
+                                             self.level, location_name)
         return is_reach_node(node, x, y)
 
-    def is_reach_node(self, node, x, y): #current x, and current y
+    def is_reach_node(self, node, x, y):
+        """current x, and current y"""
         distance = Map.get_distance(node["x"], x, node["y"], y)
         return distance <= Navigation.REACHED_RANGE
 
 if __name__ == '__main__':
-    print Navigation("DemoBuilding", "1", "Entrance", "TO level 2").get_next_location(200, 100) # next: room 1
-    print Navigation("DemoBuilding", "1", "Entrance", "TO level 2").get_next_location(300, 100) # next: room 1
-    print Navigation("DemoBuilding", "1", "Entrance", "TO level 2").get_next_location(350, 100) # next: room 2
-    print Navigation("DemoBuilding", "1", "Entrance", "TO level 2").get_next_location(400, 150) # next: room 2
-    print Navigation("DemoBuilding", "1", "Entrance", "TO level 2").get_next_location(500, 200) # next: mt
-    print Navigation("DemoBuilding", "1", "Entrance", "TO level 2").get_next_location(600, 250) # next: corridor
-    print Navigation("DemoBuilding", "1", "Entrance", "TO level 2").get_next_location(750, 300) # next: to lvl 2
+    # next: room 1
+    print Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2").get_next_location(200, 100)
+    # next: room 1
+    print Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2").get_next_location(300, 100)
+    # next: room 2
+    print Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2").get_next_location(350, 100)
+    # next: room 2
+    print Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2").get_next_location(400, 150)
+    # next: mt
+    print Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2").get_next_location(500, 200)
+    # next: corridor
+    print Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2").get_next_location(600, 250)
+    # next: to lvl 2
+    print Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2").get_next_location(750, 300)
 
