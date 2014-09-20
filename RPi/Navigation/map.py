@@ -73,11 +73,30 @@ class Map:
                 return node
         return {}
 
+    @classmethod
+    def get_north_at(cls, building, level):
+        rawData = cls.get_map(building, level)
+        infoData = rawData.get("info", {})
+        return int(infoData["northAt"])
 
     @classmethod
     def get_distance(cls, x1, x2, y1, y2):
         return math.sqrt(math.pow(int(x1) - int(x2), 2) +
                          math.pow(int(y1) - int(y2), 2))
+
+    @classmethod
+    def get_direction(cls, x1, x2, y1, y2):
+        """relative to x1 and y1"""
+        x = int(x2) - int(x1)
+        y = int(y2) - int(y1)
+        if x >= 0 and y > 0:
+            return math.atan(x / y) * (180 / math.pi)
+        elif x < 0 and y >= 0:
+            return math.atan(y / -x) * (180 / math.pi) + 270
+        elif x > 0 and y <= 0:
+            return math.atan(-y / x) * (180 / math.pi) + 90
+        elif x <= 0 and y < 0:
+            return math.atan(-x / -y) * (180 / math.pi) + 180
 
     @classmethod
     def flush_cache(cls):
@@ -94,6 +113,10 @@ if __name__ == '__main__':
     Map.get_graph("DemoBuilding", "1")
     Map.flush_cache()
     Map.get_graph("DemoBuilding", "1")
-    print Map.get_node_by_location_id("DemoBuilding", "1", 1) #non-empty return
-    print Map.get_node_by_location_id("DemoBuilding", "1", "1") #non-empty return
-    print Map.get_node_by_location_name("DemoBuilding", "1", "Entrance") #non-empty return
+    print Map.get_node_by_location_id("DemoBuilding", "1", 1)
+    print Map.get_node_by_location_id("DemoBuilding", "1", "1")
+    print Map.get_node_by_location_name("DemoBuilding", "1", "Entrance")
+    print Map.get_direction(0, 5, 0, 5)  # 45
+    print Map.get_direction(0, -5, 0, 5)  # 315
+    print Map.get_direction(0, 5, 0, -5)  # 135
+    print Map.get_direction(0, -5, 0, -5)  # 225
