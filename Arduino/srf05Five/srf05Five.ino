@@ -2,6 +2,7 @@
 // to read form 5 ultrasonic sensors
 
 const int numOfReadings = 5;     // number of readings to take/ items in the buffer for mean filter
+int lastValueRecorded[5] = {0, 0, 0, 0, 0};
 
 int readingsFront[numOfReadings];               // stores the distance readings in an buffer
 int readingsRight[numOfReadings];
@@ -43,12 +44,6 @@ int initPinFrontLeft = 11;
 unsigned long pulseTime = 0;                    // stores the pulse in Micro Seconds
 unsigned long distance = 0;                     // variable for storing the distance (cm)
 
-// setup pins/values for LED
-// change to buzzer later!!!!!!
-
-int redLEDPin = 9;                              // Red LED, connected to digital PWM pin 9
-int redLEDValue = 0;                            // stores the value of brightness for the LED (0 = fully off, 255 = fully on)
-
 //setup
 int initPin = initPinFront;
 int echoPin = echoPinFront;
@@ -59,7 +54,6 @@ int* averageDistance;
 
 void setup() {
 
-  pinMode(redLEDPin, OUTPUT);                   // sets pin 9 as output
   pinMode(initPinFront, OUTPUT);                 
   pinMode(echoPinFront, INPUT);  
   pinMode(initPinRight, OUTPUT);                 
@@ -74,8 +68,8 @@ void setup() {
   // Buffer here
 
   for (int thisReading = 0; thisReading < numOfReadings; thisReading++) {
-readings[thisReading] = 0;
- }
+    readings[thisReading] = 0;
+  }
 // initialize the serial port, lets you view the
  // distances being pinged if connected to computer
      Serial.begin(9600);
@@ -83,6 +77,7 @@ readings[thisReading] = 0;
 
 // execute
 void loop() {
+  int result;
 // Choose the next sensor to fetch data
 initPin += 2; 
 echoPin += 2;
@@ -134,16 +129,32 @@ if (*arrayIndex >= numOfReadings)  {
 
   *averageDistance = *total / numOfReadings;      // calculate the average distance
 
-  // if the distance is less than 255cm then change the brightness of the LED
+  // seperately distance into 4 range: >500, 100~500, 40~100, <40  
 
-  if (*averageDistance <255) {
-    redLEDValue = 255 - *averageDistance;        // this means the smaller the distance the brighterthe LED.
+  if (*averageDistance >= 500) { 
+            // regard as infinite (3)
+            result = 3;
+            lastValueRecorded[initPin/2 - 1] = 3;
+            if(lastValueRecorded[initPin/2 - 1]==0)
+              result = 0;
+  }else if(*averageDistance>=60 && *averageDistance<500){
+            // long-distance (2)
+            result = 2;
+            lastValueRecorded[initPin/2 - 1] = 2;
+  }else if(*averageDistance>=20 && *averageDistance<60){
+            // short-distance (1)
+            result = 1;
+            lastValueRecorded[initPin/2 - 1] = 1;
+  }else {
+            // too close, warning! (0)
+            result = 0;
+            lastValueRecorded[initPin/2 - 1] = 0;
   }
 
-  analogWrite(redLEDPin, redLEDValue);   // Write current value to LED pins
   Serial.print(initPin,DEC);
   Serial.print(" initPin value is: ");
-  Serial.println(*averageDistance, DEC);         // print out the average distance to the debugger
+  Serial.println(lastValueRecorded[initPin/2 - 1], DEC);         // print out the average distance to the debugger
+  Serial.println(*averageDistance, DEC);
   delay(100);                                   // wait 100 milli seconds before looping again
 
 }
