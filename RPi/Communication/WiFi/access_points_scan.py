@@ -13,7 +13,7 @@ SIGNAL_LEVEL_REPRESENTATION = 'Signal level'
 class ScanResult(object):
     """representation of scan result of one access point"""
     def __init__(self, addr, ssid, quality, signal_level, frequency):
-        self._addr = addr
+        self._addr = addr.lower()
         self._ssid = ssid
         self._quality = quality
         self._signal_level = signal_level
@@ -33,6 +33,10 @@ class ScanResult(object):
 
     def get_frequency(self):
         return self._frequency
+
+    def average(self, sr):
+        self._quality = (sr.get_quality() + self._quality) / 2
+        self._signal_level = (sr.get_signal_level() + self._signal_level) / 2
 
     def __str__(self):
         return '{ssid}: {addr}'.format(ssid=self._ssid, addr=self._addr)
