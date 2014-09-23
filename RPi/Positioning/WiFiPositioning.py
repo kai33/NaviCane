@@ -80,8 +80,18 @@ class WiFiPositioning(object):
         Making use of free space path loss theory. Not working well with
         obstacles blocking the signal. needs improvement
 
+        ref: http://rvmiller.com/2013/05/part-1-wifi-based-trilateration-on-android/
+             http://stackoverflow.com/questions/11217674/how-to-calculate-distance-from-wifi-router-using-signal-strength
+
+
+        mark : http://www.cisco.com/c/en/us/td/docs/solutions/Enterprise/Mobility/WiFiLBS-DG/wifich5.html
+               # Figure 5-10 An Example of the Relationship Between RSSI and Distance
+
+        verification : http://www.radiolabs.com/stations/wifi_calc.html
+
         signal_level: (dB)
         frequency: (MHz)
+        return: distance in cm
         """
         exp = (27.55 - 20 * math.log10(frequency) + math.fabs(signal_level)) / 20.0
         return 10 ** exp * 100
