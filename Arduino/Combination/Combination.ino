@@ -30,6 +30,57 @@ byte rowPins[ROWS] = { 22, 23, 24, 25 };
 byte colPins[COLS] = { 26, 27, 28 }; 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
 //--------------------keypad consts ends-----------------------
+//--------------------ultrasound consts starts-----------------------
+const int numOfReadings = 5;     // number of readings to take/ items in the buffer for mean filter
+int lastValueRecorded[5] = {0, 0, 0, 0, 0};
+
+int readingsFront[numOfReadings];               // stores the distance readings in an buffer
+int readingsRight[numOfReadings];
+int readingsLeft[numOfReadings];
+int readingsFrontRight[numOfReadings];
+int readingsFrontLeft[numOfReadings];
+
+int arrayIndexFront = 0;                             // arrayIndex of the current item in the array
+int arrayIndexRight = 0;
+int arrayIndexLeft = 0;
+int arrayIndexFrontRight = 0;
+int arrayIndexFrontLeft = 0;
+
+int totalFront = 0;                                  // stores the cumlative total
+int totalRight = 0;
+int totalLeft = 0;
+int totalFrontRight = 0;
+int totalFrontLeft = 0;
+
+int averageDistanceFront = 0;                        // stores the average value
+int averageDistanceRight = 0;
+int averageDistanceLeft = 0;
+int averageDistanceFrontRight = 0;
+int averageDistanceFrontLeft = 0;
+
+int echoPinFront = 2;                           // SRF05 Front echo pin (digital 2)
+int initPinFront = 3;                           // SRF05 Front trigger pin (digital 3)
+int echoPinRight = 4;
+int initPinRight = 5;
+int echoPinLeft = 6;
+int initPinLeft = 7;
+int echoPinFrontRight = 8;
+int initPinFrontRight = 9;
+int echoPinFrontLeft = 10;
+int initPinFrontLeft = 11;
+
+unsigned long pulseTime = 0;                    // stores the pulse in Micro Seconds
+unsigned long distance = 0;                     // variable for storing the distance (cm)
+
+//setup
+int initPin = initPinFront;
+int echoPin = echoPinFront;
+int* readings;
+int* arrayIndex;
+int* total;
+int* averageDistance;
+//--------------------ultrasound consts ends-----------------------
+
 
 uint8_t incomingByte = 0;   // for incoming serial data
 uint8_t sensorLen    = 10;
@@ -43,6 +94,19 @@ enum STATE {
 } connectionSTATE;
 
 enum STATE connectionState = newConnection;
+
+//Sensor Ids 
+static uint8_t const keypadIndex = 0;
+static uint8_t const ultrasoundFrontIndex = 1;
+static uint8_t const ultrasoundRightIndex = 2;
+static uint8_t const ultrasoundLeftIndex = 3;
+static uint8_t const compassIndex = 4;
+static uint8_t const barometerIndex = 5;
+static uint8_t const distanceIndex = 6;
+static uint8_t const sensor7 = 7;
+static uint8_t const sensor8 = 8;
+static uint8_t const sensor9 = 9;
+
 
 static uint8_t const SYN       = 1;
 static uint8_t const ACK       = 2;
@@ -199,6 +263,25 @@ int computeChecksumActuator(){
     return checkSum;
 }
 
+int sendSensorValues(uint8_t dataByte){
+    switch(dataByte){
+        case ACK_S0 : sendSensorValue(1); break; 
+        case ACK_S1 : sendSensorValue(2); break;
+        case ACK_S2 : sendSensorValue(3); break;
+        case ACK_S3 : sendSensorValue(4); break;
+        case ACK_S4 : sendSensorValue(5); break;
+        case ACK_S5 : sendSensorValue(6); break;
+        case ACK_S6 : sendSensorValue(7); break;
+        case ACK_S7 : sendSensorValue(8); break;
+        case ACK_S8 : sendSensorValue(9); break;
+        case ACK_S9 : sendCheckSum();     break;
+        case ACK_CHECKSUM : {return 0; 
+          Serial.write("Sent ACK_CHECKSUM\n");  
+          break;}     
+     }
+     return 1;
+}
+
 
 
 int retrieveDataCorruption(){
@@ -212,21 +295,23 @@ int GetNumber()
 {
    int num = 0;
    char key = kpd.getKey();
-   while(key != '#')
-   {
-      switch (key)
-      {
-         case NO_KEY:
-            break;
-         case '0': case '1': case '2': case '3': case '4':
-         case '5': case '6': case '7': case '8': case '9':
-            num = num * 10 + (key - '0');
-            break;
-         case '*':
-            num = 0;
-            break;
-      }
+   if(key == '*'){
+     while(key != '#')
+     {
+        switch (key)
+        {
+             case NO_KEY:
+              break;
+           case '0': case '1': case '2': case '3': case '4':
+           case '5': case '6': case '7': case '8': case '9':
+              num = num * 10 + (key - '0');
+              break;
+           default:
+              num = 0;
+              break;
+        }
       key = kpd.getKey();
+     }
    }
    return num;
 }
@@ -248,6 +333,26 @@ void setupHMC(){
    Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
 }
 
+void setupUltrasound() {
+
+  pinMode(initPinFront, OUTPUT);                 
+  pinMode(echoPinFront, INPUT);  
+  pinMode(initPinRight, OUTPUT);                 
+  pinMode(echoPinRight, INPUT);
+  pinMode(initPinLeft, OUTPUT);                 
+  pinMode(echoPinLeft, INPUT); 
+  pinMode(initPinFrontRight, OUTPUT);                 
+  pinMode(echoPinFrontRight, INPUT);
+  pinMode(initPinFrontLeft, OUTPUT);                 
+  pinMode(echoPinFrontLeft, INPUT); 
+
+  // Buffer here
+
+  for (int thisReading = 0; thisReading < numOfReadings; thisReading++) {
+    readings[thisReading] = 0;
+  }
+
+ } 
 //---------------------------------all loops------------------------
 void readBMP(){
 
@@ -256,10 +361,10 @@ void readBMP(){
   // vary with weather and such. If it is 1015 millibars
   // that is equal to 101500 Pascals.
     uint8_t reading=bmp.readAltitude(101000);
-    sensorData[0]=reading;
-    Serial.print("Real altitude = ");
-    Serial.print(reading);
-    Serial.println(" meters");
+    sensorData[barometerIndex]=reading;
+    // Serial.print("Real altitude = ");
+    // Serial.print(reading);
+    // Serial.println(" meters");
     //delay(500);
 }
 
@@ -269,19 +374,114 @@ void readHMC(){
   if(heading < 0)
     heading += 2 * M_PI;
    heading=heading * 180/M_PI;
-   Serial.print("heading:\t");
-   Serial.println(heading);
+   //Serial.print("heading:\t");
+   //Serial.println(heading);
    uint8_t reading=heading/2;
-   sensorData[1]=reading;//devided by 2
+   sensorData[compassIndex]=reading;//devided by 2
 }
 
 void readKP(){
   v1 = GetNumber();
   Serial.print ("Keypad reading:\t");
   Serial.println (v1);
-  sensorData[2]=v1;
+  sensorData[keypadIndex]=v1;
   v2 = GetNumber();
   v3 = GetNumber();
+}
+
+void readUltrasound() {
+  int result;
+// Choose the next sensor to fetch data
+initPin += 2; 
+echoPin += 2;
+if(initPin ==9 ){ // using 3 devices now
+    initPin = 3;
+    echoPin = 2;
+}
+
+// Configure parameters
+if(initPin == 3){
+    readings = readingsFront;
+    arrayIndex = &arrayIndexFront;
+    total = &totalFront;
+    averageDistance = &averageDistanceFront;
+}else if (initPin == 5){
+    readings = readingsRight;
+    arrayIndex = &arrayIndexRight;
+    total = &totalRight;
+    averageDistance = &averageDistanceRight;
+}else if (initPin == 7){
+    readings = readingsLeft;
+    arrayIndex = &arrayIndexLeft;
+    total = &totalLeft;
+    averageDistance = &averageDistanceLeft;
+}else if (initPin == 9){
+    readings = readingsFrontRight;
+    arrayIndex = &arrayIndexFrontRight;
+    total = &totalFrontRight;
+    averageDistance = &averageDistanceFrontRight;
+}else{
+    readings = readingsFrontLeft;
+    arrayIndex = &arrayIndexFrontLeft;
+    total = &totalFrontLeft;
+    averageDistance = &averageDistanceFrontLeft;
+}
+digitalWrite(initPin, HIGH);                    // send 10 microsecond pulse
+delayMicroseconds(10);                  // wait 10 microseconds before turning off
+digitalWrite(initPin, LOW);                     // stop sending the pulse
+pulseTime = pulseIn(echoPin, HIGH);             // Look for a return pulse, it should be high as the pulse goes low-high-low
+distance = pulseTime/58;                        // Distance = pulse time / 58 to convert to cm.
+*total= *total - readings[*arrayIndex];           // subtract the last distance
+readings[*arrayIndex] = distance;                // add distance reading to array
+*total= *total + readings[*arrayIndex];            // add the reading to the total
+*arrayIndex = *arrayIndex + 1;                    // go to the next item in the array
+// At the end of the array (10 items) then start again
+if (*arrayIndex >= numOfReadings)  {
+    *arrayIndex = 0;
+  }
+
+  *averageDistance = *total / numOfReadings;      // calculate the average distance
+
+  // seperately distance into 4 range: >500, 100~500, 40~100, <40  
+
+  if (*averageDistance >= 500) { 
+            // regard as infinite (3)
+            result = 3;
+            lastValueRecorded[initPin/2 - 1] = 3;
+            if(lastValueRecorded[initPin/2 - 1]==0)
+              result = 0;
+  }else if(*averageDistance>=60 && *averageDistance<500){
+            // long-distance (2)
+            result = 2;
+            lastValueRecorded[initPin/2 - 1] = 2;
+  }else if(*averageDistance>=20 && *averageDistance<60){
+            // short-distance (1)
+            result = 1;
+            lastValueRecorded[initPin/2 - 1] = 1;
+  }else {
+            // too close, warning! (0)
+            result = 0;
+            lastValueRecorded[initPin/2 - 1] = 0;
+  }
+  
+  switch(initPin){
+    case 3:
+      sensorData[ultrasoundFrontIndex] = result;
+      break;
+    case 5:
+    sensorData[ultrasoundRightIndex] = result;
+    break;
+    case 7:
+    sensorData[ultrasoundLeftIndex] = result;
+    break;
+    default: break;
+  }
+  //Serial.print(initPin,DEC);
+  //Serial.print(" initPin value is: ");
+  //Serial.println(lastValueRecorded[initPin/2 - 1], DEC);         // print out the average distance to the debugger
+  //Serial.println(*averageDistance, DEC);
+  //delay(100);                                   // wait 100 milli seconds before looping again
+  
 }
 
 /*---------------------------start of main program--------------------*/
@@ -291,9 +491,33 @@ void setup() {
         Serial1.begin(9600);
         setupBMP();
         setupHMC();
+        setupUltrasound();
 }
 
+int once = 0;
+int sending = 1;
+
 void loop() {
+        int i=0; 
+        if(once == 0){
+          for(i=0; i<10; i++){
+            Serial.write(sensorData[i] + 1);
+            Serial.write("\n");
+          }
+        }
+        readUltrasound();
+        readHMC();
+        //readKP();
+        readBMP();
+        delay(500);
+
+        if(once == 0){
+          for(i=0; i<10; i++){
+            Serial.write(sensorData[i] + 1);
+            Serial.write("\n");
+          }
+          once = 1;
+        }
         switch(connectionState){
             
               case newConnection :{
@@ -316,27 +540,24 @@ void loop() {
                             break;
                       }
                       case READ  : {
+                            int sendingDataBool = 1;
                             Serial.print("Received READ\n");
                             sendToRpi(ACK_READ);
                             Serial.print("Sent ACK_READ\n");
-                            delay(1000);
                             sendSensorValue(0);
+                          
+                            while(sendingDataBool){
+                                  if(Serial1.available()){
+                                     incomingByte = Serial1.read();
+                                  }
+                                  uint8_t dataByte = incomingByte;
+                                  incomingByte = 0;
+                                  sendingDataBool = sendSensorValues(dataByte);
+                                  //Serial.write("Sending data\n");
+                            }
                             break;
                       }
-                      
-                      case ACK_S0 : sendSensorValue(1); break; 
-                      case ACK_S1 : sendSensorValue(2); break;
-                      case ACK_S2 : sendSensorValue(3); break;
-                      case ACK_S3 : sendSensorValue(4); break;
-                      case ACK_S4 : sendSensorValue(5); break;
-                      case ACK_S5 : sendSensorValue(6); break;
-                      case ACK_S6 : sendSensorValue(7); break;
-                      case ACK_S7 : sendSensorValue(8); break;
-                      case ACK_S8 : sendSensorValue(9); break;
-                      case ACK_S9 : sendCheckSum();     break;
-                      
-                      case ACK_CHECKSUM : break;
-                      
+                     
                       case WRITE : {
                             sendToRpi(WRITE);
                             int index = 0;
