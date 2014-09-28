@@ -169,6 +169,8 @@ class Navigation:
         distance = Map.get_distance(node["x"], x, node["y"], y)
         return distance <= Navigation.REACHED_RANGE
 
+SPEAK_STRING = "Turn {0:.2f} degrees and walk {1:.2f} metres. You are heading towards {2}"
+
 if __name__ == '__main__':
     print "show the route: from Entrance to TO level 2"
     print Navigation("DemoBuilding", "1",
@@ -194,11 +196,13 @@ if __name__ == '__main__':
     print result
     from Speech.espeak_api import VoiceOutput
     voice = VoiceOutput()
-    voice.speak("Turn {0} degrees and walk {1} metres. You are heading towards {2}".format(result[0],
-                                                                                           result[1] / 100.0,
-                                                                                           result[2]['nodeName']))
+    voice.speak(SPEAK_STRING.format(result[0], result[1] / 100.0, result[2]['nodeName']))
     result = Navigation('Com1', "2", "P2", "P10").get_next_location_details(90, 1500, 1260)
     print result
-    voice.speak("Turn {0} degrees and walk {1} metres. You are heading towards {2}".format(result[0],
-                                                                                           result[1] / 100.0,
-                                                                                           result[2]['nodeName']))
+    voice.speak(SPEAK_STRING.format(result[0], result[1] / 100.0, result[2]['nodeName']))
+    result = Navigation('Com1', "2", "P2", "TO Canteen").get_next_location_details(90, 1500, 1260)
+    print result
+    voice.speak(SPEAK_STRING.format(result[0], result[1] / 100.0, result[2]['nodeName']))
+    result = Navigation('Com1', "2", "P2", "TO Canteen").get_next_location_details(90, 5600, 490)
+    print result
+    voice.speak(SPEAK_STRING.format(result[0], result[1] / 100.0, result[2]['nodeName']))
