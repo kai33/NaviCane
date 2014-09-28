@@ -120,13 +120,13 @@ class Navigation:
                                                      route[routeIdxOfMinDistNode + 1])
             prevDist = Map.get_distance(prevNode["x"], x, prevNode["y"], y)
             nextDist = Map.get_distance(nextNode["x"], x, nextNode["y"], y)
-            if nextDist <= prevDist:  
+            if nextDist <= prevDist:
             # if nearer to the next node
             # return next node
                 return nextNode
             else:
             # nextDist > prevDist -- nearer to the previous node
-                if is_reach_node(minDistNode, x, y):  
+                if self.is_reach_node(minDistNode, x, y):
                 # already reached the nearest node
                 # return next node
                     return nextNode
@@ -136,7 +136,7 @@ class Navigation:
 
     def get_next_location_details(self, direction, x, y):
         """
-        params: 
+        params:
         current user's direction (relative to north 0~360d), current x & y pos
         return:
         distance to next loc, direction to next loc (relative to user) & next loc's node
@@ -153,8 +153,7 @@ class Navigation:
         relativeDir = movingDir - userDir
         # if relativeDir > 0, it's at user's rhs, else lhs
 
-        return dist, relativeDir, nextLocNode
-
+        return relativeDir, dist, nextLocNode
 
     def is_reach_end(self, x, y):  # current x, and current y
         return self.is_reach_location(self.end, x, y)
@@ -163,7 +162,7 @@ class Navigation:
         """current x, and current y"""
         node = Map.get_node_by_location_name(self.building,
                                              self.level, location_name)
-        return is_reach_node(node, x, y)
+        return self.is_reach_node(node, x, y)
 
     def is_reach_node(self, node, x, y):
         """current x, and current y"""
@@ -189,6 +188,17 @@ if __name__ == '__main__':
                      "TO level 2").get_next_location(750, 300)
     print "-------------------------------------------"
     print "show next loc details: for pos (750, 300) -- dist 50, angle 0d"
-    print Navigation("DemoBuilding", "1",
-                     "Entrance",
-                     "TO level 2").get_next_location_details(270, 750, 300)
+    result = Navigation("DemoBuilding", "1",
+                        "Entrance",
+                        "TO level 2").get_next_location_details(270, 750, 300)
+    print result
+    from Speech.espeak_api import VoiceOutput
+    voice = VoiceOutput()
+    voice.speak("Turn {0} degrees and walk {1} metres. You are heading towards {2}".format(result[0],
+                                                                                           result[1] / 100.0,
+                                                                                           result[2]['nodeName']))
+    result = Navigation('Com1', "2", "P2", "P10").get_next_location_details(90, 1500, 1260)
+    print result
+    voice.speak("Turn {0} degrees and walk {1} metres. You are heading towards {2}".format(result[0],
+                                                                                           result[1] / 100.0,
+                                                                                           result[2]['nodeName']))
