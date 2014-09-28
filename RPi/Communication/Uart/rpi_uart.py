@@ -10,6 +10,7 @@ READ	 = 4
 ACK_READ = 5
 WRITE	 = 6
 ACK_WRITE= 7
+ACK_CHECKSUM = 8
 
 ACK_S0 = 10
 ACK_S1 = 11
@@ -41,7 +42,7 @@ timeout 	 = 0
 
 sensorData     = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 sensorDataTemp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
+sensorDataEmpty = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 actuatorData   = [200, 201, 202, 203, 204, 205, 206, 207, 208, 209]
 
 
@@ -84,7 +85,7 @@ def receive_data():
 	request_sensor_data()
 	global sensorDataTemp
 	index = 0;
-	checksum = 0;
+	checksumold = 0;
 	
 	while index != (10+1):
 		sensorValue = port.read(1)
@@ -93,12 +94,23 @@ def receive_data():
 			sendSensorAck(index)
 			index = index + 1
 		elif sensorValue and index == 10:
-			checksum = ord(sensorValue)
+			checksumold = ord(sensorValue)
+			port.write(chr(ACK_CHECKSUM))	
 			index = index + 1
 					
-	print(sensorDataTemp)
-	print("checksum is : ")
-	print(checksum)
+	
+	print("checksumold is : ")
+	print(checksumold)
+	if sensor_verify_check_sum(sensorDataTemp, checksumold) == 1:
+		print("Matching checksum, no data corruption detected")
+		sensorData = sensorDataTemp
+		print(sensorData)
+		dataCorrupted = 0
+	else:
+		print("Data corruption detected")
+		dataCorrupted = 1
+	sensorDataTemp = sensorDataEmpty
+
 
 #Request for sensor data
 def request_sensor_data(): 
@@ -225,15 +237,18 @@ def write_actuator_data():
 
 
 #function used to verify checksum 
-def sensor_verify_check_sum(dataValues):
+def sensor_verify_check_sum(dataValues, checksumold):
 	global divisor
-	sum = 0;
+	newChecksum = 0
+	remainder =0
 	for index in range (0, 10):
-		sum = sum + dataValues[index]
+		remainder = dataValues[index] % divisor
+		newChecksum = remainder + newChecksum
 	
-	newChecksum = sum%divisor
-	oldChecksum = dataValues[10]
-	if newChecksum == oldChecksum :
+	print("newChecksum is : ")
+	print(newChecksum)
+
+	if newChecksum == checksumold :
 		return 1
 	else :
 		return 0
@@ -266,8 +281,14 @@ def check_connection_status():
 	else :
 		return 0
 
-initiate_connection()
+
+
+while connectionStatus != 1 :
+	initiate_connection()
 time.sleep(2)
 receive_data()
 time.sleep(2)
+receive_data()
+time.sleep(2)
+receive_data()
 send_data()

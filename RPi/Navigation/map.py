@@ -97,6 +97,8 @@ class Map:
             return math.atan(-y / x) * (180 / math.pi) + 90
         elif x <= 0 and y < 0:
             return math.atan(-x / -y) * (180 / math.pi) + 180
+        else:
+            return 0
 
     @classmethod
     def flush_cache(cls):
