@@ -1,16 +1,33 @@
-#include <time.h>
+//#include <time.h>
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
 #include <I2Cdev.h>
 #include <HMC5883L.h>
 #include <MPU6050.h>
 #include <Keypad.h>
-
+#include <FreeRTOS_AVR.h>
 //initialize devices
 Adafruit_BMP085 bmp;
 MPU6050 accelgyro;
 #define OUTPUT_READABLE_ACCELGYRO
 HMC5883L mag;
+//----------------------------MPU vars---------------------------
+int gDivider = 16384;
+double deltaTime = 0.008; // time between samples: 10 ms
+double xAcc,yAcc;
+double xVelocity, yVelocity; // in m/s
+double xTravel, yTravel; // in m
+const int MPU=0x68;  // I2C address of the MPU-6050
+int AcX,AcY;
+int readingsV=10;
+int i=0;
+int totalX=0,totalY=0;
+int AvX,AvY;
+int calX=0,calY=0;
+int calFlag=0;
+int Ax[10],Ay[10];
+int count=0;
+//---------------------------end MPU vars-------------------------
 
 //----------------------key pad consts----------------------
 int v1 = 0;
@@ -30,6 +47,7 @@ byte rowPins[ROWS] = { 22, 23, 24, 25 };
 byte colPins[COLS] = { 26, 27, 28 }; 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
 //--------------------keypad consts ends-----------------------
+
 //--------------------ultrasound consts starts-----------------------
 const int numOfReadings = 5;     // number of readings to take/ items in the buffer for mean filter
 int lastValueRecorded[5] = {0, 0, 0, 0, 0};
@@ -291,6 +309,47 @@ int retrieveDataCorruption(){
 } 
 //-----------------------------end of UART-----------------------------
 
+//-----------------------------start of MPU---------------------------
+void initAcc(){
+  xVelocity = yVelocity=0.0;
+  xTravel = yTravel=0.0;
+}
+
+ void addMeasurementsToTravel( short xAcceleration, short yAcceleration) {
+
+    // (convert to double and) remove offset if there is any
+    double ax = xAcceleration;
+    double ay = yAcceleration;
+    
+    // convert to g force
+    ax /= gDivider;
+    ay /= gDivider;
+    
+    // convert to force [N]
+    ax *= 9.80665;
+    ay *= 9.80665;
+    
+    if(ax<=0.001 && ax>=-0.001) ax=0;
+    if(ay<=0.001 && ay>=-0.001) ay=0;
+    if((ax==0 ||ay==0)){
+      xVelocity=0;
+      yVelocity=0;
+    }
+    xAcc=ax;
+    yAcc=ay;
+    // distance moved in deltaTime, s = 1/2 a t^2 + vt
+    double sx = 0.5 * ax * deltaTime * deltaTime + xVelocity * deltaTime;
+    double sy = 0.5 * ay * deltaTime * deltaTime + yVelocity * deltaTime;
+    xTravel += sx;
+    yTravel += sy;
+    
+    // change in velocity, v = v0 + at
+    xVelocity += ax * deltaTime;
+    yVelocity += ay * deltaTime;
+    if(xVelocity<=0.005 && xVelocity>=-0.005) xVelocity=0;
+    if(yVelocity<=0.005 && yVelocity>=-0.005) yVelocity=0;
+  }
+//-----------------------------end of MPU----------------------------
 int GetNumber()
 {
    int num = 0;
@@ -353,6 +412,18 @@ void setupUltrasound() {
   }
 
  } 
+ 
+ void setupMPU(){
+  Wire.beginTransmission(MPU);
+  Wire.write(0x6B);  // PWR_MGMT_1 register
+  Wire.write(0);     // set to zero (wakes up the MPU-6050)
+  Wire.endTransmission(true);
+  for(int i=0;i<10;i++)
+  {
+    Ax[i]=Ay[i]=0;
+  }
+  initAcc();
+}
 //---------------------------------all loops------------------------
 void readBMP(){
 
@@ -362,9 +433,9 @@ void readBMP(){
   // that is equal to 101500 Pascals.
     uint8_t reading=bmp.readAltitude(101000);
     sensorData[barometerIndex]=reading;
-    // Serial.print("Real altitude = ");
-    // Serial.print(reading);
-    // Serial.println(" meters");
+     Serial.print("Real altitude = ");
+     Serial.print(reading);
+     Serial.println(" meters");
     //delay(500);
 }
 
@@ -374,8 +445,8 @@ void readHMC(){
   if(heading < 0)
     heading += 2 * M_PI;
    heading=heading * 180/M_PI;
-   //Serial.print("heading:\t");
-   //Serial.println(heading);
+   Serial.print("heading:\t");
+   Serial.println(heading);
    uint8_t reading=heading/2;
    sensorData[compassIndex]=reading;//devided by 2
 }
@@ -389,6 +460,40 @@ void readKP(){
   v3 = GetNumber();
 }
 
+void readMPU(){
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
+  AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)   
+  AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+  totalX-=Ax[i];
+  totalY-=Ay[i];
+  Ax[i]=AcX;
+  Ay[i]=AcY;
+  totalX+=Ax[i];
+  totalY+=Ay[i];
+  i++;
+  if(i>=readingsV) {
+    i=0;
+    if(calFlag==0) {
+      calFlag=1;
+      calX=totalX/readingsV;
+      calY=totalY/readingsV;
+    }
+  }
+  if(calFlag==1) addMeasurementsToTravel(AcX-calX,AcY-calY);
+  count++;
+  if(count==15) count=0;
+  if(count==0){
+  Serial.print("TX = "); Serial.print(xTravel);
+  Serial.print(" | TY = "); Serial.print(yTravel);
+  Serial.print(" | VX = "); Serial.print(xVelocity);
+  Serial.print(" | VY = "); Serial.print(yVelocity);
+  Serial.print(" | AX = "); Serial.print(xAcc);
+  Serial.print(" | AY = "); Serial.print(yAcc);
+  }
+}
 void readUltrasound() {
   int result;
 // Choose the next sensor to fetch data
@@ -476,10 +581,10 @@ if (*arrayIndex >= numOfReadings)  {
     break;
     default: break;
   }
-  //Serial.print(initPin,DEC);
-  //Serial.print(" initPin value is: ");
-  //Serial.println(lastValueRecorded[initPin/2 - 1], DEC);         // print out the average distance to the debugger
-  //Serial.println(*averageDistance, DEC);
+  Serial.print(initPin,DEC);
+  Serial.print(" initPin value is: ");
+  Serial.println(lastValueRecorded[initPin/2 - 1], DEC);         // print out the average distance to the debugger
+  Serial.println(*averageDistance, DEC);
   //delay(100);                                   // wait 100 milli seconds before looping again
   
 }
@@ -491,6 +596,7 @@ void setup() {
         Serial1.begin(9600);
         setupBMP();
         setupHMC();
+        setupMPU();
         setupUltrasound();
 }
 
@@ -507,8 +613,9 @@ void loop() {
         }
         readUltrasound();
         readHMC();
-        //readKP();
+        readKP();
         readBMP();
+        readMPU();
         delay(500);
 
         if(once == 0){
