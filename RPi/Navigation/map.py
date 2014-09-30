@@ -41,7 +41,7 @@ class Map:
                 #value - a list of adjacent nodes' names & their distances
                 # to the key's node
                 data[node["nodeName"]] = []
-                adjNodeIds = node["linkTo"].split(", ")
+                adjNodeIds = node["linkTo"].split(",")
                 for adjNodeIdInString in adjNodeIds:
                     adjNodeId = int(adjNodeIdInString) - 1
                     adjNode = mapData[adjNodeId]
