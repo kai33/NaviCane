@@ -96,14 +96,14 @@ enum STATE {
 enum STATE connectionState = newConnection;
 
 //Sensor Ids 
-static uint8_t const keypadIndex = 0;
-static uint8_t const ultrasoundFrontIndex = 1;
+static uint8_t const ultrasoundFrontRightIndex = 0;
+static uint8_t const ultrasoundFrontLefIndex = 1;
 static uint8_t const ultrasoundRightIndex = 2;
 static uint8_t const ultrasoundLeftIndex = 3;
 static uint8_t const compassIndex = 4;
 static uint8_t const barometerIndex = 5;
 static uint8_t const distanceIndex = 6;
-static uint8_t const sensor7 = 7;
+static uint8_t const keypadIndex = 7;
 static uint8_t const sensor8 = 8;
 static uint8_t const sensor9 = 9;
 

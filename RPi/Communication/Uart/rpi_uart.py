@@ -34,6 +34,17 @@ ACK_A7 = 27
 ACK_A8 = 28
 ACK_A9 = 29
 
+ultrasoundFrontRightIndex = 0
+ultrasoundFrontLeftIndex = 1
+ultrasoundRightIndex = 2
+ultrasoundLeftIndex = 3
+compassIndex = 4
+barometerIndex = 5
+distanceIndex = 6
+keypadIndex = 7
+sensor8 = 8
+sensor9 = 9
+
 connectionStatus = -1
 dataCorrupted 	 = -1
 divisor		 = 17 
@@ -281,14 +292,35 @@ def check_connection_status():
 	else :
 		return 0
 
+#Use receive_data() to receive data readings from Arduino
+#Use send_data() for actuators
+#Use initiate_connection() for initial bootup
+#Use check_data_corruption() to check if received data is corrupted. If 1 is returned,data is corrupted. Else not corrupted
+#Use check_connection_status() to check if connectionis still valid. If 1 is returned, connection is valid, else it is not valid
 
+#Use sensorData[] buffer to access retrieved data 
+#Use actuatorData[] to store data and send
 
-while connectionStatus != 1 :
+#Buffer Index used in sensorData
+"""
+	ultrasoundFrontRightIndex = 0
+	ultrasoundFrontLeftIndex = 1
+	ultrasoundRightIndex = 2
+	ultrasoundLeftIndex = 3
+	compassIndex = 4
+	barometerIndex = 5
+	distanceIndex = 6
+	keypadIndex = 7
+	sensor8 = 8
+	sensor9 = 9
+"""
+
+while check_connection_status() == 0 :
 	initiate_connection()
-time.sleep(2)
-receive_data()
-time.sleep(2)
-receive_data()
-time.sleep(2)
-receive_data()
+
+#time.sleep(2)
+while check_data_corruption() == 1:
+	receive_data()
+	#time.sleep(2)
+
 send_data()
