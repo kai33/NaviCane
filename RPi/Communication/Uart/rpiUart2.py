@@ -12,17 +12,6 @@ WRITE	 = '5'
 ACK_WRITE= '6'
 
 
-ultrasoundFrontRightIndex = 0
-ultrasoundFrontLeftIndex = 1
-ultrasoundRightIndex = 2
-ultrasoundLeftIndex = 3
-compassIndex = 4
-barometerIndex = 5
-distanceIndex = 6
-keypadIndex = 7
-sensor8 = 8
-sensor9 = 9
-
 connectionStatus = -1
 dataCorrupted 	 = -1
 divisor		 = 17 
@@ -39,11 +28,12 @@ def transmission_protocol(send, expected):
 	charReceived = '-1'
 	timeout = 0
 	while charReceived != expected and timeout == 0:
+		print(send)
 		port.write(send)
 		start = time.time()
 		end = start
-		while end-start < 1 and charReceived != expected
-			ackRcv = port.read(1)
+		while end-start < 1 and charReceived != expected:
+			charReceived = port.read(1)
 			end = time.time()
 		
 		if end-start > 1:
@@ -60,7 +50,9 @@ def initiate_connection() :
 		connectionStatus = 0
 		timeout = 0
 	else :
+		print('received ACK')
 		port.write(ACK)
+		print('sent ACK')
 		connectionStatus = 1
 
 
@@ -75,13 +67,22 @@ def request_sensor_data():
 		connectionStatus = 0
 		timeout = 0
 	else :
-		dataValues = port.read(11)
-		if sensor_verify_check_sum(dataValues) :
-			store_sensor_values(dataValues)
-			dataCorrupted = 0
-		else :
-			dataCorrupted = -1 
+		index = 0
+		dataValues = ''
+		print("ACK_READ received") 
+		while index != 10:
+			dataValues = dataValues + port.read(1)
+			"""if sensor_verify_check_sum(dataValues) :
+				store_sensor_values(dataValues)
+				dataCorrupted = 0
+			else :
+				dataCorrupted = -1"""
 			
+			#print(dataValues)
+			index = index + 1
+			time.sleep(0.05)
+		
+		print(dataValues)
 		connectionStatus = 1
 	
 
@@ -89,7 +90,7 @@ def request_sensor_data():
 def send_actuator_data():
 	global connectionStatus
 	global timeout
-	transmission_protocol(WRITE, ACK_READ)
+	transmission_protocol(WRITE, ACK_WRITE)
 	
 	if timeout == 1:
 		connectionStatus = 0
@@ -106,13 +107,14 @@ def send_actuator_data():
 def compute_actuator_checksum():
 	global divisor
 	sum = 0
-	or index in range (0, 10):
+	for index in range (0, 10):
 		sum = sum + actuatorData[index]
 	
 	return sum%divisor
 
 
 #Writing actuator data to arduino
+def write_actuator_data():
 	for index in range (0, 10):
 		port.write(actuatorData[index]) 
 
@@ -159,38 +161,7 @@ def check_connection_status():
 	else :
 		return 0
 
-#Use receive_data() to receive data readings from Arduino
-#Use send_data() for actuators
-#Use initiate_connection() for initial bootup
-#Use check_data_corruption() to check if received data is corrupted. If 1 is returned,data is corrupted. Else not corrupted
-#Use check_connection_status() to check if connectionis still valid. If 1 is returned, connection is valid, else it is not valid
-
-#Use sensorData[] buffer to access retrieved data 
-#Use actuatorData[] to store data and send
-
-#Buffer Index used in sensorData
-"""
-	ultrasoundFrontRightIndex = 0
-	ultrasoundFrontLeftIndex = 1
-	ultrasoundRightIndex = 2
-	ultrasoundLeftIndex = 3
-	compassIndex = 4
-	barometerIndex = 5
-	distanceIndex = 6
-	keypadIndex = 7
-	sensor8 = 8
-	sensor9 = 9
-"""
-
-while check_connection_status() == 0 :
-	initiate_connection()
-
-<<<<<<< HEAD:RPi/Communication/Uart/rpi_uart.py
-#time.sleep(2)
-while check_data_corruption() == 1:
-	receive_data()
-	#time.sleep(2)
-
-send_data()
-=======
->>>>>>> parent of 5ffe9eb... Rpi UART checksum implemented:RPi/Communication/Uart/rpiUart.py
+if __name__ == '__main__':
+    initiate_connection()
+    time.sleep(2)
+    request_sensor_data()

@@ -97,7 +97,7 @@ enum STATE connectionState = newConnection;
 
 //Sensor Ids 
 static uint8_t const ultrasoundFrontRightIndex = 0;
-static uint8_t const ultrasoundFrontLefIndex = 1;
+static uint8_t const ultrasoundFrontLeftIndex = 1;
 static uint8_t const ultrasoundRightIndex = 2;
 static uint8_t const ultrasoundLeftIndex = 3;
 static uint8_t const compassIndex = 4;
@@ -113,9 +113,10 @@ static uint8_t const ACK       = 2;
 static uint8_t const NAK       = 3;
 static uint8_t const READ      = 4;
 static uint8_t const ACK_READ  = 5;
-static uint8_t const WRITE     = 6;
-static uint8_t const ACK_WRITE = 7;
-static uint8_t const ACK_CHECKSUM = 8;
+static uint8_t const READ_START= 6;
+static uint8_t const WRITE     = 7;
+static uint8_t const ACK_WRITE = 8;
+static uint8_t const ACK_CHECKSUM = 9;
 
 //Sensor Acknowlegements 
 static uint8_t const ACK_S0 = 10;
@@ -466,7 +467,7 @@ if (*arrayIndex >= numOfReadings)  {
   
   switch(initPin){
     case 3:
-      sensorData[ultrasoundFrontIndex] = result;
+      sensorData[ultrasoundFrontLeftIndex] = result;
       break;
     case 5:
     sensorData[ultrasoundRightIndex] = result;
@@ -544,6 +545,9 @@ void loop() {
                             Serial.print("Received READ\n");
                             sendToRpi(ACK_READ);
                             Serial.print("Sent ACK_READ\n");
+                      }
+                      
+                      case READ_START: {
                             sendSensorValue(0);
                           
                             while(sendingDataBool){
@@ -553,7 +557,6 @@ void loop() {
                                   uint8_t dataByte = incomingByte;
                                   incomingByte = 0;
                                   sendingDataBool = sendSensorValues(dataByte);
-                                  //Serial.write("Sending data\n");
                             }
                             break;
                       }
