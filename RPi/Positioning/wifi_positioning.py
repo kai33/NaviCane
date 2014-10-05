@@ -1,7 +1,6 @@
 import os
 import sys
 import math
-import operator
 from time import sleep
 
 # for running this script in shell only
@@ -35,7 +34,7 @@ class WiFiPositioning(object):
                                                         self._level)
             access_points = floor_plan.get('wifi', [])
         for ap in access_points:
-            self._access_points[ap['macAddr']] = ap
+            self._access_points[ap['macAddr'][:14]] = ap
 
     def get_estimated_position(self, wifi_name):
         """
@@ -46,20 +45,23 @@ class WiFiPositioning(object):
         if (len(self._scan_results) <= 3):
             return None
         dis_table = {}
-        for sr in self._scan_results:
-            node = self._access_points[sr.get_mac_addr()]
+        print self._scan_results
+        for sr in self._scan_results.values():
+            node = self._access_points[sr.get_mac_addr()[:14]]
             temp_dis = self._get_distance(sr.get_signal_level(), sr.get_frequency())
             dis_table[sr.get_mac_addr()] = {'x': node['x'], 'y': node['y'], 'd': temp_dis}
-        sorted_dis_list = sorted(dis_table, key=operator.itemgetter(1)['d']).values()
-        return self._get_trilateration_point(sorted_dis_list[0]['x'],
-                                             sorted_dis_list[0]['y'],
-                                             sorted_dis_list[0]['d'],
-                                             sorted_dis_list[1]['x'],
-                                             sorted_dis_list[1]['y'],
-                                             sorted_dis_list[1]['d'],
-                                             sorted_dis_list[2]['x'],
-                                             sorted_dis_list[2]['y'],
-                                             sorted_dis_list[2]['d'])
+        # sorted(dis_table, key=lambda x: x['d'])
+        # sorted_dis_list = OrderedDict(sorted(dis_table.items(), key=itemgetter('d')))
+        sorted_dis_list = dis_table
+        return self._get_trilateration_point(sorted_dis_list[sorted_dis_list.keys()[0]]['x'],
+                                             sorted_dis_list[sorted_dis_list.keys()[0]]['y'],
+                                             sorted_dis_list[sorted_dis_list.keys()[0]]['d'],
+                                             sorted_dis_list[sorted_dis_list.keys()[1]]['x'],
+                                             sorted_dis_list[sorted_dis_list.keys()[1]]['y'],
+                                             sorted_dis_list[sorted_dis_list.keys()[1]]['d'],
+                                             sorted_dis_list[sorted_dis_list.keys()[2]]['x'],
+                                             sorted_dis_list[sorted_dis_list.keys()[2]]['y'],
+                                             sorted_dis_list[sorted_dis_list.keys()[2]]['d'])
 
     def _get_trilateration_point(self, x1, y1, d1, x2, y2, d2, x3, y3, d3):
         """
@@ -69,6 +71,12 @@ class WiFiPositioning(object):
         {'y': 1.098111580726966, 'x': 3.464}
         """
         # this method is also roughly fine
+        x1 = float(x1)
+        y1 = float(y1)
+        x2 = float(x2)
+        y2 = float(y2)
+        x3 = float(x3)
+        y3 = float(y3)
         va = ((d2 * d2 - d3 * d3) - (x2 * x2 - x3 * x3) - (y2 * y2 - y3 * y3)) / 2
         vb = ((d2 * d2 - d1 * d1) - (x2 * x2 - x1 * x1) - (y2 * y2 - y1 * y1)) / 2
         y_point = (vb * (x3 - x2) - va * (x1 - x2)) / ((y1 - y2) * (x3 - x2) - (y3 - y2) * (x1 - x2))
@@ -81,8 +89,8 @@ class WiFiPositioning(object):
         obstacles blocking the signal. needs improvement
 
         ref: http://rvmiller.com/2013/05/part-1-wifi-based-trilateration-on-android/
-             http://stackoverflow.com/questions/11217674/how-to-calculate-distance-from-wifi-router-using-signal-strength
-
+             http://stackoverflow.com/questions/11217674/how-to-calculate-distance-
+             from-wifi-router-using-signal-strength
 
         mark : http://www.cisco.com/c/en/us/td/docs/solutions/Enterprise/Mobility/WiFiLBS-DG/wifich5.html
                # Figure 5-10 An Example of the Relationship Between RSSI and Distance
@@ -97,14 +105,19 @@ class WiFiPositioning(object):
         return 10 ** exp * 100
 
     def _update_scan_results(self, wifi_name):
-        import ipdb; ipdb.set_trace()
-        # this method should be roughly fine
-        for i in xrange(1, 5):
+        # import ipdb; ipdb.set_trace()
+        for i in xrange(1, 7):
             temp_scanned_results = access_points_scan.get_scan_results(wifi_name)
             for sr in temp_scanned_results:
-                if sr.get_mac_addr() in self._access_points:
-                    if sr.get_mac_addr() in self._scan_results:
-                        self._scan_results[sr.get_mac_addr()].average(sr)
+                if sr.get_mac_addr()[:14] in self._access_points and sr.get_ssid() == 'NUS':
+                    if sr.get_mac_addr()[:14] in self._scan_results:
+                        print sr.get_mac_addr()
+                        self._scan_results[sr.get_mac_addr()[:14]].average(sr)
                     else:
                         self._scan_results[sr.get_mac_addr()] = sr
-            sleep(0.01)
+            sleep(0.5)
+
+if __name__ == '__main__':
+    positioning = WiFiPositioning('COM1', '2')
+    p = positioning.get_estimated_position('eth1')
+    print p
