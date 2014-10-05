@@ -52,7 +52,7 @@ if __name__ == '__main__':
     try:
         fn = sys.argv[1]
     except:
-        fn = 0
+        fn = -1
 
     cam = video.create_capture(fn)
     ret, prev = cam.read()
