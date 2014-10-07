@@ -180,8 +180,16 @@ void setupConnection(){
 void sendSensorValue(uint8_t index){
     uint8_t value = sensorData[index];
     sendToRpi(value);
-    Serial.print(char(index+48));
-    Serial.print(" Sensor data sent\n");
+    /*if (index == 0){
+      Serial.print("[");  
+    }
+    
+    Serial.print(value);
+    Serial.print(", ");
+    
+    if(index == 9){
+      Serial.print("]\n");
+    }*/
 }
 
 void sendCheckSum(){
@@ -215,8 +223,16 @@ int computeChecksumSensor(){
 
 void storeTempActuatorData(uint8_t incomingByte, uint8_t index){
     actuatorDataTemp[index] = incomingByte;  
+    if(index == 0){
+       Serial.print("[");
+    }
+    
     Serial.print(incomingByte);
-    Serial.print("\n");
+    Serial.print(", ");
+    
+    if(index == 9){
+       Serial.print("]\n");
+    }
 }
 
 void sendActuatorAck(uint8_t index){
@@ -501,7 +517,7 @@ void setup() {
 void loop() {
         readUltrasound();
         readHMC();
-        readKP();
+        //readKP();
         readBMP();
         //delay(500);
      
@@ -528,9 +544,9 @@ void loop() {
                       }
                       case READ  : {
                             int sendingDataBool = 1;
-                            Serial.print("Received READ\n");
+                            //Serial.print("Received READ\n");
                             sendToRpi(ACK_READ);
-                            Serial.print("Sent ACK_READ\n");
+                            //Serial.print("Sent ACK_READ\n");
                       }
                       
                       case READ_START: {
@@ -538,41 +554,47 @@ void loop() {
                             int sendingDataBool = 1;
                             while(sendingDataBool){
                                   if(Serial1.available()){
-                                     incomingByte = Serial1.read();
-                                  } if (incomingByte == SYN){
-                                     break;
-                                  }
+                                      incomingByte = Serial1.read();
+                                      
+                                      if(incomingByte == SYN){
+                                          break;
+                                      }
+                                      
+                                      uint8_t dataByte = incomingByte;
+                                      incomingByte = 0;
+                                      sendingDataBool = sendSensorValues(dataByte);   
+                                  } 
                                   
-                                  uint8_t dataByte = incomingByte;
-                                  incomingByte = 0;
-                                  sendingDataBool = sendSensorValues(dataByte);
                             }
                             break;
                       }
                      
                       case WRITE : {
-                            sendToRpi(WRITE);
+                            sendToRpi(ACK_WRITE);
                             int index = 0;
                             while (index != actuatorLen+1){
                                  if( Serial1.available() ){
                                      incomingByte = Serial1.read();
-                                 } if (incomingByte == SYN){
-                                     break;
-                                 }
+                                     if (incomingByte == SYN){
+                                         break;
+                                     }
                                       
-                                 if(index < actuatorLen){
-                                    storeTempActuatorData(incomingByte, index);
-                                    sendActuatorAck(index);
+                                     if(index < actuatorLen){
+                                        storeTempActuatorData(incomingByte, index);
+                                        sendActuatorAck(index);
                                          
-                                 } else if(index == actuatorLen) {
-                                    uint8_t checkSum = incomingByte;
-                                    Serial.print(checkSum);
-                                    if( verifyCheckSum(checkSum) ) {
-                                        storeActuatorData();
-                                    }
+                                     } else if(index == actuatorLen) {
+                                        sendToRpi(ACK_CHECKSUM);
+                                        uint8_t checkSum = incomingByte;
+                                        //Serial.print(checkSum);
+                                        if( verifyCheckSum(checkSum) ) {
+                                            storeActuatorData();
+                                        }
+                                     }
+                                     
+                                     index++;
+                                     incomingByte = 0;  
                                  }
-                                 index++;
-                                 incomingByte = 0;  
                             }
                             break;
                       }

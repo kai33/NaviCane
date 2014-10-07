@@ -7,11 +7,11 @@ port = serial.Serial("/dev/ttyAMA0", baudrate=9600, timeout = 0.0)
 SYN	 = 1
 ACK	 = 2
 NAK	 = 3
-READ = 4
-ACK_READ   	 = 5
-READ_START 	 = 6
-WRITE	   	 = 7
-ACK_WRITE  	 = 8
+READ 	 = 4
+ACK_READ   = 5
+READ_START = 6
+WRITE	   = 7
+ACK_WRITE  = 8
 ACK_CHECKSUM = 9
 
 #Acknowledgements for sensors
@@ -70,7 +70,6 @@ def timeout_transmission(send, expected):
 	charReceived = ''
 	timeout = 0
 	
-	print(chr(send+48)+" Sent to Arduino")
 	sendToArdunio(send)
 	start = time.time()
 	end = start
@@ -81,17 +80,18 @@ def timeout_transmission(send, expected):
 		
 	if end-start > 1:
 		timeout = 1
+		#print('timeout')
 
 #timeouts used to ensure communication are smooth based on known input and unkown output
 def timeout_sensor_receive(send):
 	sendToArdunio(send)
 	global timeout 
-	charRecevied == ''
+	charRecevied = ''
 	timeout = 0
 
 	start = time.time()
 	end = start
-	while end-start < 1 and charRecevied == '' :
+	while end-start < 1 and len(charRecevied) == 0 :
 		charRecevied = port.read(1)
 		end = time.time()
 
@@ -108,16 +108,17 @@ def initiate_connection() :
 	global connectionStatus
 	global timeout
 	timeout_transmission(SYN, ACK)
+	#print('Sent SYN')
 	
 	if timeout == 1:
 		connectionStatus = 0
 		timeout = 1
 	else :
-		print('received ACK')
+		#print('received ACK')
 		sendToArdunio(ACK)
-		print('sent ACK')
+		#print('sent ACK')
 		connectionStatus = 1
-		print('---Connection Established---')
+		#print('---Connection Established---')
 
 #Retrieving data from arduino 
 def receive_data():
@@ -128,22 +129,24 @@ def receive_data():
 	global dataCorrupted
 	index 	 = 0
 	checksum = 0
+	sensorValue = 0
 
 	while  index != (len(sensorDataTemp)+1):
 		
 		if index == 0:
 			sensorValue = timeout_sensor_receive(READ_START)
 		else :
-			sensorValue = timeout_sensor_receive(sensorAck(index))	
+			ackToSend = sensorAck(index-1)
+			sensorValue = timeout_sensor_receive(ackToSend)
 
 		if timeout == 1:
 			connectionStatus = 0
 			timeout = 0
 			break
 
+
 		if sensorValue and index < len(sensorDataTemp)  :
 			sensorDataTemp[index] = ord(sensorValue)
-			sendSensorAck(index)
 			index = index + 1
 			
 		elif sensorValue and index == len(sensorDataTemp):
@@ -157,11 +160,13 @@ def receive_data():
 		print(sensorData)
 	
 	else :
+		#print("data corrupted")
 		dataCorrupted = 1	
-		print(sensorDataTemp)
+		#print(sensorDataTemp)
 		
-	print("checksum is : ")
-	print(checksum)
+	#print("checksum is : ")
+	#print(checksum)
+
 	return dataCorrupted, sensorData
 
 
@@ -170,12 +175,13 @@ def request_sensor_data():
 	global connectionStatus
 	global timeout
 	timeout_transmission(READ, ACK_READ)
+	#print('Sent READ')
 
 	if timeout == 1:
 		connectionStatus = 0
 		timeout = 0
 	else :
-		print("ACK_READ received") 
+		#print("ACK_READ received") 
 		connectionStatus = 1
 
 
@@ -186,15 +192,14 @@ def send_data():
 	global connectionStatus
 	timeout = 0
 	index = 0	
-	sendToArdunio(actuatorData[index])
-	index = index + 1
 
 	while index != (len(actuatorData)+1):
 		if index != len(actuatorData) :
 		   timeout_transmission(actuatorData[index], actuatorAck(index))
 		else : 
 			checkSum = compute_actuator_checksum()
-			timeout_transmission(checksum, ACK_CHECKSUM)
+			timeout_transmission(checkSum, ACK_CHECKSUM)
+			#print('Sent ACTUATOR data')
 
 		if timeout == 1:
 			connectionStatus = 0
@@ -207,12 +212,13 @@ def write_request():
 	global connectionStatus
 	global timeout
 	timeout_transmission(WRITE, ACK_WRITE)
+	#print('Sent WRITE')
 	
 	if timeout == 1:
 		connectionStatus = 0
 		timeout = 0
 	else :
-		print("ACK_WRITE received")
+		#print("ACK_WRITE received")
 		connectionStatus = 1
 
 
@@ -297,11 +303,11 @@ def compute_actuator_checksum():
 #function used to verify checksum from sensor
 def sensor_verify_check_sum(dataValues, oldChecksum):
 	global divisor
-	newCheckSum = 0
+	newChecksum = 0
 	remainder = 0
 	for index in range (0, len(dataValues)):
 		remainder = dataValues[index] % divisor
-		newCheckSum = newCheckSum + remainder
+		newChecksum = newChecksum + remainder
 	
 	if newChecksum == oldChecksum :
 		return 1
@@ -344,24 +350,45 @@ def check_connection_status():
 	ultrasoundFrontLeftIndex = 1
 	ultrasoundRightIndex = 2
 	ultrasoundLeftIndex = 3
-	compassIndex = 4
-	barometerIndex = 5
-	distanceIndex = 6
-	keypadIndex = 7
+	compassIndex 	= 4
+	barometerIndex  = 5
+	distanceIndex 	= 6
+	keypadIndex 	= 7
 	sensor8 = 8
 	sensor9 = 9 """
+
+"""initiate_connection()
+print('')
+time.sleep(0.5)
+print('')
+receive_data()
+print('')
+send_data()
+"""
+"""
+while not check_connection_status():
+	initiate_connection()
+
+while True :
+	if check_connection_status() :
+		time.sleep(0.4)
+		receive_data()
+		time.sleep(0.4)
+		send_data()
+
+	else :
+		initiate_connection()
+"""
 
 if __name__ == '__main__':
 	while not check_connection_status():
 		initiate_connection()
 
-	while True :
-		if check_connection_status() :
+	while True:
+		if check_connection_status():
+			time.sleep(0.4)
 			receive_data()
-			if check_data_corruption() :
-				print("data corrupted")
-			time.sleep(2)
+			time.sleep(0.4)
 			send_data()
-
-		else :
+		else:
 			initiate_connection()
