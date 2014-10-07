@@ -162,6 +162,7 @@ def receive_data():
 		
 	print("checksum is : ")
 	print(checksum)
+	return dataCorrupted, sensorData
 
 
 #Request for sensor data
@@ -350,17 +351,17 @@ def check_connection_status():
 	sensor8 = 8
 	sensor9 = 9 """
 
-
-while !check_connection_status():
-	initiate_connection()
-
-while True :
-	if check_connection_status() :
-		receive_data()
-		if check_data_corruption() :
-			print("data corrupted")
-		time.sleep(2)
-		send_data()
-
-	else :
+if __name__ == '__main__':
+	while not check_connection_status():
 		initiate_connection()
+
+	while True :
+		if check_connection_status() :
+			receive_data()
+			if check_data_corruption() :
+				print("data corrupted")
+			time.sleep(2)
+			send_data()
+
+		else :
+			initiate_connection()
