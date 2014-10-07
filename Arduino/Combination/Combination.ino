@@ -276,7 +276,8 @@ int sendSensorValues(uint8_t dataByte){
         case ACK_S7 : sendSensorValue(8); break;
         case ACK_S8 : sendSensorValue(9); break;
         case ACK_S9 : sendCheckSum();     break;
-        case ACK_CHECKSUM : {return 0; 
+        case ACK_CHECKSUM : {
+          return 0; 
           Serial.write("Sent ACK_CHECKSUM\n");  
           break;}     
      }
@@ -466,15 +467,17 @@ if (*arrayIndex >= numOfReadings)  {
   }
   
   switch(initPin){
+    
     case 3:
-      sensorData[ultrasoundFrontLeftIndex] = result;
-      break;
+        sensorData[ultrasoundFrontLeftIndex] = result;
+        break;
     case 5:
-    sensorData[ultrasoundRightIndex] = result;
-    break;
+        sensorData[ultrasoundRightIndex] = result;
+        break;
     case 7:
-    sensorData[ultrasoundLeftIndex] = result;
-    break;
+        sensorData[ultrasoundLeftIndex] = result;
+        break;
+    
     default: break;
   }
   //Serial.print(initPin,DEC);
@@ -495,30 +498,13 @@ void setup() {
         setupUltrasound();
 }
 
-int once = 0;
-int sending = 1;
-
 void loop() {
-        int i=0; 
-        if(once == 0){
-          for(i=0; i<10; i++){
-            Serial.write(sensorData[i] + 1);
-            Serial.write("\n");
-          }
-        }
         readUltrasound();
         readHMC();
-        //readKP();
+        readKP();
         readBMP();
-        delay(500);
-
-        if(once == 0){
-          for(i=0; i<10; i++){
-            Serial.write(sensorData[i] + 1);
-            Serial.write("\n");
-          }
-          once = 1;
-        }
+        //delay(500);
+     
         switch(connectionState){
             
               case newConnection :{
@@ -549,11 +535,14 @@ void loop() {
                       
                       case READ_START: {
                             sendSensorValue(0);
-                          
+                            int sendingDataBool = 1;
                             while(sendingDataBool){
                                   if(Serial1.available()){
                                      incomingByte = Serial1.read();
+                                  } if (incomingByte == SYN){
+                                     break;
                                   }
+                                  
                                   uint8_t dataByte = incomingByte;
                                   incomingByte = 0;
                                   sendingDataBool = sendSensorValues(dataByte);
@@ -567,26 +556,27 @@ void loop() {
                             while (index != actuatorLen+1){
                                  if( Serial1.available() ){
                                      incomingByte = Serial1.read();
-                                     if(index < actuatorLen){
-                                         storeTempActuatorData(incomingByte, index);
-                                         sendActuatorAck(index);
+                                 } if (incomingByte == SYN){
+                                     break;
+                                 }
+                                      
+                                 if(index < actuatorLen){
+                                    storeTempActuatorData(incomingByte, index);
+                                    sendActuatorAck(index);
                                          
-                                    } else if(index == actuatorLen) {
-                                         uint8_t checkSum = incomingByte;
-                                         Serial.print(checkSum);
-                                          if(verifyCheckSum(checkSum)){
-                                              storeActuatorData();
-                                          }
+                                 } else if(index == actuatorLen) {
+                                    uint8_t checkSum = incomingByte;
+                                    Serial.print(checkSum);
+                                    if( verifyCheckSum(checkSum) ) {
+                                        storeActuatorData();
                                     }
-                                    index++;
-                                    incomingByte = 0;
-                                 }  
+                                 }
+                                 index++;
+                                 incomingByte = 0;  
                             }
-                            
                             break;
                       }
                   }
-              }
-              
+              }     
         }
 }
