@@ -1,17 +1,8 @@
 import numpy as np
 import cv2
+import cv2.cv as cv
 import video
 import math
-from time import sleep
-
-help_message = '''
-USAGE: motion_tracking.py [<video_source>]
-
-Keys:
- 1 - toggle HSV flow visualization
- 2 - toggle glitch
-
-'''
 
 
 def draw_flow(img, flow, step=16):
@@ -40,12 +31,12 @@ def compare_left_and_right(flow):
             for elem in item:
                 right_vector_sum[0] = right_vector_sum[0] + elem[0]
                 right_vector_sum[1] = right_vector_sum[1] + elem[1]
-    # print 'left: ', left_vector_sum[0]
-    # print 'right: ', right_vector_sum[0]
     # self strategy
-    if left_vector_sum[0] > 0 and right_vector_sum[0] > 0: # left side object not towards, right right object towards cam
+    if left_vector_sum[0] > 0 and right_vector_sum[0] > 0:
+        # left side object not towards, right right object towards cam
         print 'turn left'
-    elif left_vector_sum[0] < 0 and right_vector_sum[0] < 0: # left side object towards, right right object not towards cam
+    elif left_vector_sum[0] < 0 and right_vector_sum[0] < 0:
+        # left side object towards, right right object not towards cam
         print 'turn right'
     elif math.fabs(left_vector_sum[0]) > math.fabs(right_vector_sum[0]):
         print 'turn right'
@@ -61,19 +52,6 @@ def compare_left_and_right(flow):
     # more to be done on all kinds of objects
 
 
-def draw_hsv(flow):
-    h, w = flow.shape[:2]
-    fx, fy = flow[:, :, 0], flow[:, :, 1]
-    ang = np.arctan2(fy, fx) + np.pi
-    v = np.sqrt(fx * fx + fy * fy)
-    hsv = np.zeros((h, w, 3), np.uint8)
-    hsv[..., 0] = ang * (180 / np.pi / 2)
-    hsv[..., 1] = 255
-    hsv[..., 2] = np.minimum(v * 4, 255)
-    bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-    return bgr
-
-
 def warp_flow(img, flow):
     h, w = flow.shape[:2]
     flow = -flow
@@ -82,20 +60,13 @@ def warp_flow(img, flow):
     res = cv2.remap(img, flow, None, cv2.INTER_LINEAR)
     return res
 
-if __name__ == '__main__':
-    import sys
-    print help_message
-    try:
-        fn = sys.argv[1]
-    except:
-        fn = 0
 
-    cam = video.create_capture(fn)
+def motion_tracking():
+    cam = video.create_capture(0)
+    cam.set(cv.CV_CAP_PROP_FRAME_WIDTH, 640 / 2)
+    cam.set(cv.CV_CAP_PROP_FRAME_HEIGHT, 480 / 2)
     ret, prev = cam.read()
     prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
-    show_hsv = False
-    show_glitch = False
-    cur_glitch = prev.copy()
 
     while True:
         ret, img = cam.read()
@@ -105,21 +76,12 @@ if __name__ == '__main__':
         prevgray = gray
 
         cv2.imshow('flow', draw_flow(gray, flow))
-        if show_hsv:
-            cv2.imshow('flow HSV', draw_hsv(flow))
-        if show_glitch:
-            cur_glitch = warp_flow(cur_glitch, flow)
-            cv2.imshow('glitch', cur_glitch)
 
         ch = 0xFF & cv2.waitKey(5)
         if ch == 27:
             break
-        if ch == ord('1'):
-            show_hsv = not show_hsv
-            print 'HSV flow visualization is', ['off', 'on'][show_hsv]
-        if ch == ord('2'):
-            show_glitch = not show_glitch
-            if show_glitch:
-                cur_glitch = img.copy()
-            print 'glitch is', ['off', 'on'][show_glitch]
     cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    motion_tracking()
