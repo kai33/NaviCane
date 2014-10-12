@@ -1,7 +1,8 @@
 from Navigation.navigation import Navigation
-from Communication.Uart.rpiUartCommunication import receive_data, initiate_connection
+from Communication.Uart.uart_communication import receive_data, initiate_connection
 from datetime import datetime
 from time import mktime
+from Speech import espeak_api
 
 FASTER_LOOP_TIMER = 3
 SLOWER_LOOP_TIMER = 10
