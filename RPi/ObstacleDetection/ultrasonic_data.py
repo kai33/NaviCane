@@ -4,6 +4,11 @@ class UltrasonicData(object):
     LEFT_DATA_KEY = 'left'
     RIGHT_DATA_KEY = 'right'
     BUFFER_SIZE = 2
+    TURN_LEFT = 'turn left'
+    TURN_LEFT_SLIGHTLY = 'turn left slightly'
+    TURN_RIGHT = 'turn right'
+    TURN_RIGHT_SLIGHTLY = 'turn right slightly'
+    KEEP_STRAIGHT = 'keep straight'
 
     def __init__(self, safe_limit):
         super(UltrasonicData, self).__init__()
@@ -22,7 +27,19 @@ class UltrasonicData(object):
             return (result * 0.1) / len(ls)
 
         def get_instruction(front_left_average, front_right_average, left_average, right_average):
-            return None
+            if front_left_average < self._safe_limit and front_right_average < self._safe_limit:
+                if left_average > right_average and left_average > self._safe_limit:
+                    return UltrasonicData.TURN_LEFT
+                elif right_average > left_average and right_average > self._safe_limit:
+                    return UltrasonicData.TURN_RIGHT
+                else:
+                    raise Exception('Dude, dead end, turn back')
+            elif front_left_average < self._safe_limit:
+                return UltrasonicData.TURN_RIGHT_SLIGHTLY
+            elif front_right_average < self._safe_limit:
+                return UltrasonicData.TURN_RIGHT_SLIGHTLY
+            else:
+                return UltrasonicData.KEEP_STRAIGHT
 
         self._sensor_data[UltrasonicData.FRONT_LEFT_DATA_KEY].append(front_left)
         self._sensor_data[UltrasonicData.FRONT_RIGHT_DATA_KEY].append(front_right)
