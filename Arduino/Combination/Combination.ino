@@ -34,7 +34,7 @@ Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 const int numOfReadings = 5;     // number of readings to take/ items in the buffer for mean filter
 int lastValueRecorded[5] = {0, 0, 0, 0, 0};
 
-int readingsFront[numOfReadings];               // stores the distance readings in an buffer
+//int readingsFront[numOfReadings];               // stores the distance readings in an buffer
 int readingsRight[numOfReadings];
 int readingsLeft[numOfReadings];
 int readingsFrontRight[numOfReadings];
@@ -46,20 +46,20 @@ int arrayIndexLeft = 0;
 int arrayIndexFrontRight = 0;
 int arrayIndexFrontLeft = 0;
 
-int totalFront = 0;                                  // stores the cumlative total
+//int totalFront = 0;                                  // stores the cumlative total
 int totalRight = 0;
 int totalLeft = 0;
 int totalFrontRight = 0;
 int totalFrontLeft = 0;
 
-int averageDistanceFront = 0;                        // stores the average value
+//int averageDistanceFront = 0;                        // stores the average value
 int averageDistanceRight = 0;
 int averageDistanceLeft = 0;
 int averageDistanceFrontRight = 0;
 int averageDistanceFrontLeft = 0;
 
-int echoPinFront = 2;                           // SRF05 Front echo pin (digital 2)
-int initPinFront = 3;                           // SRF05 Front trigger pin (digital 3)
+//int echoPinFront = 2;                           // SRF05 Front echo pin (digital 2)
+//int initPinFront = 3;                           // SRF05 Front trigger pin (digital 3)
 int echoPinRight = 4;
 int initPinRight = 5;
 int echoPinLeft = 6;
@@ -73,8 +73,8 @@ unsigned long pulseTime = 0;                    // stores the pulse in Micro Sec
 unsigned long distance = 0;                     // variable for storing the distance (cm)
 
 //setup
-int initPin = initPinFront;
-int echoPin = echoPinFront;
+int initPin = initPinRight;
+int echoPin = echoPinRight;
 int* readings;
 int* arrayIndex;
 int* total;
@@ -353,8 +353,8 @@ void setupHMC(){
 
 void setupUltrasound() {
 
-  pinMode(initPinFront, OUTPUT);                 
-  pinMode(echoPinFront, INPUT);  
+  //pinMode(initPinFront, OUTPUT);                 
+  //pinMode(echoPinFront, INPUT);  
   pinMode(initPinRight, OUTPUT);                 
   pinMode(echoPinRight, INPUT);
   pinMode(initPinLeft, OUTPUT);                 
@@ -412,18 +412,13 @@ void readUltrasound() {
 // Choose the next sensor to fetch data
 initPin += 2; 
 echoPin += 2;
-if(initPin ==9 ){ // using 3 devices now
-    initPin = 3;
-    echoPin = 2;
+if(initPin ==13 ){ // using 3 devices now
+    initPin = 5;
+    echoPin = 4;
 }
 
 // Configure parameters
-if(initPin == 3){
-    readings = readingsFront;
-    arrayIndex = &arrayIndexFront;
-    total = &totalFront;
-    averageDistance = &averageDistanceFront;
-}else if (initPin == 5){
+if (initPin == 5){
     readings = readingsRight;
     arrayIndex = &arrayIndexRight;
     total = &totalRight;
@@ -460,39 +455,43 @@ if (*arrayIndex >= numOfReadings)  {
 
   *averageDistance = *total / numOfReadings;      // calculate the average distance
 
-  // seperately distance into 4 range: >500, 100~500, 40~100, <40  
-
-  if (*averageDistance >= 500) { 
-            // regard as infinite (3)
-            result = 3;
-            lastValueRecorded[initPin/2 - 1] = 3;
-            if(lastValueRecorded[initPin/2 - 1]==0)
-              result = 0;
-  }else if(*averageDistance>=60 && *averageDistance<500){
-            // long-distance (2)
-            result = 2;
-            lastValueRecorded[initPin/2 - 1] = 2;
-  }else if(*averageDistance>=20 && *averageDistance<60){
-            // short-distance (1)
-            result = 1;
-            lastValueRecorded[initPin/2 - 1] = 1;
-  }else {
-            // too close, warning! (0)
-            result = 0;
-            lastValueRecorded[initPin/2 - 1] = 0;
-  }
+//  // seperately distance into 4 range: >500, 100~500, 40~100, <40  
+//
+//  if (*averageDistance >= 500) { 
+//            // regard as infinite (3)
+//            result = 3;
+//            lastValueRecorded[initPin/2 - 1] = 3;
+//            if(lastValueRecorded[initPin/2 - 1]==0)
+//              result = 0;
+//  }else if(*averageDistance>=60 && *averageDistance<500){
+//            // long-distance (2)
+//            result = 2;
+//            lastValueRecorded[initPin/2 - 1] = 2;
+//  }else if(*averageDistance>=20 && *averageDistance<60){
+//            // short-distance (1)
+//            result = 1;
+//            lastValueRecorded[initPin/2 - 1] = 1;
+//  }else {
+//            // too close, warning! (0)
+//            result = 0;
+//            lastValueRecorded[initPin/2 - 1] = 0;
+//  }
   
   switch(initPin){
     
-    case 3:
+    case 5:
         sensorData[ultrasoundFrontLeftIndex] = result;
         break;
-    case 5:
-        sensorData[ultrasoundRightIndex] = result;
-        break;
     case 7:
+        sensorData[ultrasoundFrontRightIndex] = result;
+        break;
+    case 9:
         sensorData[ultrasoundLeftIndex] = result;
         break;
+    case 11:
+        sensorData[ultrasoundRightIndex] = result;
+        break;    
+        
     
     default: break;
   }
