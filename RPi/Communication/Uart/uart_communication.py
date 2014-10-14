@@ -161,7 +161,7 @@ def receive_data():
 	
 	else :
 		#print("data corrupted")
-		dataCorrupted = 1	
+		dataCorrupted = 1
 		#print(sensorDataTemp)
 		
 	#print("checksum is : ")

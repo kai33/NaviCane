@@ -2,16 +2,36 @@ from Navigation.navigation import Navigation
 from Communication.Uart.uart_communication import receive_data, initiate_connection
 from datetime import datetime
 from time import mktime
-from Speech import espeak_api
+from Speech.espeak_api import VoiceOutput
+from ObstackeDetection.ultrasonic_data import UltrasonicData
 
 FASTER_LOOP_TIMER = 3
 SLOWER_LOOP_TIMER = 10
+
+ultrasonic_handle = UltrasonicData()
+voice_output = VoiceOutput()
+
+command_table = {
+    UltrasonicData.TURN_STRAIGHT: 'keep straight',
+    UltrasonicData.TURN_LEFT: 'turn left',
+    UltrasonicData.TURN_LEFT_SLIGHTLY: 'turn left slightly',
+    UltrasonicData.TURN_RIGHT: 'turn right',
+    UltrasonicData.TURN_RIGHT_SLIGHTLY: 'turn right slightly',
+    UltrasonicData.TURN_LEFT_AND_RIGHT: 'turn left or right',
+    UltrasonicData.TURN_BACK: 'turn back please'
+}
 
 
 def now():  # return seconds since epoch
     dt = datetime.now()
     return mktime(dt.timetuple()) + dt.microsecond / 1000000.0
 
+
+def give_current_instruction():
+    # if navigation has something, output navigation
+    ultrasonic_status = ultrasonic_handle.get_instruction()
+    current_command = command_table[ultrasonic_status]
+    voice_output.speak(current_command)
 
 while True:
     """ StandBy Mode """
@@ -25,7 +45,7 @@ while True:
         start = "P2"
         end = "P10"
 
-    nav = Navigation(building, level, start, end)  # pseudo input for start, end pts
+    nav = Navigation(building, level, start, end)
     initiate_connection()
     fasterLoopTime = now()
     slowerLoopTime = now()
@@ -38,7 +58,7 @@ while True:
             print "enter faster loop"
 
             isDataCorrupted, sensorsData = receive_data()
-            if isDataCorrupted == 1:
+            if isDataCorrupted:
                 print "=============SENSORS==============="
                 print "front right ultrasonic sensors(us)"
                 print sensorsData[0]
@@ -58,6 +78,10 @@ while True:
                 # if reach the end ... do something
                 # do any calibration ...
                 # obstacle avoidance ...
+            else:
+                command = ultrasonic_handle.feed_data(sensorsData[1], sensorsData[0],
+                                                      sensorsData[2], sensorsData[3])
+                voice_output.speak(command)
 
             fasterLoopTime = now()
 

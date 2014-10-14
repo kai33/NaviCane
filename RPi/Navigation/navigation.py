@@ -169,7 +169,7 @@ class Navigation:
         distance = Map.get_distance(node["x"], x, node["y"], y)
         return distance <= Navigation.REACHED_RANGE
 
-SPEAK_STRING = "Turn {0:.2f} degrees and walk {1:.2f} metres. You are heading towards {2}"
+SPEAK_STRING = "Turn {0:.0f} degrees and walk {1:.0f} metres. You are heading towards {2}"
 
 if __name__ == '__main__':
     print "show the route: from Entrance to TO level 2"
