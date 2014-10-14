@@ -168,8 +168,8 @@ class Navigation:
     def get_next_location_by_direction(self, direction):
         return self.get_next_location_details(direction, self.pos[0], self.pos[1])
 
-    def is_reach_end(self, x, y):  # current x, and current y
-        return self.is_reach_location(self.end, x, y)
+    def is_reach_end(self):
+        return self.is_reach_location(self.end, self.pos[0], self.pos[1])
 
     def is_reach_location(self, location_name, x, y):
         """current x, and current y"""
@@ -181,6 +181,10 @@ class Navigation:
         """current x, and current y"""
         distance = Map.get_distance(node["x"], x, node["y"], y)
         return distance <= Navigation.REACHED_RANGE
+
+    def is_reach_next_location(self):
+        nextLocNode = self.get_next_location(self.pos[0], self.pos[1])
+        return self.is_reach_node(nextLocNode, self.pos[0], self.pos[1])
 
 SPEAK_STRING = "Turn {0:.0f} degrees and walk {1:.0f} metres. You are heading towards {2}"
 

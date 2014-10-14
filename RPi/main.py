@@ -58,7 +58,7 @@ while True:
             print "enter faster loop"
 
             isDataCorrupted, sensorsData = receive_data()
-            if isDataCorrupted:
+            if not isDataCorrupted:
                 print "=============SENSORS==============="
                 print "front right ultrasonic sensors(us)"
                 print sensorsData[0]
@@ -78,10 +78,21 @@ while True:
                 # if reach the end ... do something
                 # do any calibration ...
                 # obstacle avoidance ...
-            else:
+
                 command = ultrasonic_handle.feed_data(sensorsData[1], sensorsData[0],
                                                       sensorsData[2], sensorsData[3])
                 voice_output.speak(command)
+
+                # TODO: get deltaX and deltaY from sensors
+                deltaX = 0
+                deltaY = 0
+                newPos = nav.update_pos(deltaX, deltaY)
+
+                if nav.is_reach_next_location():
+                    if not nav.is_reach_end():
+                        nav.get_next_location_by_direction(sensorsData[4])
+                    else:
+                        print "reach the end!"
 
             fasterLoopTime = now()
 
@@ -90,7 +101,7 @@ while True:
 
             # TODO: only get certain sensors data
             isDataCorrupted, sensorsData = receive_data()
-            if isDataCorrupted == 1:
+            if not isDataCorrupted:
                 print "=============SENSORS==============="
                 print "front right ultrasonic sensors(us)"
                 print sensorsData[0]
@@ -107,7 +118,13 @@ while True:
                 print "distance"
                 print sensorsData[6]
                 print "==================================="
-
-            print nav.get_next_location_details(sensorsData[4], 0, 0)
+                                
+                if nav.is_reach_next_location():
+                    if not nav.is_reach_end():
+                        nav.get_next_location_by_direction(sensorsData[4])
+                    else:
+                        print "reach the end!"
+                else:
+                    nav.get_next_location_by_direction(sensorsData[4])
 
             slowerLoopTime = now()
