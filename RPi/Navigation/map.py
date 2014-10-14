@@ -77,18 +77,18 @@ class Map:
     def get_north_at(cls, building, level):
         rawData = cls.get_map(building, level)
         infoData = rawData.get("info", {})
-        return int(infoData["northAt"])
+        return float(infoData["northAt"])
 
     @classmethod
     def get_distance(cls, x1, x2, y1, y2):
-        return math.sqrt(math.pow(int(x1) - int(x2), 2) +
-                         math.pow(int(y1) - int(y2), 2))
+        return math.sqrt(math.pow(float(x1) - float(x2), 2) +
+                         math.pow(float(y1) - float(y2), 2))
 
     @classmethod
     def get_direction(cls, x1, x2, y1, y2):
         """relative to x1 and y1"""
-        x = int(x2) - int(x1)
-        y = int(y2) - int(y1)
+        x = float(x2) - float(x1)
+        y = float(y2) - float(y1)
         if x >= 0 and y > 0:
             return math.atan(x / y) * (180 / math.pi)
         elif x < 0 and y >= 0:

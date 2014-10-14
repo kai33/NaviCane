@@ -19,11 +19,21 @@ class Navigation:
         self.level = level
         self.start = start
         self.end = end
+        startPoint = Map.get_node_by_location_name(building, level, start)
+        self.pos = [float(startPoint["x"]), float(startPoint["y"])]
 
     @classmethod
     def flush_cache(cls):
         cls.__route = {}
         return
+
+    def update_pos(self, deltaX, deltaY):
+        self.pos[0] += deltaX
+        self.pos[1] += deltaY
+        return self.pos
+
+    def get_pos(self):
+        return self.pos
 
     def _sssp(self, graph):
         """calculate single source shortest path"""
@@ -155,6 +165,9 @@ class Navigation:
 
         return relativeDir, dist, nextLocNode
 
+    def get_next_location_by_direction(self, direction):
+        return self.get_next_location_details(direction, self.pos[0], self.pos[1])
+
     def is_reach_end(self, x, y):  # current x, and current y
         return self.is_reach_location(self.end, x, y)
 
@@ -194,6 +207,16 @@ if __name__ == '__main__':
                         "Entrance",
                         "TO level 2").get_next_location_details(270, 750, 300)
     print result
+    print "-------------------------------------------"
+    print "set up, get and update position"
+    nav = Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2")
+    print nav.get_pos()
+    print nav.update_pos(100, 50)
+    print nav.get_next_location_by_direction(270)
+    print nav.get_next_location_details(270, 300, 150)
+
     from Speech.espeak_api import VoiceOutput
     voice = VoiceOutput()
     voice.speak(SPEAK_STRING.format(result[0], result[1] / 100.0, result[2]['nodeName']))
