@@ -79,9 +79,8 @@ while True:
                 # do any calibration ...
                 # obstacle avoidance ...
 
-                command = ultrasonic_handle.feed_data(sensorsData[1], sensorsData[0],
-                                                      sensorsData[2], sensorsData[3])
-                voice_output.speak(command)
+                ultrasonic_handle.feed_data(sensorsData[1], sensorsData[0],
+                                            sensorsData[2], sensorsData[3])
 
                 # TODO: get deltaX and deltaY from sensors
                 deltaX = 0
@@ -118,7 +117,7 @@ while True:
                 print "distance"
                 print sensorsData[6]
                 print "==================================="
-                                
+
                 if nav.is_reach_next_location():
                     if not nav.is_reach_end():
                         nav.get_next_location_by_direction(sensorsData[4])
