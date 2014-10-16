@@ -454,7 +454,7 @@ if (*arrayIndex >= numOfReadings)  {
   }
 
   *averageDistance = *total / numOfReadings;      // calculate the average distance
-
+  result = *averageDistance/4;
 //  // seperately distance into 4 range: >500, 100~500, 40~100, <40  
 //
 //  if (*averageDistance >= 500) { 
