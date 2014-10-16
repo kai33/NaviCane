@@ -3,7 +3,7 @@ from Communication.Uart.uart_communication import receive_data, initiate_connect
 from datetime import datetime
 from time import mktime
 from Speech.espeak_api import VoiceOutput
-from ObstackeDetection.ultrasonic_data import UltrasonicData
+from ObstacleDetection.ultrasonic_data import UltrasonicData
 
 FASTER_LOOP_TIMER = 3
 SLOWER_LOOP_TIMER = 10

@@ -1,4 +1,3 @@
 #JSGF V1.0;
-grammar numbers;
-public <move> = number <destination>;
-<destination> = (one | two | three | four | five | six | seven | eight | nine | ten)+;
+grammar navigation;
+public <greet> = (one | two | three | four | five | six | seven | eight | nine | ten | eleven);

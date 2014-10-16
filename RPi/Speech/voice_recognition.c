@@ -1,5 +1,8 @@
 #include <pocketsphinx.h>
 
+// somehow the function here is not working well, cannot recognize the correct command
+// also this requires dict and lm file to be at usr/share/local/pocketsphinx/model/ folder
+
 int main(int argc, char *argv[]) {
     ps_decoder_t *ps;
     cmd_ln_t *config;
@@ -10,15 +13,13 @@ int main(int argc, char *argv[]) {
     int32 score;
     
     /* Initializing of the configuration */
-    config = cmd_ln_init(NULL, ps_args(), TRUE,
-    "-samprate", "8000",
-    "-jsgf", "grammar.jsgf",
-    NULL);
+    config = cmd_ln_init(NULL, ps_args(), TRUE, 
+        "-lm", MODELDIR "/dictionary.lm", "-dict", MODELDIR "/dictionary.dic", NULL);
     ps = ps_init(config);
     
     /* Open audio file and start feeding it into the decoder */
     fh = fopen("recording.wav", "rb");
-    rv = ps_start_utt(ps, "goforward");
+    rv = ps_start_utt(ps, "hello");
     while (!feof(fh)) {
         size_t nsamp;
         nsamp = fread(buf, 2, 512, fh);

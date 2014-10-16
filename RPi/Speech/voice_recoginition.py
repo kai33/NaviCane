@@ -1,17 +1,40 @@
-#!/usr/bin/ python
-'''now this program does not work at all for my ubuntu machine'''
+import subprocess
 import sys
-import pocketsphinx
+from multiprocessing import Process
+from Queue import Queue, Empty
 
-if __name__ == "__main__":
-    hmdir = "/usr/share/pocketsphinx/model/hmm/wsj1"
-    lmdir = "/usr/share/pocketsphinx/model/lm/wsj/wlist5o.3e-7.vp.tg.lm.DMP"
-    dictd = "/usr/share/pocketsphinx/model/lm/wsj/wlist5o.dic"
-    wavfile = 'myrecording.wav'
 
-    speechRec = pocketsphinx.Decoder(hmm=hmdir, lm=lmdir, dict=dictd)
-    wavFile = file(wavfile, 'rb')
-    speechRec.decode_raw(wavFile)
-    result = speechRec.get_hyp()
+def execute(command, queue):
+    shell_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # Poll process for new output until finished
+    while True:
+        line = shell_process.stdout.readline()
+        if line == '' and shell_process.poll() is not None:
+            break
+        sys.stdout.write(line)
+        sys.stdout.flush()
+        queue.put(line)
 
-    print result
+
+class VoiceRecognition(object):
+    POCKETSPHINX_SHELL_CALL = 'pocketsphinx_continuous -lm dictionary.lm -dict dictionary.dic'
+
+    def __init__(self):
+        super(VoiceRecognition, self).__init__()
+        self._queue = Queue()
+        self._worker = Process(target=execute,
+                               args=(VoiceRecognition.POCKETSPHINX_SHELL_CALL, self._queue))
+        self._worker.daemon = True
+        self._worker.start()
+
+    def get_command(self, timeout=None):
+        try:
+            return self._queue.get(block=timeout is not None, timeout=timeout)
+        except Empty:
+            return None
+
+if __name__ == '__main__':
+    voice_recognition = VoiceRecognition()
+    while True:
+        output = voice_recognition.get_command()
+        # print output
