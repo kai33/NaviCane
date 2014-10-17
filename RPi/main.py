@@ -1,5 +1,5 @@
 from Navigation.navigation import Navigation
-from Communication.Uart.uart_communication import receive_data, initiate_connection
+from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from datetime import datetime
 from time import mktime
 from Speech.espeak_api import VoiceOutput
@@ -33,25 +33,27 @@ def give_current_instruction():
     current_command = command_table[ultrasonic_status]
     voice_output.speak(current_command)
 
+
 while True:
     """ StandBy Mode """
     building = level = start = end = ""
-    while False:
-        # handle keypad input here
-        # TODO: get_maps, get_levels, get_all_locations
-        print "Pseudo keypad input"
-        building = "Com1"
-        level = "2"
-        start = "P2"
-        end = "P10"
+    print "Pseudo keypad input"
+    building = "COM1"
+    level = "2"
+    start = "P2"
+    end = "P10"
 
     nav = Navigation(building, level, start, end)
-    initiate_connection()
+    while not check_connection_status():
+        initiate_connection()
     fasterLoopTime = now()
     slowerLoopTime = now()
     sensorsData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     """ Navigation Mode """
     while True:
+        while not check_connection_status():
+            print 'connection lost, re-establishing'
+            initiate_connection()
         # while user not presses 'cancel' key
         # faster loop (every 3s):
         if now() - fasterLoopTime > FASTER_LOOP_TIMER:
@@ -78,10 +80,8 @@ while True:
                 # if reach the end ... do something
                 # do any calibration ...
                 # obstacle avoidance ...
-
                 ultrasonic_handle.feed_data(sensorsData[1], sensorsData[0],
                                             sensorsData[2], sensorsData[3])
-
                 # TODO: get deltaX and deltaY from sensors
                 deltaX = 0
                 deltaY = 0

@@ -1,20 +1,24 @@
 import subprocess
-import sys
 import re
 from multiprocessing import Process
 from Queue import Queue, Empty
 
 
 def execute(command, queue):
-    shell_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    shell_process = subprocess.Popen(VoiceRecognition.POCKETSPHINX_SHELL_CALL,
+                                     shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     # Poll process for new output until finished
     while True:
         line = shell_process.stdout.readline()
         if line == '' and shell_process.poll() is not None:
             break
-        sys.stdout.write(line)
-        sys.stdout.flush()
-        queue.put(line)
+        try:
+            m = re.search('^\d{9}:\s?(ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NICE|TEN|CANCEL|CONFIRM|\s)\s?$', line)
+            recognized_word = m.group(1)
+            queue.put(recognized_word)
+        except Exception, e:
+            queue.put('ERROR')
+    queue.put('ERROR')
 
 
 class VoiceRecognition(object):

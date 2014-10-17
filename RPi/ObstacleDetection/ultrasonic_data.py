@@ -30,11 +30,11 @@ class UltrasonicData(object):
 
         def get_instruction(front_left_average, front_right_average, left_average, right_average):
             if front_left_average < self._safe_limit and front_right_average < self._safe_limit:
-                if left_average > self.turn_threshold and right_average < self.turn_threshold:
+                if left_average > self._turn_threshold and right_average < self._turn_threshold:
                     return UltrasonicData.TURN_LEFT
-                elif left_average < self.turn_threshold and right_average > self.turn_threshold:
+                elif left_average < self._turn_threshold and right_average > self._turn_threshold:
                     return UltrasonicData.TURN_RIGHT
-                elif left_average > self.turn_threshold and right_average > self.turn_threshold:
+                elif left_average > self._turn_threshold and right_average > self._turn_threshold:
                     return UltrasonicData.TURN_LEFT_AND_RIGHT
                 else:
                     return UltrasonicData.TURN_BACK
