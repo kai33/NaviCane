@@ -4,12 +4,14 @@ from datetime import datetime
 from time import mktime
 from Speech.espeak_api import VoiceOutput
 from ObstacleDetection.ultrasonic_data import UltrasonicData
+import local_logger
 
 FASTER_LOOP_TIMER = 3
 SLOWER_LOOP_TIMER = 10
 
 ultrasonic_handle = UltrasonicData()
 voice_output = VoiceOutput()
+logger = local_logger.get_local_logger()
 
 command_table = {
     UltrasonicData.TURN_STRAIGHT: 'keep straight',
@@ -37,7 +39,7 @@ def give_current_instruction():
 while True:
     """ StandBy Mode """
     building = level = start = end = ""
-    print "Pseudo keypad input"
+    logger.info('Pseudo keypad input')
     building = "COM1"
     level = "2"
     start = "P2"
@@ -52,13 +54,12 @@ while True:
     """ Navigation Mode """
     while True:
         while not check_connection_status():
-            print 'connection lost, re-establishing'
+            logger.info('connection lost, trying to re-establish')
             initiate_connection()
         # while user not presses 'cancel' key
         # faster loop (every 3s):
         if now() - fasterLoopTime > FASTER_LOOP_TIMER:
-            print "enter faster loop"
-
+            logger.info("enter faster loop")
             isDataCorrupted, sensorsData = receive_data()
             if not isDataCorrupted:
                 print "=============SENSORS==============="
@@ -91,10 +92,8 @@ while True:
                     if not nav.is_reach_end():
                         nav.get_next_location_by_direction(sensorsData[4])
                     else:
-                        print "reach the end!"
-
+                        logger.info("reach the end!")
             fasterLoopTime = now()
-
         if now() - slowerLoopTime > SLOWER_LOOP_TIMER:
             print "enter slower loop"
 
