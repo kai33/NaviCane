@@ -3,7 +3,7 @@
 // August 17, 2014
 // Public Domain
 #include<Wire.h>
-
+#include "kalman.h"
 
 
   // The measuremets are whole number. To calculate the g-force a
@@ -27,7 +27,6 @@
    int xyzOffsetAverageDivider;
 
   // Velocity and Traveled distance
-  //
     double deltaTime = 0.01; // time between samples: 10 ms
     double xAcc,yAcc;
    double xVelocity, yVelocity, zVelocity; // in m/s
@@ -80,8 +79,8 @@
     ax *= 9.80665;
     ay *= 9.80665;
     
-    if(ax<=0.08 && ax>=-0.08) ax=0;
-    if(ay<=0.08 && ay>=-0.08) ay=0;
+    if(ax<=0.06 && ax>=-0.06) ax=0;
+    if(ay<=0.06 && ay>=-0.06) ay=0;
     if(!(ax==0 ||ay==0)){
     xAcc=ax;
     yAcc=ay;
@@ -97,11 +96,6 @@
     }
   }
   
-
-  // RESETS
-
-  
-
   // GETTERS  
 
    int getOffsetSampleCount() {
@@ -151,6 +145,7 @@
 
 
 
+
 const int MPU=0x68;  // I2C address of the MPU-6050
 int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 int numOfReadings=10;
@@ -160,6 +155,10 @@ int AvX,AvY;
 int calX=0,calY=0;
 int calFlag=0;
 int Ax[10],Ay[10];
+double q = 0.125, r = 4.0, p = 10.0, intial_value = 10.0; 
+kalman_state kalmanX;
+kalman_state kalmanY;
+
 
 void setup(){
   Wire.begin();
@@ -168,6 +167,9 @@ void setup(){
   Wire.write(0);     // set to zero (wakes up the MPU-6050)
   Wire.endTransmission(true);
   Serial.begin(9600);
+  kalmanX = kalman_init(q, r, p, intial_value);
+  kalmanY = kalman_init(q, r, p, intial_value);
+  
   for(int i=0;i<10;i++)
   {
     Ax[i]=Ay[i]=0;
@@ -186,6 +188,12 @@ void loop(){
   GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
   GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+  
+  kalman_update(&kalmanX, AcX);
+  AcX = kalmanX.x;
+  kalman_update(&kalmanY, AcY);
+  AcY = kalmanY.x;
+  
   totalX-=Ax[i];
   totalY-=Ay[i];
   Ax[i]=AcX;
