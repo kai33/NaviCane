@@ -10,7 +10,7 @@ from map import Map
 class Navigation:
     DELIM = "||"
     REACHED_RANGE = 50  # 0.5 meters
-    INSTRUCTION = "Heading towards {0}, at your {1} {2:.0f} degrees and {3:.0f} meters away"
+    INSTRUCTION = "Heading towards ID {0}, at your {1} {2:.0f} degrees and {3:.0f} meters away"
     ARRIVED_NOTIFICATION = "You have arrived the destination {0}"
 
     #Flyweight pattern
@@ -23,6 +23,7 @@ class Navigation:
         self.end = end
         startPoint = Map.get_node_by_location_name(building, level, start)
         self.pos = [float(startPoint["x"]), float(startPoint["y"])]
+        self.nextLoc = {}
 
     @classmethod
     def flush_cache(cls):
@@ -154,6 +155,7 @@ class Navigation:
         distance to next loc, direction to next loc (relative to user) & next loc's node
         """
         nextLocNode = self.get_next_location(x, y)
+        self.nextLoc = nextLocNode
         dist = Map.get_distance(nextLocNode["x"], x, nextLocNode["y"], y)
 
         northAt = Map.get_north_at(self.building, self.level)
@@ -164,6 +166,10 @@ class Navigation:
                                       y, nextLocNode["y"])  # relative to map
         relativeDir = movingDir - userDir
         # if relativeDir > 0, it's at user's rhs, else lhs
+        if relativeDir > 180:
+            relativeDir -= 360
+        if relativeDir < -180:
+            relativeDir += 360
 
         return relativeDir, dist, nextLocNode
 
@@ -173,7 +179,7 @@ class Navigation:
     def get_next_instruction(self, direction):
         relativeDir, dist, nextLocNode = self.get_next_location_by_direction(direction)
         side = "right hand side" if relativeDir >= 0 else "left hand side"
-        return Navigation.INSTRUCTION.format(nextLocNode['nodeName'], side, relativeDir, dist / 100.0)
+        return Navigation.INSTRUCTION.format(nextLocNode['nodeId'], side, abs(relativeDir), dist / 100.0)
 
     def is_reach_end(self):
         return self.is_reach_location(self.end, self.pos[0], self.pos[1])
@@ -190,8 +196,9 @@ class Navigation:
         return distance <= Navigation.REACHED_RANGE
 
     def is_reach_next_location(self):
-        nextLocNode = self.get_next_location(self.pos[0], self.pos[1])
-        return self.is_reach_node(nextLocNode, self.pos[0], self.pos[1])
+        if not self.nextLoc:
+            return False
+        return self.is_reach_node(self.nextLoc, self.pos[0], self.pos[1])
 
 SPEAK_STRING = "Turn {0:.0f} degrees and walk {1:.0f} metres. You are heading towards {2}"
 
@@ -225,9 +232,14 @@ if __name__ == '__main__':
                      "TO level 2")
     print nav.get_pos()
     print nav.update_pos(100, 50)
-    print nav.get_next_location_by_direction(270)
+    print nav.is_reach_next_location()
     print nav.get_next_instruction(270)
-    print nav.get_next_location_details(270, 300, 150)
+    print nav.update_pos(100, -50)
+    print nav.is_reach_next_location()
+    print nav.get_next_instruction(270)
+    print nav.update_pos(100, -50)
+    print nav.is_reach_next_location()
+    print nav.get_next_instruction(270)
 
     from Speech.espeak_api import VoiceOutput
     voice = VoiceOutput()

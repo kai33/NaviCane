@@ -1,4 +1,5 @@
 from Navigation.navigation import Navigation
+from Navigation.map import Map
 from datetime import datetime
 from time import mktime
 from Speech.espeak_api import VoiceOutput
@@ -94,8 +95,8 @@ def get_input():
 def get_user_input():
     building = "COM1"
     level = "2"
-    start = "P2"
-    end = "P10"
+    start = "1"
+    end = "10"
     voice_output.speak('please input current building')
     building = get_input()
     voice_output.speak('please input current level')
@@ -113,7 +114,11 @@ def run():
         voice_output.speak('downloaded the map from internet. ready to navigate')
     else:
         voice_output.speak('the internet is not available. use default map instead')
-    nav = Navigation(building, level, start, end)
+
+    startPtName = Map.get_node_by_location_id(building, level, start)['nodeName']
+    endPtName = Map.get_node_by_location_id(building, level, end)['nodeName']
+    nav = Navigation(building, level, startPtName, endPtName)
+
     from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
     while is_running_mode:
         while not check_connection_status():
@@ -147,6 +152,7 @@ def run():
                                             sensors_data[2], sensors_data[3])
                 # TODO: update user position based on sensor data
                 if nav.is_reach_next_location():
+                    give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
                         give_current_instruction()
                     else:
@@ -174,6 +180,7 @@ def run():
                 print sensors_data[6]
                 print "==================================="
                 if nav.is_reach_next_location():
+                    give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
                         give_current_instruction(nav.get_next_instruction(sensors_data[4]))
                     else:
