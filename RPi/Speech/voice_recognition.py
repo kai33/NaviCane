@@ -24,7 +24,7 @@ def execute(command, queue):
 
 class VoiceRecognition(object):
     POCKETSPHINX_SHELL_CALL = 'pocketsphinx_continuous -lm dictionary.lm -dict dictionary.dic'
-    REGEX_MATCH_STRING = '^\d{9}:\s?(((:?ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN|CANCEL|CONFIRM)\s)+)\s?$'
+    REGEX_MATCH_STRING = '^\d{9}:\s?(((:?ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN|CANCEL|CONFIRM)\s))\s?$'
     REGEX_MATCH_READY = '^READY....\s?$'
 
     def __init__(self):

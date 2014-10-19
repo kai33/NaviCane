@@ -67,23 +67,24 @@ def get_input():
     is_input_done = False
     while not is_input_done:
         user_command = user_input.get_command()
-        print user_command
         if user_command is not None:
-            intepreted_command = command_lookup.get(user_command, None)
+            user_commands = user_command.split(' ')
+            for item in user_commands:
+                intepreted_command = command_lookup.get(item.strip(), None)
+                if intepreted_command is not None and type(intepreted_command) is int:
+                    accumulated_input = accumulated_input * 10 + intepreted_command
+                elif intepreted_command is not None and type(intepreted_command) is bool:
+                    if intepreted_command:
+                        is_input_done = True
+                    else:
+                        accumulated_input = accumulated_input / 10
+                else:
+                    pass
         else:
             voice_output.speak('input is not valid. please try again')
             continue
-        if intepreted_command is not None and type(intepreted_command) is int:
-            accumulated_input = accumulated_input * 10 + intepreted_command
-            voice_output.speak('input is {0} so far'.format(str(accumulated_input)))
-            voice_output.speak('you can input next digit, confirm input or cancel last digit')
-        elif intepreted_command is not None and type(intepreted_command) is bool:
-            if intepreted_command:
-                is_input_done = True
-                voice_output.speak('input {0} is confirmed'.format(str(accumulated_input)))
-            else:
-                accumulated_input = accumulated_input / 10
-                voice_output.speak('input is {0} so far'.format(str(accumulated_input)))
+        if is_input_done:
+            voice_output.speak('input {0} is confirmed'.format(str(accumulated_input)))
         else:
             voice_output.speak('input is {0} so far'.format(str(accumulated_input)))
             voice_output.speak('you can input next digit, confirm input or cancel last digit')
