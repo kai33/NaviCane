@@ -90,9 +90,9 @@ while True:
 
                 if nav.is_reach_next_location():
                     if not nav.is_reach_end():
-                        nav.get_next_location_by_direction(sensorsData[4])
+                        print nav.get_next_instruction(sensorsData[4])
                     else:
-                        logger.info("reach the end!")
+                        logger.info(Navigation.ARRIVED_NOTIFICATION)
             fasterLoopTime = now()
         if now() - slowerLoopTime > SLOWER_LOOP_TIMER:
             print "enter slower loop"
@@ -119,10 +119,10 @@ while True:
 
                 if nav.is_reach_next_location():
                     if not nav.is_reach_end():
-                        nav.get_next_location_by_direction(sensorsData[4])
+                        print nav.get_next_instruction(sensorsData[4])
                     else:
-                        print "reach the end!"
+                        print Navigation.ARRIVED_NOTIFICATION
                 else:
-                    nav.get_next_location_by_direction(sensorsData[4])
+                    print nav.get_next_instruction(sensorsData[4])
 
             slowerLoopTime = now()
