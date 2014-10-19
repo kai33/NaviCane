@@ -166,6 +166,10 @@ class Navigation:
                                       y, nextLocNode["y"])  # relative to map
         relativeDir = movingDir - userDir
         # if relativeDir > 0, it's at user's rhs, else lhs
+        if relativeDir > 180:
+            relativeDir -= 360
+        if relativeDir < -180:
+            relativeDir += 360
 
         return relativeDir, dist, nextLocNode
 
