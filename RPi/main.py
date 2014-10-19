@@ -37,7 +37,9 @@ def now():  # return seconds since epoch
 def give_current_instruction(status=None):
     # if navigation has something, output navigation
     ultrasonic_status = ultrasonic_handle.get_instruction()
-    if status:
+    if isinstance(status, str):
+        current_command = status
+    elif status:
         current_command = command_table[status]
     else:
         current_command = command_table[ultrasonic_status]
@@ -173,13 +175,11 @@ def run():
                 print "==================================="
                 if nav.is_reach_next_location():
                     if not nav.is_reach_end():
-                        # TODO: give directions
-                        give_current_instruction()
-                        nav.get_next_instruction(sensors_data[4])
+                        give_current_instruction(nav.get_next_instruction(sensors_data[4]))
                     else:
                         give_current_instruction(REACH_END)
                 else:
-                    nav.get_next_location_by_direction(sensors_data[4])
+                    give_current_instruction(nav.get_next_instruction(sensors_data[4]))
             slower_loop_time = now()
 
 
