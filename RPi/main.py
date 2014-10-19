@@ -131,13 +131,13 @@ def run():
             if not is_data_corrupted:
                 print "=============SENSORS==============="
                 print "front right ultrasonic sensors(us)"
-                print sensors_data[1]
-                print "front left ultrasonic sensors(us)"
                 print sensors_data[0]
+                print "front left ultrasonic sensors(us)"
+                print sensors_data[1]
                 print "right ultrasonic sensors(us)"
-                print sensors_data[3]
-                print "left ultrasonic sensors(us)"
                 print sensors_data[2]
+                print "left ultrasonic sensors(us)"
+                print sensors_data[3]
                 print "compass"
                 print sensors_data[4]
                 print "barometer"
@@ -148,8 +148,8 @@ def run():
                 # if reach the end ... do something
                 # do any calibration ...
                 # obstacle avoidance ...
-                ultrasonic_handle.feed_data(sensors_data[0], sensors_data[1],
-                                            sensors_data[2], sensors_data[3])
+                ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
+                                            sensors_data[3], sensors_data[2])
                 # TODO: update user position based on sensor data
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
