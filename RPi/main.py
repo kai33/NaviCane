@@ -175,7 +175,7 @@ def run():
                     if not nav.is_reach_end():
                         # TODO: give directions
                         give_current_instruction()
-                        nav.get_next_location_by_direction(sensors_data[4])
+                        nav.get_next_instruction(sensors_data[4])
                     else:
                         give_current_instruction(REACH_END)
                 else:
