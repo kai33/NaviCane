@@ -4,7 +4,7 @@ from datetime import datetime
 from time import mktime
 from Speech.espeak_api import VoiceOutput
 from ObstacleDetection.ultrasonic_data import UltrasonicData
-from ping_internet import is_connected
+from Communication.WiFi.ping_internet import is_connected
 
 FASTER_LOOP_TIMER = 3
 SLOWER_LOOP_TIMER = 10
@@ -43,23 +43,37 @@ def give_current_instruction(status=None):
     voice_output.speak(current_command)
 
 
+def get_user_input():
+    building = "COM1"
+    level = "2"
+    start = "P2"
+    end = "P10"
+    # TODO: ask for user input
+    voice_output.speak('please input current building')
+    # building = get_building()
+    voice_output.speak('please input current level')
+    # level = get_level()
+    voice_output.speak('please input current position')
+    # start = get_starting()
+    voice_output.speak('please input your destination')
+    # end = get_destination()
+    return building, level, start, end
+
+
 def run():
+    (building, level, start, end) = get_user_input()
     if is_connected():
-        # ask for building and level and download the map
-        building = "COM1"
-        level = "2"
-        start = "P2"
-        end = "P10"
-        nav = Navigation(building, level, start, end)
+        voice_output.speak('downloaded the map from internet. ready to navigate')
     else:
-        # local cache
-        pass
+        voice_output.speak('the internet is not available. use default map instead')
+    nav = Navigation(building, level, start, end)
     while is_running_mode:
         while not check_connection_status():
             initiate_connection()
         faster_loop_time = now()
         slower_loop_time = now()
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
+            print "enter faster loop"
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
                 print "=============SENSORS==============="
