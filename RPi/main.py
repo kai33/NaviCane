@@ -151,6 +151,7 @@ def run():
                                             sensors_data[2], sensors_data[3])
                 # TODO: update user position based on sensor data
                 if nav.is_reach_next_location():
+                    give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
                         give_current_instruction()
                     else:
@@ -178,6 +179,7 @@ def run():
                 print sensors_data[6]
                 print "==================================="
                 if nav.is_reach_next_location():
+                    give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
                         give_current_instruction(nav.get_next_instruction(sensors_data[4]))
                     else:
