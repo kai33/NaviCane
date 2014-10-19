@@ -1,3 +1,4 @@
+zero
 one
 two
 three
@@ -7,10 +8,7 @@ six
 seven
 eight
 nine
-ten
 confirm
-okay
 cancel
 previous
 next
-

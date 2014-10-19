@@ -1,8 +1,8 @@
 from Navigation.navigation import Navigation
-from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from datetime import datetime
 from time import mktime
 from Speech.espeak_api import VoiceOutput
+from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
 from Communication.WiFi.ping_internet import is_connected
 
@@ -13,6 +13,7 @@ is_running_mode = False
 
 ultrasonic_handle = UltrasonicData()
 voice_output = VoiceOutput()
+user_input = VoiceRecognition()
 
 REACH_END = 7
 
@@ -43,20 +44,64 @@ def give_current_instruction(status=None):
     voice_output.speak(current_command)
 
 
+def get_input():
+    command_lookup = {
+        'ZERO': 0,
+        'ONE': 1,
+        'TWO': 2,
+        'THREE': 3,
+        'FOUR': 4,
+        'FIVE': 5,
+        'SIX': 6,
+        'SEVEN': 7,
+        'EIGHT': 8,
+        'NINE': 9,
+        'CONFIRM': True,
+        'CANCEL': False,
+        'PREVIOUS': 'previous',
+        'NEXT': 'next'
+    }
+    accumulated_input = 0
+    is_input_done = False
+    while not is_input_done:
+        user_command = user_input.get_command()
+        print user_command
+        if user_command is not None:
+            intepreted_command = command_lookup.get(user_command, None)
+        else:
+            voice_output.speak('input is not valid. please try again')
+            continue
+        if intepreted_command is not None and type(intepreted_command) is int:
+            accumulated_input = accumulated_input * 10 + intepreted_command
+            voice_output.speak('input is {0} so far'.format(str(accumulated_input)))
+            voice_output.speak('you can input next digit, confirm input or cancel last digit')
+        elif intepreted_command is not None and type(intepreted_command) is bool:
+            if intepreted_command:
+                is_input_done = True
+                voice_output.speak('input {0} is confirmed'.format(str(accumulated_input)))
+            else:
+                print 'cancel is detected'
+                accumulated_input = accumulated_input / 10
+                voice_output.speak('input is {0} so far'.format(str(accumulated_input)))
+        else:
+            voice_output.speak('input is {0} so far'.format(str(accumulated_input)))
+            voice_output.speak('you can input next digit, confirm input or cancel last digit')
+    return str(accumulated_input)
+
+
 def get_user_input():
     building = "COM1"
     level = "2"
     start = "P2"
     end = "P10"
-    # TODO: ask for user input
     voice_output.speak('please input current building')
-    # building = get_building()
+    building = get_input()
     voice_output.speak('please input current level')
-    # level = get_level()
+    level = get_input()
     voice_output.speak('please input current position')
-    # start = get_starting()
+    start = get_input()
     voice_output.speak('please input your destination')
-    # end = get_destination()
+    end = get_input()
     return building, level, start, end
 
 
@@ -67,6 +112,7 @@ def run():
     else:
         voice_output.speak('the internet is not available. use default map instead')
     nav = Navigation(building, level, start, end)
+    from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
     while is_running_mode:
         while not check_connection_status():
             initiate_connection()
