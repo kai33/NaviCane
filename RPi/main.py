@@ -37,7 +37,7 @@ def now():  # return seconds since epoch
 def give_current_instruction(status=None):
     # if navigation has something, output navigation
     ultrasonic_status = ultrasonic_handle.get_instruction()
-    if isinstance(status, str):
+    if status and type(status) is str:
         current_command = status
     elif status:
         current_command = command_table[status]
@@ -82,7 +82,6 @@ def get_input():
                 is_input_done = True
                 voice_output.speak('input {0} is confirmed'.format(str(accumulated_input)))
             else:
-                print 'cancel is detected'
                 accumulated_input = accumulated_input / 10
                 voice_output.speak('input is {0} so far'.format(str(accumulated_input)))
         else:
