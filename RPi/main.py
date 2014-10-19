@@ -2,6 +2,7 @@ from Navigation.navigation import Navigation
 from Navigation.map import Map
 from datetime import datetime
 from time import mktime
+from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from Speech.espeak_api import VoiceOutput
 from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
@@ -119,25 +120,24 @@ def run():
     endPtName = Map.get_node_by_location_id(building, level, end)['nodeName']
     nav = Navigation(building, level, startPtName, endPtName)
 
-    from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
+    faster_loop_time = now()
+    slower_loop_time = now()
     while is_running_mode:
         while not check_connection_status():
             initiate_connection()
-        faster_loop_time = now()
-        slower_loop_time = now()
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             print "enter faster loop"
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
                 print "=============SENSORS==============="
                 print "front right ultrasonic sensors(us)"
-                print sensors_data[0]
-                print "front left ultrasonic sensors(us)"
                 print sensors_data[1]
+                print "front left ultrasonic sensors(us)"
+                print sensors_data[0]
                 print "right ultrasonic sensors(us)"
-                print sensors_data[2]
-                print "left ultrasonic sensors(us)"
                 print sensors_data[3]
+                print "left ultrasonic sensors(us)"
+                print sensors_data[2]
                 print "compass"
                 print sensors_data[4]
                 print "barometer"
@@ -148,7 +148,7 @@ def run():
                 # if reach the end ... do something
                 # do any calibration ...
                 # obstacle avoidance ...
-                ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
+                ultrasonic_handle.feed_data(sensors_data[0], sensors_data[1],
                                             sensors_data[2], sensors_data[3])
                 # TODO: update user position based on sensor data
                 if nav.is_reach_next_location():
@@ -163,22 +163,6 @@ def run():
             # TODO: only get certain sensors data
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
-                print "=============SENSORS==============="
-                print "front right ultrasonic sensors(us)"
-                print sensors_data[0]
-                print "front left ultrasonic sensors(us)"
-                print sensors_data[1]
-                print "right ultrasonic sensors(us)"
-                print sensors_data[2]
-                print "left ultrasonic sensors(us)"
-                print sensors_data[3]
-                print "compass"
-                print sensors_data[4]
-                print "barometer"
-                print sensors_data[5]
-                print "distance"
-                print sensors_data[6]
-                print "==================================="
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
