@@ -403,8 +403,6 @@ void readKP(){
   Serial.print ("Keypad reading:\t");
   Serial.println (v1);
   sensorData[keypadIndex]=v1;
-  v2 = GetNumber();
-  v3 = GetNumber();
 }
 
 void readUltrasound() {
@@ -480,16 +478,16 @@ if (*arrayIndex >= numOfReadings)  {
   switch(initPin){
     
     case 5:
-        sensorData[ultrasoundFrontLeftIndex] = result;
-        break;
-    case 7:
         sensorData[ultrasoundFrontRightIndex] = result;
         break;
+    case 7:
+        sensorData[ultrasoundFrontLeftIndex] = result;
+        break;
     case 9:
-        sensorData[ultrasoundLeftIndex] = result;
+        sensorData[ultrasoundRightIndex] = result;
         break;
     case 11:
-        sensorData[ultrasoundRightIndex] = result;
+        sensorData[ultrasoundLeftIndex] = result;
         break;    
         
     
@@ -508,17 +506,20 @@ void setup() {
         Wire.begin();
         Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
         Serial1.begin(9600);
-        setupBMP();
-        setupHMC();
+        //setupBMP();
+        //setupHMC();
         setupUltrasound();
 }
 
 void loop() {
+        //Serial.println("F**K!");
         readUltrasound();
-        readHMC();
+        //Serial.println("F**K YOU!");
+        //readHMC();
         //readKP();
-        readBMP();
+        //readBMP();
         //delay(500);
+        
      
         switch(connectionState){
             

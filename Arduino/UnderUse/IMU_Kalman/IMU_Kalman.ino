@@ -27,11 +27,12 @@
    int xyzOffsetAverageDivider;
 
   // Velocity and Traveled distance
-    double deltaTime = 0.01; // time between samples: 10 ms
-    double xAcc,yAcc;
+   double deltaTime = 0.01; // time between samples: 10 ms
+   double xAcc,yAcc;
    double xVelocity, yVelocity, zVelocity; // in m/s
    double xTravel, yTravel, zTravel; // in m
-  
+   int axZeroCount = 0, ayZeroCount = 0;
+   double xThreshold = 0.15, yThreshold = 0.15;
   
    void resetOffset() {
     xOffsetAverageSum = yOffsetAverageSum = zOffsetAverageSum = 0;
@@ -47,7 +48,6 @@
   }
   // Quite unnecessary constructer
   void initAcc() {
-    
     resetOffset();
     resetVelocity();
     resetTravel();
@@ -79,9 +79,35 @@
     ax *= 9.80665;
     ay *= 9.80665;
     
-    if(ax<=0.06 && ax>=-0.06) ax=0;
-    if(ay<=0.06 && ay>=-0.06) ay=0;
-    if(!(ax==0 ||ay==0)){
+    if(ax<=xThreshold && ax>=(-xThreshold)){
+        ax=0;
+        axZeroCount++;
+    }else{
+        axZeroCount=0;
+    }
+    
+    if(ay<=yThreshold && ay>=(-xThreshold)){ 
+        ay=0;
+        ayZeroCount++;
+    }else{
+        ayZeroCount=0;
+    }
+    
+    if(axZeroCount>=20){
+        axZeroCount=0;
+        xVelocity=0;
+    }else{
+        xVelocity += ax * deltaTime;
+    }
+    
+    if(ayZeroCount>=20){
+        ayZeroCount=0;
+        yVelocity=0;
+    }else{
+        yVelocity += ay * deltaTime;
+    }
+    
+    if(!(ax==0 && ay==0)){
     xAcc=ax;
     yAcc=ay;
     // distance moved in deltaTime, s = 1/2 a t^2 + vt
@@ -89,10 +115,6 @@
     double sy = 0.5 * ay * deltaTime * deltaTime + yVelocity * deltaTime;
     xTravel += sx;
     yTravel += sy;
-    
-    // change in velocity, v = v0 + at
-    xVelocity += ax * deltaTime;
-    yVelocity += ay * deltaTime;
     }
   }
   
@@ -143,9 +165,6 @@
   }
 
 
-
-
-
 const int MPU=0x68;  // I2C address of the MPU-6050
 int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 int numOfReadings=10;
@@ -154,7 +173,7 @@ int totalX=0,totalY=0;
 int AvX,AvY;
 int calX=0,calY=0;
 int calFlag=0;
-int Ax[10],Ay[10];
+double Ax[10],Ay[10];
 double q = 0.125, r = 4.0, p = 10.0, intial_value = 10.0; 
 kalman_state kalmanX;
 kalman_state kalmanY;
