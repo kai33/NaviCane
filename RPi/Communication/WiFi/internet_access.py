@@ -1,6 +1,7 @@
 import urllib2
 import json
 import io
+import os
 from ping_internet import is_connected
 
 MAP_URL = "http://ShowMyWay.comp.nus.edu.sg/getMapInfo.php?Building={building}&Level={level}"
@@ -22,6 +23,6 @@ def get_floor_plan(building, level):
         else:
             return json.load(response)
     else:
-        with io.open('default_plan.json', 'r') as data_file:
+        with io.open(os.path.dirname(os.path.abspath(__file__)) + '/default_plan.json', 'r') as data_file:
             plan = json.load(data_file)
     return plan

@@ -2,7 +2,6 @@ from Navigation.navigation import Navigation
 from Navigation.map import Map
 from datetime import datetime
 from time import mktime
-from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from Speech.espeak_api import VoiceOutput
 from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
@@ -70,18 +69,17 @@ def get_input():
     while not is_input_done:
         user_command = user_input.get_command()
         if user_command is not None:
-            user_commands = user_command.split(' ')
-            for item in user_commands:
-                intepreted_command = command_lookup.get(item.strip(), None)
-                if intepreted_command is not None and type(intepreted_command) is int:
-                    accumulated_input = accumulated_input * 10 + intepreted_command
-                elif intepreted_command is not None and type(intepreted_command) is bool:
-                    if intepreted_command:
-                        is_input_done = True
-                    else:
-                        accumulated_input = accumulated_input / 10
+            intepreted_command = command_lookup.get(user_command.strip(), None)
+            if intepreted_command is not None and type(intepreted_command) is int:
+                accumulated_input = accumulated_input * 10 + intepreted_command
+            elif intepreted_command is not None and type(intepreted_command) is bool:
+                if intepreted_command:
+                    is_input_done = True
                 else:
-                    pass
+                    accumulated_input = accumulated_input / 10
+            else:
+                voice_output.speak('input is not valid. please try again')
+                continue
         else:
             voice_output.speak('input is not valid. please try again')
             continue
@@ -101,11 +99,11 @@ def get_user_input():
     voice_output.speak('please input current building')
     building = get_input()
     voice_output.speak('please input current level')
-    level = get_input()
+    # level = get_input()
     voice_output.speak('please input current position')
-    start = get_input()
+    # start = get_input()
     voice_output.speak('please input your destination')
-    end = get_input()
+    # end = get_input()
     return building, level, start, end
 
 
@@ -119,13 +117,13 @@ def run():
         voice_output.speak('downloaded the map from internet. ready to navigate')
     else:
         voice_output.speak('the internet is not available. use default map instead')
-
     startPtName = Map.get_node_by_location_id(building, level, start)['nodeName']
     endPtName = Map.get_node_by_location_id(building, level, end)['nodeName']
     nav = Navigation(building, level, startPtName, endPtName)
 
     faster_loop_time = now()
     slower_loop_time = now()
+    from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
     while is_running_mode:
         while not check_connection_status():
             initiate_connection()
