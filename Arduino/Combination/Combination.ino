@@ -313,9 +313,11 @@ int GetNumber()
 {
    int num = 0;
    char key = kpd.getKey();
-   if(key == '*'){
+   Serial.println(key);
+   if(key == '1'){
      while(key != '#')
      {
+       Serial.println("Inside while");
         switch (key)
         {
              case NO_KEY:
@@ -506,23 +508,25 @@ void setup() {
         Wire.begin();
         Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
         Serial1.begin(9600);
-        //setupBMP();
-        //setupHMC();
+        setupBMP();
+        setupHMC();
         setupUltrasound();
 }
 
 void loop() {
-        //Serial.println("F**K!");
+        //Serial.println("Inside Loop");
         readUltrasound();
-        //Serial.println("F**K YOU!");
-        //readHMC();
+        //Serial.println("Inside Loop2");
+        readHMC();
+        //Serial.println("Inside Loop3");
         //readKP();
-        //readBMP();
+        //Serial.println("Inside Loop4");
+        readBMP();
+        //Serial.println("Inside Loop5");
         //delay(500);
         
      
         switch(connectionState){
-            
               case newConnection :{
                    setupConnection();
                    break;

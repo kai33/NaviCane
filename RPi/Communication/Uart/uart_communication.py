@@ -123,7 +123,7 @@ def initiate_connection() :
 #Retrieving data from arduino 
 def receive_data():
 	request_sensor_data()
-	
+	global sensorData
 	global sensorDataTemp
 	global timeout
 	global dataCorrupted
