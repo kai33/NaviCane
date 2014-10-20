@@ -100,10 +100,26 @@ def get_user_input():
     building = get_input()
     voice_output.speak('please input current level')
     level = get_input()
-    voice_output.speak('please input current position')
-    start = get_input()
-    voice_output.speak('please input your destination')
-    end = get_input()
+    has_asked_current_question = False
+    while True:
+        if has_asked_current_question:
+            voice_output.speak('sorry, cannot find given position. please input current position again')
+        else:
+            voice_output.speak('please input current position')
+        start = get_input()
+        has_asked_current_question = True
+        if Map.get_node_by_location_id(building, level, start):
+            break
+    has_asked_current_question = False
+    while True:
+        if has_asked_current_question:
+            voice_output.speak('sorry, cannot find given position. please input your destination again')
+        else:
+            voice_output.speak('please input your destination')
+        end = get_input()
+        has_asked_current_question = True
+        if Map.get_node_by_location_id(building, level, end):
+            break
     return building, level, start, end
 
 
