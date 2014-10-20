@@ -1,5 +1,5 @@
 #include <pocketsphinx.h>
-
+// gcc -o voice_recog voice_recognition.c -DMODELDIR=\"`pkg-config --variable=modeldir pocketsphinx`\" `pkg-config --cflags --libs pocketsphinx sphinxbase`
 // somehow the function here is not working well, cannot recognize the correct command
 // also this requires dict and lm file to be at usr/share/local/pocketsphinx/model/ folder
 

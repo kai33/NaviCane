@@ -12,7 +12,7 @@ class UltrasonicData(object):
     TURN_LEFT_AND_RIGHT = 5
     TURN_BACK = 6
 
-    def __init__(self, safe_limit=20, side_limit=5, turn_threshold=30):
+    def __init__(self, safe_limit=15, side_limit=6, turn_threshold=30):
         super(UltrasonicData, self).__init__()
         self._safe_limit = safe_limit
         self._side_limit = side_limit
