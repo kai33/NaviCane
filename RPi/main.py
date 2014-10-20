@@ -175,6 +175,8 @@ def run():
                         give_current_instruction()
                     else:
                         give_current_instruction(REACH_END)
+                else:
+                    give_current_instruction()
             faster_loop_time = now()
         if now() - slower_loop_time > SLOWER_LOOP_TIMER:
             print "enter slower loop"
