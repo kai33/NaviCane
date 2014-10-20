@@ -1,3 +1,4 @@
+#include <kalman.h>
 #include <time.h>
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
@@ -81,6 +82,10 @@ int* total;
 int* averageDistance;
 //--------------------ultrasound consts ends-----------------------
 
+//--------------------IMU consts starts-----------------------
+
+
+//--------------------IMU consts ends-----------------------
 
 uint8_t incomingByte = 0;   // for incoming serial data
 uint8_t sensorLen    = 10;
