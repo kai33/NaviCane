@@ -180,7 +180,7 @@ void setupConnection(){
 void sendSensorValue(uint8_t index){
     uint8_t value = sensorData[index];
     sendToRpi(value);
-    /*if (index == 0){
+    if (index == 0){
       Serial.print("[");  
     }
     
@@ -189,7 +189,7 @@ void sendSensorValue(uint8_t index){
     
     if(index == 9){
       Serial.print("]\n");
-    }*/
+    }
 }
 
 void sendCheckSum(){
