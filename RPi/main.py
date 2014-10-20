@@ -2,7 +2,6 @@ from Navigation.navigation import Navigation
 from Navigation.map import Map
 from datetime import datetime
 from time import mktime
-from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from Speech.espeak_api import VoiceOutput
 from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
@@ -70,18 +69,17 @@ def get_input():
     while not is_input_done:
         user_command = user_input.get_command()
         if user_command is not None:
-            user_commands = user_command.split(' ')
-            for item in user_commands:
-                intepreted_command = command_lookup.get(item.strip(), None)
-                if intepreted_command is not None and type(intepreted_command) is int:
-                    accumulated_input = accumulated_input * 10 + intepreted_command
-                elif intepreted_command is not None and type(intepreted_command) is bool:
-                    if intepreted_command:
-                        is_input_done = True
-                    else:
-                        accumulated_input = accumulated_input / 10
+            intepreted_command = command_lookup.get(user_command.strip(), None)
+            if intepreted_command is not None and type(intepreted_command) is int:
+                accumulated_input = accumulated_input * 10 + intepreted_command
+            elif intepreted_command is not None and type(intepreted_command) is bool:
+                if intepreted_command:
+                    is_input_done = True
                 else:
-                    pass
+                    accumulated_input = accumulated_input / 10
+            else:
+                voice_output.speak('input is not valid. please try again')
+                continue
         else:
             voice_output.speak('input is not valid. please try again')
             continue
@@ -102,26 +100,46 @@ def get_user_input():
     building = get_input()
     voice_output.speak('please input current level')
     level = get_input()
-    voice_output.speak('please input current position')
-    start = get_input()
-    voice_output.speak('please input your destination')
-    end = get_input()
+    has_asked_current_question = False
+    while True:
+        if has_asked_current_question:
+            voice_output.speak('sorry, cannot find given position. please input current position again')
+        else:
+            voice_output.speak('please input current position')
+        start = get_input()
+        has_asked_current_question = True
+        if Map.get_node_by_location_id(building, level, start):
+            break
+    has_asked_current_question = False
+    while True:
+        if has_asked_current_question:
+            voice_output.speak('sorry, cannot find given position. please input your destination again')
+        else:
+            voice_output.speak('please input your destination')
+        end = get_input()
+        has_asked_current_question = True
+        if Map.get_node_by_location_id(building, level, end):
+            break
     return building, level, start, end
 
 
 def run():
     (building, level, start, end) = get_user_input()
+    voice_output.speak('You are going to building ' + building +
+                       ' level ' + level +
+                       ' from ' + start +
+                       ' to ' + end)
     if is_connected():
         voice_output.speak('downloaded the map from internet. ready to navigate')
     else:
         voice_output.speak('the internet is not available. use default map instead')
-
     startPtName = Map.get_node_by_location_id(building, level, start)['nodeName']
     endPtName = Map.get_node_by_location_id(building, level, end)['nodeName']
     nav = Navigation(building, level, startPtName, endPtName)
 
     faster_loop_time = now()
     slower_loop_time = now()
+    from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
     while is_running_mode:
         while not check_connection_status():
             initiate_connection()
@@ -131,13 +149,13 @@ def run():
             if not is_data_corrupted:
                 print "=============SENSORS==============="
                 print "front right ultrasonic sensors(us)"
-                print sensors_data[1]
-                print "front left ultrasonic sensors(us)"
                 print sensors_data[0]
+                print "front left ultrasonic sensors(us)"
+                print sensors_data[1]
                 print "right ultrasonic sensors(us)"
-                print sensors_data[3]
-                print "left ultrasonic sensors(us)"
                 print sensors_data[2]
+                print "left ultrasonic sensors(us)"
+                print sensors_data[3]
                 print "compass"
                 print sensors_data[4]
                 print "barometer"
@@ -148,8 +166,8 @@ def run():
                 # if reach the end ... do something
                 # do any calibration ...
                 # obstacle avoidance ...
-                ultrasonic_handle.feed_data(sensors_data[0], sensors_data[1],
-                                            sensors_data[2], sensors_data[3])
+                ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
+                                            sensors_data[3], sensors_data[2])
                 # TODO: update user position based on sensor data
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
@@ -157,6 +175,8 @@ def run():
                         give_current_instruction()
                     else:
                         give_current_instruction(REACH_END)
+                else:
+                    give_current_instruction()
             faster_loop_time = now()
         if now() - slower_loop_time > SLOWER_LOOP_TIMER:
             print "enter slower loop"

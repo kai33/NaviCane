@@ -9,7 +9,8 @@ class VoiceOutput(object):
 
     def speak(self, text, timeout=None):
         def target():
-            self._process = subprocess.Popen('espeak -v en-uk -s 130 --stdout "' + text + '" | aplay ', shell=True)
+            self._process = subprocess.Popen('espeak -v en-us -s 130 --stdout "' + text + '" | aplay ',
+                                             shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             self._process.communicate()
 
         thread = threading.Thread(target=target)
