@@ -111,6 +111,10 @@ def get_user_input():
 
 def run():
     (building, level, start, end) = get_user_input()
+    voice_output.speak('You are going to building ' + building +
+                       ' level ' + level +
+                       ' from ' + start +
+                       ' to ' + end)
     if is_connected():
         voice_output.speak('downloaded the map from internet. ready to navigate')
     else:
