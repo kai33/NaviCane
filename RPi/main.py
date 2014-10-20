@@ -99,11 +99,11 @@ def get_user_input():
     voice_output.speak('please input current building')
     building = get_input()
     voice_output.speak('please input current level')
-    # level = get_input()
+    level = get_input()
     voice_output.speak('please input current position')
-    # start = get_input()
+    start = get_input()
     voice_output.speak('please input your destination')
-    # end = get_input()
+    end = get_input()
     return building, level, start, end
 
 
