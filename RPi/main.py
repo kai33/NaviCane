@@ -103,14 +103,12 @@ def get_user_input():
     while True:
         voice_output.speak('please input current position')
         start = get_input()
-        if not Map.get_node_by_location_id(building, level, start):
-            voice_output.speak('invalid position')
+        if Map.get_node_by_location_id(building, level, start):
             break
     while True:
         voice_output.speak('please input your destination')
         end = get_input()
-        if not Map.get_node_by_location_id(building, level, end):
-            voice_output.speak('invalid position')
+        if Map.get_node_by_location_id(building, level, end):
             break
     return building, level, start, end
 
