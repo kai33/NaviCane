@@ -26,8 +26,8 @@ char keys[ROWS][COLS] = {
   {'*','0','#'}
 };
 
-byte rowPins[ROWS] = { 22, 23, 24, 25 };    
-byte colPins[COLS] = { 26, 27, 28 }; 
+byte rowPins[ROWS] = { 43, 41, 39, 37 };    
+byte colPins[COLS] = { 35, 33, 31 }; 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
 //--------------------keypad consts ends-----------------------
 //--------------------ultrasound consts starts-----------------------
@@ -180,7 +180,7 @@ void setupConnection(){
 void sendSensorValue(uint8_t index){
     uint8_t value = sensorData[index];
     sendToRpi(value);
-    /*if (index == 0){
+    if (index == 0){
       Serial.print("[");  
     }
     
@@ -189,7 +189,7 @@ void sendSensorValue(uint8_t index){
     
     if(index == 9){
       Serial.print("]\n");
-    }*/
+    }
 }
 
 void sendCheckSum(){
@@ -313,9 +313,11 @@ int GetNumber()
 {
    int num = 0;
    char key = kpd.getKey();
-   if(key == '*'){
+   Serial.println(key);
+   if(key == '1'){
      while(key != '#')
      {
+       Serial.println("Inside while");
         switch (key)
         {
              case NO_KEY:
@@ -506,23 +508,25 @@ void setup() {
         Wire.begin();
         Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
         Serial1.begin(9600);
-        //setupBMP();
-        //setupHMC();
+        setupBMP();
+        setupHMC();
         setupUltrasound();
 }
 
 void loop() {
-        //Serial.println("F**K!");
+        //Serial.println("Inside Loop");
         readUltrasound();
-        //Serial.println("F**K YOU!");
-        //readHMC();
+        //Serial.println("Inside Loop2");
+        readHMC();
+        //Serial.println("Inside Loop3");
         //readKP();
-        //readBMP();
+        //Serial.println("Inside Loop4");
+        readBMP();
+        //Serial.println("Inside Loop5");
         //delay(500);
         
      
         switch(connectionState){
-            
               case newConnection :{
                    setupConnection();
                    break;

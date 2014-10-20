@@ -13,8 +13,8 @@ char keys[ROWS][COLS] = {
   {'*','0','#'}
 };
 
-byte rowPins[ROWS] = { 22, 23, 24, 25 };    
-byte colPins[COLS] = { 26, 27, 28 }; 
+byte rowPins[ROWS] = { 43, 41, 39, 37 };    
+byte colPins[COLS] = { 35, 33, 31 }; 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
 
 void setup()
