@@ -183,6 +183,7 @@ def run():
             # TODO: only get certain sensors data
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
+                nav.update_pos_by_dist_and_dir(sensors_data[6], sensors_data[4])
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():

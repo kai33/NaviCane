@@ -186,6 +186,9 @@ class Navigation:
         return self.get_next_location_details(direction, self.pos[0], self.pos[1])
 
     def get_next_instruction(self, direction):
+        """
+        param: direction relative to the South
+        """
         dirRelativeNorth = Map.get_direction_relative_north(self.building, self.level, direction)
         relativeDir, dist, nextLocNode = self.get_next_location_by_direction(dirRelativeNorth)
         side = "right hand side" if relativeDir >= 0 else "left hand side"
