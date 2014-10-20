@@ -112,6 +112,8 @@ class Map:
         y - y relative to the map
         newDirection - angles relative to the north
         """
+        distance = float(distance)
+        direction = float(direction)
         newDirection = direction + 180  # relative to the North (clockwise)
         if newDirection > 360:
             newDirection -= 360
@@ -151,6 +153,10 @@ if __name__ == '__main__':
     Map.get_map("DemoBuilding", "1")  # cache
     Map.get_map("DemoBuilding", "2")  # downloading
     Map.get_map("DemoBuilding", "2")  # cache
+    print Map.get_direction_details("DemoBuilding", "1", 1, 45)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 135)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 225)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 315)
     Map.get_graph("DemoBuilding", "1")
     Map.flush_cache()
     Map.get_graph("DemoBuilding", "1")
