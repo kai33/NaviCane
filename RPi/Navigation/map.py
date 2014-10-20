@@ -101,6 +101,45 @@ class Map:
             return 0
 
     @classmethod
+    def get_direction_details(cls, building, level, distance, direction):
+        """
+        params:
+        distance - distance went through
+        direction - angles relative to the south (clockwise)
+
+        return:
+        x - x relative to the map
+        y - y relative to the map
+        newDirection - angles relative to the north
+        """
+        newDirection = direction + 180  # relative to the North (clockwise)
+        if newDirection > 360:
+            newDirection -= 360
+        userDirection = newDirection + cls.get_north_at(building, level)  # relative to map (clockwise)
+        if userDirection > 360:
+            userDirection -= 360
+
+        x = y = 0
+        if userDirection >= 0 and userDirection < 90:
+            rad = math.radians(90 - userDirection)
+            x = math.cos(rad) * distance
+            y = math.sin(rad) * distance
+        elif userDirection >= 90 and userDirection < 180:
+            rad = math.radians(userDirection - 90)
+            x = math.cos(rad) * distance
+            y = math.sin(rad) * distance * -1
+        elif userDirection >= 180 and userDirection < 270:
+            rad = math.radians(userDirection - 180)
+            x = math.sin(rad) * distance * -1
+            y = math.cos(rad) * distance * -1
+        elif userDirection >= 270 and userDirection < 360:
+            rad = math.radians(userDirection - 270)
+            x = math.cos(rad) * distance * -1
+            y = math.sin(rad) * distance
+
+        return x, y, newDirection
+
+    @classmethod
     def flush_cache(cls):
         cls.__map = {}
         cls.__graph = {}
