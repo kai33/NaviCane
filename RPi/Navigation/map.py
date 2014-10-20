@@ -114,9 +114,7 @@ class Map:
         """
         distance = float(distance)
         direction = float(direction)
-        newDirection = direction + 180  # relative to the North (clockwise)
-        if newDirection > 360:
-            newDirection -= 360
+        newDirection = cls.get_direction_relative_north(building, level, direction)
         userDirection = newDirection + cls.get_north_at(building, level)  # relative to map (clockwise)
         if userDirection > 360:
             userDirection -= 360
@@ -140,6 +138,17 @@ class Map:
             y = math.sin(rad) * distance
 
         return x, y, newDirection
+
+    @classmethod
+    def get_direction_relative_north(cls, building, level, direction):
+        """
+        params:
+        direction - angles relative to the south (clockwise)
+        """
+        newDirection = direction + 180  # relative to the North (clockwise)
+        if newDirection > 360:
+            newDirection -= 360
+        return newDirection
 
     @classmethod
     def flush_cache(cls):

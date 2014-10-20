@@ -168,7 +168,7 @@ def run():
                 # obstacle avoidance ...
                 ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
                                             sensors_data[3], sensors_data[2])
-                # TODO: update user position based on sensor data
+                nav.update_pos_by_dist_and_dir(sensors_data[6], sensors_data[4])
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
