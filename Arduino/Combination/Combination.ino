@@ -122,7 +122,7 @@ kalman_state kalmanY;
 //--------------------IMU consts ends-----------------------
 
 //--------------------HMC consts starts-----------------------
-double HMC_buffer[5]={0}; 
+double HMC_buffer[5]={0,0,0,0,0}; 
 int HMC_index=0;
 double HMC_total=0;
 
@@ -546,7 +546,7 @@ Wire.beginTransmission(MPU);
 }
 
 void resetIMU(){
-    sensorData[distanceIndex] = (int) (yTravel*10);
+    sensorData[distanceIndex] = ((int) (yTravel*10)%255;
     resetTravel();
 }
 
@@ -571,8 +571,8 @@ void readHMC(){
   if(heading < 0)
     heading += 2 * M_PI;
   heading=heading * 180/M_PI;
-  Serial.print("heading:\t");
-  Serial.println(heading);
+  //Serial.print("heading:\t");
+  //Serial.println(heading);
   
   HMC_index++;
   if(HMC_index>=5){
@@ -584,9 +584,9 @@ void readHMC(){
 
 //  Serial.print("heading:\t");
 //  Serial.println(HMC_total/5);
-  uint8_t reading=(HMC_total)/5/2;
-  Serial.print("reading:\t");
-  Serial.println(reading);
+  uint8_t reading=(HMC_total)/10;
+  //Serial.print("reading:\t");
+  //Serial.println(reading);
   sensorData[compassIndex]=reading;//devided by 2
 }
 
@@ -761,6 +761,7 @@ void loop() {
           sendSensorValue(0);
           int sendingDataBool = 1;
           while(sendingDataBool){
+            //Serial.println("In READSTART");
             if(Serial1.available()){
               incomingByte = Serial1.read();
 
