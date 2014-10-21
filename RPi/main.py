@@ -7,10 +7,10 @@ from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
 from Communication.WiFi.ping_internet import is_connected
 
-FASTER_LOOP_TIMER = 3
+FASTER_LOOP_TIMER = 2
 SLOWER_LOOP_TIMER = 10
 
-is_running_mode = False
+is_running_mode = True
 
 ultrasonic_handle = UltrasonicData()
 voice_output = VoiceOutput()
@@ -25,7 +25,7 @@ command_table = {
     UltrasonicData.TURN_RIGHT: 'turn right',
     UltrasonicData.TURN_RIGHT_SLIGHTLY: 'turn right slightly',
     UltrasonicData.TURN_LEFT_AND_RIGHT: 'turn left or right',
-    UltrasonicData.TURN_BACK: 'turn back please',
+    UltrasonicData.TURN_BACK: 'move backwards please',
     REACH_END: 'you have reached your destination'
 }
 

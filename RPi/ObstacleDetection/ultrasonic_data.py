@@ -12,7 +12,7 @@ class UltrasonicData(object):
     TURN_LEFT_AND_RIGHT = 5
     TURN_BACK = 6
 
-    def __init__(self, safe_limit=15, side_limit=6, turn_threshold=30):
+    def __init__(self, safe_limit=30, side_limit=10, turn_threshold=20):
         super(UltrasonicData, self).__init__()
         self._safe_limit = safe_limit
         self._side_limit = side_limit
@@ -35,7 +35,10 @@ class UltrasonicData(object):
                 elif left_average < self._turn_threshold and right_average > self._turn_threshold:
                     return UltrasonicData.TURN_RIGHT
                 elif left_average > self._turn_threshold and right_average > self._turn_threshold:
-                    return UltrasonicData.TURN_LEFT_AND_RIGHT
+                    if left_average > right_average:
+                        return UltrasonicData.TURN_LEFT
+                    else:
+                        return UltrasonicData.TURN_RIGHT
                 else:
                     return UltrasonicData.TURN_BACK
             elif front_left_average < self._safe_limit or left_average < self._side_limit:

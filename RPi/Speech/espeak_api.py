@@ -7,7 +7,7 @@ class VoiceOutput(object):
         self._process = None
 
     def speak(self, text):
-        self._process = subprocess.Popen('espeak -v en-us -s 130 --stdout "' + text + '" | aplay ',
+        self._process = subprocess.Popen('espeak -v en-us -s 160 --stdout "' + text + '" | aplay ',
                                          shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self._process.wait()
         return self._process.returncode
