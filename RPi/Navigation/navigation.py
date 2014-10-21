@@ -30,6 +30,15 @@ class Navigation:
         cls.__route = {}
         return
 
+    def update_pos_by_dist_and_dir(self, distance, direction):
+        """
+        params:
+        distance - distance went through
+        direction - angles relative to the south (clockwise)
+        """
+        (x, y, newDir) = Map.get_direction_details(self.building, self.level, distance, direction)
+        self.update_pos(x, y)
+
     def update_pos(self, deltaX, deltaY):
         self.pos[0] += deltaX
         self.pos[1] += deltaY
@@ -177,7 +186,11 @@ class Navigation:
         return self.get_next_location_details(direction, self.pos[0], self.pos[1])
 
     def get_next_instruction(self, direction):
-        relativeDir, dist, nextLocNode = self.get_next_location_by_direction(direction)
+        """
+        param: direction relative to the South
+        """
+        dirRelativeNorth = Map.get_direction_relative_north(self.building, self.level, direction)
+        relativeDir, dist, nextLocNode = self.get_next_location_by_direction(dirRelativeNorth)
         side = "right hand side" if relativeDir >= 0 else "left hand side"
         return Navigation.INSTRUCTION.format(nextLocNode['nodeId'], side, abs(relativeDir), dist / 100.0)
 
