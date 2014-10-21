@@ -101,6 +101,56 @@ class Map:
             return 0
 
     @classmethod
+    def get_direction_details(cls, building, level, distance, direction):
+        """
+        params:
+        distance - distance went through
+        direction - angles relative to the south (clockwise)
+
+        return:
+        x - x relative to the map
+        y - y relative to the map
+        newDirection - angles relative to the north
+        """
+        distance = float(distance)
+        direction = float(direction)
+        newDirection = cls.get_direction_relative_north(building, level, direction)
+        userDirection = newDirection + cls.get_north_at(building, level)  # relative to map (clockwise)
+        if userDirection > 360:
+            userDirection -= 360
+
+        x = y = 0
+        if userDirection >= 0 and userDirection < 90:
+            rad = math.radians(90 - userDirection)
+            x = math.cos(rad) * distance
+            y = math.sin(rad) * distance
+        elif userDirection >= 90 and userDirection < 180:
+            rad = math.radians(userDirection - 90)
+            x = math.cos(rad) * distance
+            y = math.sin(rad) * distance * -1
+        elif userDirection >= 180 and userDirection < 270:
+            rad = math.radians(userDirection - 180)
+            x = math.sin(rad) * distance * -1
+            y = math.cos(rad) * distance * -1
+        elif userDirection >= 270 and userDirection < 360:
+            rad = math.radians(userDirection - 270)
+            x = math.cos(rad) * distance * -1
+            y = math.sin(rad) * distance
+
+        return x, y, newDirection
+
+    @classmethod
+    def get_direction_relative_north(cls, building, level, direction):
+        """
+        params:
+        direction - angles relative to the south (clockwise)
+        """
+        newDirection = direction + 180  # relative to the North (clockwise)
+        if newDirection > 360:
+            newDirection -= 360
+        return newDirection
+
+    @classmethod
     def flush_cache(cls):
         cls.__map = {}
         cls.__graph = {}
@@ -112,6 +162,10 @@ if __name__ == '__main__':
     Map.get_map("DemoBuilding", "1")  # cache
     Map.get_map("DemoBuilding", "2")  # downloading
     Map.get_map("DemoBuilding", "2")  # cache
+    print Map.get_direction_details("DemoBuilding", "1", 1, 45)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 135)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 225)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 315)
     Map.get_graph("DemoBuilding", "1")
     Map.flush_cache()
     Map.get_graph("DemoBuilding", "1")

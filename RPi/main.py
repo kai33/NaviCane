@@ -35,6 +35,14 @@ def now():  # return seconds since epoch
     return mktime(dt.timetuple()) + dt.microsecond / 1000000.0
 
 
+def remap_direction(rawDir):
+    return rawDir * 2
+
+
+def remap_distance(rawDist):
+    return float(rawDist / 10)
+
+
 def give_current_instruction(status=None):
     # if navigation has something, output navigation
     ultrasonic_status = ultrasonic_handle.get_instruction()
@@ -168,7 +176,7 @@ def run():
                 # obstacle avoidance ...
                 ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
                                             sensors_data[3], sensors_data[2])
-                # TODO: update user position based on sensor data
+                nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
@@ -183,14 +191,15 @@ def run():
             # TODO: only get certain sensors data
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
+                nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
-                        give_current_instruction(nav.get_next_instruction(sensors_data[4]))
+                        give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                     else:
                         give_current_instruction(REACH_END)
                 else:
-                    give_current_instruction(nav.get_next_instruction(sensors_data[4]))
+                    give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
             slower_loop_time = now()
 
 
