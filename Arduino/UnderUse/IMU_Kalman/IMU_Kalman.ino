@@ -140,8 +140,8 @@
       xAcc=ax;
       yAcc=ay;
       // distance moved in deltaTime, s = 1/2 a t^2 + vt
-      double sx = 0.5 * ax * deltaTime * deltaTime + xVelocity * deltaTime;
-      double sy = 0.5 * ay * deltaTime * deltaTime + yVelocity * deltaTime;
+      double sx = min(2.2 * deltaTime, 0.5 * ax * deltaTime * deltaTime + min(xVelocity,1) * deltaTime);
+      double sy = min(2.2 * deltaTime, 0.5 * ay * deltaTime * deltaTime + min(yVelocity,1) * deltaTime);
       xTravel += sx;
       yTravel += sy;
       }
