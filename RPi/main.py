@@ -134,6 +134,7 @@ def get_user_input():
 
 
 def run():
+    voice_output.speak('welcome to navicane system')
     (building, level, start, end) = get_user_input()
     voice_output.speak('You are going to building ' + building +
                        ' level ' + level +
