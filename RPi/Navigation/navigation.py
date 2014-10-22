@@ -12,6 +12,7 @@ class Navigation:
     REACHED_RANGE = 50  # 0.5 meters
     # just keep this short
     INSTRUCTION = "going to ID {0}"
+    INSTRUCTION_ANGLE = "{0} {1:.0f} degrees"
     # turn where? go straight? complete this please
     ARRIVED_NOTIFICATION = "You have arrived the destination {0}"
 
@@ -26,6 +27,7 @@ class Navigation:
         startPoint = Map.get_node_by_location_name(building, level, start)
         self.pos = [float(startPoint["x"]), float(startPoint["y"])]
         self.nextLoc = {}
+        self.isGivingIdInstruction = True
 
     @classmethod
     def flush_cache(cls):
@@ -193,7 +195,13 @@ class Navigation:
         """
         dirRelativeNorth = Map.get_direction_relative_north(self.building, self.level, direction)
         relativeDir, dist, nextLocNode = self.get_next_location_by_direction(dirRelativeNorth)
-        return Navigation.INSTRUCTION.format(nextLocNode['nodeId'])
+        side = "RHS" if relativeDir >= 0 else "LHS"
+        if self.isGivingIdInstruction:
+            self.isGivingIdInstruction = False
+            return Navigation.INSTRUCTION.format(nextLocNode['nodeId'])
+        else:
+            self.isGivingIdInstruction = True
+            return Navigation.INSTRUCTION_ANGLE.format(side, abs(relativeDir))
 
     def is_reach_end(self):
         return self.is_reach_location(self.end, self.pos[0], self.pos[1])
@@ -247,6 +255,7 @@ if __name__ == '__main__':
     print nav.get_pos()
     print nav.update_pos(100, 50)
     print nav.is_reach_next_location()
+    print nav.get_next_instruction(270)
     print nav.get_next_instruction(270)
     print nav.update_pos(100, -50)
     print nav.is_reach_next_location()
