@@ -10,7 +10,9 @@ from map import Map
 class Navigation:
     DELIM = "||"
     REACHED_RANGE = 50  # 0.5 meters
+    # just keep this short
     INSTRUCTION = "going to ID {0}"
+    # turn where? go straight? complete this please
     ARRIVED_NOTIFICATION = "You have arrived the destination {0}"
 
     #Flyweight pattern
