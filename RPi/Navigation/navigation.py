@@ -9,7 +9,9 @@ from map import Map
 
 class Navigation:
     DELIM = "||"
-    REACHED_RANGE = 25
+    REACHED_RANGE = 50  # 0.5 meters
+    INSTRUCTION = "going to ID {0}, at your {1} {2:.0f} degrees"
+    ARRIVED_NOTIFICATION = "You have arrived the destination {0}"
 
     #Flyweight pattern
     __route = {}
@@ -19,11 +21,31 @@ class Navigation:
         self.level = level
         self.start = start
         self.end = end
+        startPoint = Map.get_node_by_location_name(building, level, start)
+        self.pos = [float(startPoint["x"]), float(startPoint["y"])]
+        self.nextLoc = {}
 
     @classmethod
     def flush_cache(cls):
         cls.__route = {}
         return
+
+    def update_pos_by_dist_and_dir(self, distance, direction):
+        """
+        params:
+        distance - distance went through
+        direction - angles relative to the south (clockwise)
+        """
+        (x, y, newDir) = Map.get_direction_details(self.building, self.level, distance, direction)
+        self.update_pos(x, y)
+
+    def update_pos(self, deltaX, deltaY):
+        self.pos[0] += deltaX
+        self.pos[1] += deltaY
+        return self.pos
+
+    def get_pos(self):
+        return self.pos
 
     def _sssp(self, graph):
         """calculate single source shortest path"""
@@ -142,6 +164,7 @@ class Navigation:
         distance to next loc, direction to next loc (relative to user) & next loc's node
         """
         nextLocNode = self.get_next_location(x, y)
+        self.nextLoc = nextLocNode
         dist = Map.get_distance(nextLocNode["x"], x, nextLocNode["y"], y)
 
         northAt = Map.get_north_at(self.building, self.level)
@@ -152,11 +175,27 @@ class Navigation:
                                       y, nextLocNode["y"])  # relative to map
         relativeDir = movingDir - userDir
         # if relativeDir > 0, it's at user's rhs, else lhs
+        if relativeDir > 180:
+            relativeDir -= 360
+        if relativeDir < -180:
+            relativeDir += 360
 
         return relativeDir, dist, nextLocNode
 
-    def is_reach_end(self, x, y):  # current x, and current y
-        return self.is_reach_location(self.end, x, y)
+    def get_next_location_by_direction(self, direction):
+        return self.get_next_location_details(direction, self.pos[0], self.pos[1])
+
+    def get_next_instruction(self, direction):
+        """
+        param: direction relative to the South
+        """
+        dirRelativeNorth = Map.get_direction_relative_north(self.building, self.level, direction)
+        relativeDir, dist, nextLocNode = self.get_next_location_by_direction(dirRelativeNorth)
+        side = "right hand side" if relativeDir >= 0 else "left hand side"
+        return Navigation.INSTRUCTION.format(nextLocNode['nodeId'], side, abs(relativeDir))
+
+    def is_reach_end(self):
+        return self.is_reach_location(self.end, self.pos[0], self.pos[1])
 
     def is_reach_location(self, location_name, x, y):
         """current x, and current y"""
@@ -169,7 +208,12 @@ class Navigation:
         distance = Map.get_distance(node["x"], x, node["y"], y)
         return distance <= Navigation.REACHED_RANGE
 
-SPEAK_STRING = "Turn {0:.2f} degrees and walk {1:.2f} metres. You are heading towards {2}"
+    def is_reach_next_location(self):
+        if not self.nextLoc:
+            return False
+        return self.is_reach_node(self.nextLoc, self.pos[0], self.pos[1])
+
+SPEAK_STRING = "Turn {0:.0f} degrees and walk {1:.0f} metres. You are heading towards {2}"
 
 if __name__ == '__main__':
     print "show the route: from Entrance to TO level 2"
@@ -194,6 +238,22 @@ if __name__ == '__main__':
                         "Entrance",
                         "TO level 2").get_next_location_details(270, 750, 300)
     print result
+    print "-------------------------------------------"
+    print "set up, get and update position"
+    nav = Navigation("DemoBuilding", "1",
+                     "Entrance",
+                     "TO level 2")
+    print nav.get_pos()
+    print nav.update_pos(100, 50)
+    print nav.is_reach_next_location()
+    print nav.get_next_instruction(270)
+    print nav.update_pos(100, -50)
+    print nav.is_reach_next_location()
+    print nav.get_next_instruction(270)
+    print nav.update_pos(100, -50)
+    print nav.is_reach_next_location()
+    print nav.get_next_instruction(270)
+
     from Speech.espeak_api import VoiceOutput
     voice = VoiceOutput()
     voice.speak(SPEAK_STRING.format(result[0], result[1] / 100.0, result[2]['nodeName']))

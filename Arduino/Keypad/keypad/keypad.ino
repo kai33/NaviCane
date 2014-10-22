@@ -1,8 +1,6 @@
 #include <Keypad.h>
 
 int v1 = 0;
-int v2 = 0;
-int v3 = 0;
 const byte ROWS = 4;
 const byte COLS = 3;
 
@@ -13,23 +11,21 @@ char keys[ROWS][COLS] = {
   {'*','0','#'}
 };
 
-byte rowPins[ROWS] = { 22, 23, 24, 25 };    
-byte colPins[COLS] = { 26, 27, 28 }; 
+byte rowPins[ROWS] = { 31, 33, 35, 37 };    
+byte colPins[COLS] = { 39, 41, 43 }; 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
 
 void setup()
-{                             
+{              
+Serial.println ("setup:");  
   Serial.begin(9600);                     
 }
 
 void loop()
 {
    v1 = GetNumber();
-   Serial.println ();
+   Serial.println ("Num:");
    Serial.print (v1);
-   v2 = GetNumber();
-   v3 = GetNumber();
-
 }
 
 

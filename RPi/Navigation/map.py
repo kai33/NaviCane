@@ -41,7 +41,7 @@ class Map:
                 #value - a list of adjacent nodes' names & their distances
                 # to the key's node
                 data[node["nodeName"]] = []
-                adjNodeIds = node["linkTo"].split(", ")
+                adjNodeIds = node["linkTo"].split(",")
                 for adjNodeIdInString in adjNodeIds:
                     adjNodeId = int(adjNodeIdInString) - 1
                     adjNode = mapData[adjNodeId]
@@ -77,18 +77,18 @@ class Map:
     def get_north_at(cls, building, level):
         rawData = cls.get_map(building, level)
         infoData = rawData.get("info", {})
-        return int(infoData["northAt"])
+        return float(infoData["northAt"])
 
     @classmethod
     def get_distance(cls, x1, x2, y1, y2):
-        return math.sqrt(math.pow(int(x1) - int(x2), 2) +
-                         math.pow(int(y1) - int(y2), 2))
+        return math.sqrt(math.pow(float(x1) - float(x2), 2) +
+                         math.pow(float(y1) - float(y2), 2))
 
     @classmethod
     def get_direction(cls, x1, x2, y1, y2):
         """relative to x1 and y1"""
-        x = int(x2) - int(x1)
-        y = int(y2) - int(y1)
+        x = float(x2) - float(x1)
+        y = float(y2) - float(y1)
         if x >= 0 and y > 0:
             return math.atan(x / y) * (180 / math.pi)
         elif x < 0 and y >= 0:
@@ -99,6 +99,56 @@ class Map:
             return math.atan(-x / -y) * (180 / math.pi) + 180
         else:
             return 0
+
+    @classmethod
+    def get_direction_details(cls, building, level, distance, direction):
+        """
+        params:
+        distance - distance went through
+        direction - angles relative to the south (clockwise)
+
+        return:
+        x - x relative to the map
+        y - y relative to the map
+        newDirection - angles relative to the north
+        """
+        distance = float(distance)
+        direction = float(direction)
+        newDirection = cls.get_direction_relative_north(building, level, direction)
+        userDirection = newDirection + cls.get_north_at(building, level)  # relative to map (clockwise)
+        if userDirection > 360:
+            userDirection -= 360
+
+        x = y = 0
+        if userDirection >= 0 and userDirection < 90:
+            rad = math.radians(90 - userDirection)
+            x = math.cos(rad) * distance
+            y = math.sin(rad) * distance
+        elif userDirection >= 90 and userDirection < 180:
+            rad = math.radians(userDirection - 90)
+            x = math.cos(rad) * distance
+            y = math.sin(rad) * distance * -1
+        elif userDirection >= 180 and userDirection < 270:
+            rad = math.radians(userDirection - 180)
+            x = math.sin(rad) * distance * -1
+            y = math.cos(rad) * distance * -1
+        elif userDirection >= 270 and userDirection < 360:
+            rad = math.radians(userDirection - 270)
+            x = math.cos(rad) * distance * -1
+            y = math.sin(rad) * distance
+
+        return x, y, newDirection
+
+    @classmethod
+    def get_direction_relative_north(cls, building, level, direction):
+        """
+        params:
+        direction - angles relative to the south (clockwise)
+        """
+        newDirection = direction + 180  # relative to the North (clockwise)
+        if newDirection > 360:
+            newDirection -= 360
+        return newDirection
 
     @classmethod
     def flush_cache(cls):
@@ -112,6 +162,10 @@ if __name__ == '__main__':
     Map.get_map("DemoBuilding", "1")  # cache
     Map.get_map("DemoBuilding", "2")  # downloading
     Map.get_map("DemoBuilding", "2")  # cache
+    print Map.get_direction_details("DemoBuilding", "1", 1, 45)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 135)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 225)
+    print Map.get_direction_details("DemoBuilding", "1", 1, 315)
     Map.get_graph("DemoBuilding", "1")
     Map.flush_cache()
     Map.get_graph("DemoBuilding", "1")
