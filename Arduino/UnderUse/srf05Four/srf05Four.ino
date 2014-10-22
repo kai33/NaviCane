@@ -1,5 +1,5 @@
 // written by: Rensheng
-// to read form 5 ultrasonic sensors
+// to read form 4 ultrasonic sensors
 
 // renew alarm threshold
 
@@ -11,42 +11,39 @@
 const int numOfReadings = 5;     // number of readings to take/ items in the buffer for mean filter
 int lastValueRecorded[5] = {0, 0, 0, 0, 0};
 
-//int readingsFront[numOfReadings];               // stores the distance readings in an buffer
+// stores the distance readings in an buffer
 int readingsRight[numOfReadings];
 int readingsLeft[numOfReadings];
 int readingsFrontRight[numOfReadings];
 int readingsFrontLeft[numOfReadings];
 
-//int arrayIndexFront = 0;                             // arrayIndex of the current item in the array
+// arrayIndex of the current item in the array
 int arrayIndexRight = 0;
 int arrayIndexLeft = 0;
 int arrayIndexFrontRight = 0;
 int arrayIndexFrontLeft = 0;
 
-int totalFront = 0;                                  // stores the cumlative total
+// stores the cumlative total
 int totalRight = 0;
 int totalLeft = 0;
 int totalFrontRight = 0;
 int totalFrontLeft = 0;
 
-//int averageDistanceFront = 0;                        // stores the average value
+// stores the average value
 int averageDistanceRight = 0;
 int averageDistanceLeft = 0;
 int averageDistanceFrontRight = 0;
 int averageDistanceFrontLeft = 0;
 
 // setup pins and variables for SRF05 sonar device
-
-//int echoPinFront = 2;                           // SRF05 Front echo pin (digital 2)
-//int initPinFront = 3;                           // SRF05 Front trigger pin (digital 3)
-int echoPinRight = 4;
-int initPinRight = 5;
-int echoPinLeft = 6;
-int initPinLeft = 7;
-int echoPinFrontRight = 8;
-int initPinFrontRight = 9;
-int echoPinFrontLeft = 10;
-int initPinFrontLeft = 11;
+const int echoPinRight = 4;
+const int initPinRight = 5;
+const int echoPinLeft = 6;
+const int initPinLeft = 7;
+const int echoPinFrontRight = 8;
+const int initPinFrontRight = 9;
+const int echoPinFrontLeft = 10;
+const int initPinFrontLeft = 11;
 
 unsigned long pulseTime = 0;                    // stores the pulse in Micro Seconds
 unsigned long distance = 0;                     // variable for storing the distance (cm)
@@ -60,9 +57,6 @@ int* total;
 int* averageDistance;
 
 void setup() {
-
-  //pinMode(initPinFront, OUTPUT);                 
-  //pinMode(echoPinFront, INPUT);  
   pinMode(initPinRight, OUTPUT);                 
   pinMode(echoPinRight, INPUT);
   pinMode(initPinLeft, OUTPUT);                 
@@ -73,7 +67,6 @@ void setup() {
   pinMode(echoPinFrontLeft, INPUT); 
 
   // Buffer here
-
   for (int thisReading = 0; thisReading < numOfReadings; thisReading++) {
     readings[thisReading] = 0;
   }
@@ -89,30 +82,22 @@ void loop() {
 initPin += 2; 
 echoPin += 2;
 if(initPin ==13 ){
-    initPin = 5;
-    echoPin = 4;
+    initPin = initPinRight;
+    echoPin = echoPinRight;
 }
 
 // Configure parameters
-/*
-if(initPin == 3){
-    readings = readingsFront;
-    arrayIndex = &arrayIndexFront;
-    total = &totalFront;
-    averageDistance = &averageDistanceFront;
-}
-*/
-if (initPin == 5){
+if (initPin == initPinRight){
     readings = readingsRight;
     arrayIndex = &arrayIndexRight;
     total = &totalRight;
     averageDistance = &averageDistanceRight;
-}else if (initPin == 7){
+}else if (initPin == initPinLeft){
     readings = readingsLeft;
     arrayIndex = &arrayIndexLeft;
     total = &totalLeft;
     averageDistance = &averageDistanceLeft;
-}else if (initPin == 9){
+}else if (initPin == initPinFrontRight){
     readings = readingsFrontRight;
     arrayIndex = &arrayIndexFrontRight;
     total = &totalFrontRight;

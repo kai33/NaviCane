@@ -23,7 +23,6 @@ void initAcc() {
   resetTravel();
 }
 
-
 // just the raw values from the accelerometer
 void addMeasurementsToOffset( short xAcceleration, short yAcceleration, short zAcceleration) {
 
