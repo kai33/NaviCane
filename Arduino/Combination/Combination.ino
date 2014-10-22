@@ -1,4 +1,4 @@
-#include <kalman.h>
+//#include <kalman.h>
 #include <time.h>
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
@@ -13,6 +13,11 @@ MPU6050 accelgyro;
 #define OUTPUT_READABLE_ACCELGYRO
 HMC5883L mag;
 
+//------------------------buzzer----------------------------
+//volatile int buzzer_start=0;
+//volatile int buzzer_toggle=0;
+
+//------------------------end of buzzer-----------------------
 //----------------------key pad consts----------------------
 int v1 = 0;
 int v2 = 0;
@@ -116,8 +121,8 @@ int calX=0,calY=0;
 int calFlag=0;
 double Ax[10],Ay[10];
 double q = 0.125, r = 1.0, p = 1.0, intial_value = 10.0; 
-kalman_state kalmanX;
-kalman_state kalmanY;
+//kalman_state kalmanX;
+//kalman_state kalmanY;
 
 //--------------------IMU consts ends-----------------------
 
@@ -444,8 +449,8 @@ void setupIMU(){
     Wire.write(0);     // set to zero (wakes up the MPU-6050)
     Wire.endTransmission(true);
     Serial.begin(9600);
-    kalmanX = kalman_init(q, r, p, intial_value);
-    kalmanY = kalman_init(q, r, p, intial_value);
+    //kalmanX = kalman_init(q, r, p, intial_value);
+    //kalmanY = kalman_init(q, r, p, intial_value);
     
     for(int i=0;i<10;i++)
     {
@@ -508,9 +513,9 @@ Wire.beginTransmission(MPU);
     GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
     GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
     
-    kalman_update(&kalmanX, AcX);
+    //kalman_update(&kalmanX, AcX);
     //AcX = kalmanX.x;
-    kalman_update(&kalmanY, AcY);
+    //kalman_update(&kalmanY, AcY);
     //AcY = kalmanY.x;
     
     totalX-=Ax[i];
@@ -546,7 +551,7 @@ Wire.beginTransmission(MPU);
 }
 
 void resetIMU(){
-    sensorData[distanceIndex] = ((int) (yTravel*10)%255;
+    sensorData[distanceIndex] = ((int) (yTravel*10)%255);
     resetTravel();
 }
 
@@ -582,11 +587,11 @@ void readHMC(){
   
   HMC_total+=HMC_buffer[HMC_index];
 
-//  Serial.print("heading:\t");
-//  Serial.println(HMC_total/5);
+  Serial.print("heading:\t");
+  Serial.println(HMC_total/5);
   uint8_t reading=(HMC_total)/10;
-  //Serial.print("reading:\t");
-  //Serial.println(reading);
+  Serial.print("reading:\t");
+  Serial.println(reading);
   sensorData[compassIndex]=reading;//devided by 2
 }
 
@@ -724,7 +729,7 @@ void loop() {
   
   //Serial.print("time for one loop is: ");
   //Serial.println(millis()-testTime);
-
+///*
   switch(connectionState){
   case newConnection :
     {
@@ -813,6 +818,7 @@ void loop() {
       }
     }     
   }
+  //*/
 }
 
 
