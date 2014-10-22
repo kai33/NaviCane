@@ -1,5 +1,8 @@
-// MPU-6050 ino 
-// By Rensheng
+/*
+ MPU-6050 ino
+ Written by Rensheng
+ 2014.10.22
+*/
 
 #include<Wire.h>
 #include "kalman.h"
