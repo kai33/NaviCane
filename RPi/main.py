@@ -7,6 +7,7 @@ from Speech.espeak_api import VoiceOutput
 from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
 from Communication.WiFi.ping_internet import is_connected
+from local_logger import get_local_logger
 
 FASTER_LOOP_TIMER = 2
 SLOWER_LOOP_TIMER = 10
@@ -16,6 +17,7 @@ is_running_mode = True
 ultrasonic_handle = UltrasonicData()
 voice_output = VoiceOutput()
 user_input = VoiceRecognition()
+logger = get_local_logger()
 
 REACH_END = 7
 
@@ -100,10 +102,10 @@ def get_input():
 
 
 def get_user_input():
-    building = "COM1"
-    level = "2"
-    start = "1"
-    end = "10"
+    building = 'COM1'
+    level = '2'
+    start = '28'
+    end = '15'
     voice_output.speak('please input current building')
     get_input()
     voice_output.speak('please input current level')
@@ -158,7 +160,6 @@ def run():
             voice_output.speak('set up connection')
             initiate_connection()
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
-            print "enter faster loop"
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
                 print "=============SENSORS==============="
@@ -177,9 +178,7 @@ def run():
                 print "distance"
                 print sensors_data[6]
                 print "==================================="
-                # if reach the end ... do something
-                # do any calibration ...
-                # obstacle avoidance ...
+                logger.info('distance: ' + str(sensors_data[6]))
                 ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
                                             sensors_data[3], sensors_data[2])
                 nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
@@ -191,9 +190,8 @@ def run():
                         give_current_instruction(REACH_END)
                 else:
                     give_current_instruction()
-            # TODO: only get certain sensors data
-            if runner % 5 == 0:
-                if not is_data_corrupted:
+                # TODO: only get certain sensors data
+                if runner == 0:
                     nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
                     if nav.is_reach_next_location():
                         give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
