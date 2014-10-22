@@ -145,6 +145,12 @@ def run():
     endPtName = Map.get_node_by_location_id(building, level, end)['nodeName']
     nav = Navigation(building, level, startPtName, endPtName)
 
+    # at the beginning, say the nav instruction first
+    is_data_corrupted, sensors_data = receive_data()
+    if not is_data_corrupted:
+        give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))  # next loc's ID
+        give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))  # next loc's direction
+
     faster_loop_time = now()
     slower_loop_time = now()
     while is_running_mode:
