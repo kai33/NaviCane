@@ -4,7 +4,6 @@
 // Public Domain
 #include<Wire.h>
 
-volatile unsigned long m=0;
 const int gDivider = 16384;
 const float G = 9.80665;
 const int MPU=0x68;  // I2C address of the MPU-6050
@@ -14,7 +13,7 @@ const double xThreshold = 0.02, yThreshold = 0.02;
 const double xChangeThreshold = 0.011, yChangeThreshold = 0.011;
 
 int calFlag = 0;
-
+volatile unsigned long m=0;
 double xVelocity, yVelocity; // in m/s
 double xTravel, yTravel;// in m
 int axUnchangeCount = 0, ayUnchangeCount = 0;

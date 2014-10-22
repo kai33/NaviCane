@@ -91,32 +91,24 @@ int* averageDistance;
 //--------------------ultrasound variables ends-----------------------
 
 //--------------------IMU variables starts-----------------------
-int gDivider = 16384;
-long xOffsetAverageSum, yOffsetAverageSum, zOffsetAverageSum;
-int xyzOffsetAverageDivider;
-
-double deltaTime = 0.05; // time between samples: 10 ms
-double xAcc,yAcc;
-double xVelocity, yVelocity, zVelocity; // in m/s
-double xTravel, yTravel, zTravel; // in m
+int calFlag = 0;
+volatile unsigned long m=0;
+double xVelocity, yVelocity; // in m/s
+double xTravel, yTravel;// in m
 int axUnchangeCount = 0, ayUnchangeCount = 0;
-double xThreshold = 0.12, yThreshold = 0.13;
-double xChangeThreshold = 0.03, yChangeThreshold = 0.03;
+double MeasuredAx, MeasuredAy;
+int Tmp;
+int i=0;
+double totalX=0,totalY=0;
+double AverageAx,AverageAy;
+double calX=0,calY=0;
+double Ax[10],Ay[10];
 double preAx = 0, preAy = 0;
 
-//const int MPU=0x68;  // I2C address of the MPU-6050
-int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
-//const int numOfReadingsIMU=10;
-int i=0;
-int totalX=0,totalY=0;
-int AvX,AvY;
-int calX=0,calY=0;
-int calFlag=0;
-double Ax[10],Ay[10];
-
-//double q = 0.125, r = 1.0, p = 1.0, intial_value = 10.0; //kalman parameters
-//kalman_state kalmanX;
-//kalman_state kalmanY;
+double prevYVelocity=0;
+int Vhide=0;
+int Vreturn=0;
+int Vfactor=1;
 
 //--------------------IMU variables ends-----------------------
 
@@ -269,43 +261,57 @@ void resetKP(){
 //------------------------All Functions in Main Loop--------------------
 void readIMU(){
 Wire.beginTransmission(MPU);
-    Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
-    Wire.endTransmission(false);
-    Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
-    AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)   
-    AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-    Tmp=Wire.read()<<8|Wire.read();  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
-    
-    totalX-=Ax[i];
-    totalY-=Ay[i];
-    Ax[i]=AcX;
-    Ay[i]=AcY;
-    totalX+=Ax[i];
-    totalY+=Ay[i];
-    i++;
-   
-    if(i>=numOfReadingsIMU) {
-      i=0;
-      if(calFlag==0) {
+  Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
+  MeasuredAx=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)   
+  MeasuredAy=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+  Tmp=Wire.read()<<8|Wire.read();  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+
+  totalX-=Ax[i];
+  totalY-=Ay[i];
+  Ax[i]=MeasuredAx/gDivider*G;
+  Ay[i]=MeasuredAy/gDivider*G;
+  totalX+=Ax[i];
+  totalY+=Ay[i];
+  i++;
+  i%=numOfReadingsIMU;
+  
+   if(calFlag==0){
+     if(i == 0){
         calFlag=1;
         calX=totalX/numOfReadingsIMU;
         calY=totalY/numOfReadingsIMU;
-      }
+     }
+    }else{
+      AverageAx=totalX/numOfReadingsIMU;
+      AverageAy=totalY/numOfReadingsIMU;
+      addMeasurementsToTravel(AverageAx-calX,AverageAy-calY);
     }
-    AvX=totalX/numOfReadingsIMU;
-    AvY=totalY/numOfReadingsIMU;
-    if(calFlag==1) addMeasurementsToTravel(AvX-calX,AvY-calY);
-    
-//    if(i==0){
-//    Serial.print("TX = "); Serial.print(getXTravel());
-//    Serial.print(" | TY = "); Serial.print(getYTravel());
-//    Serial.print(" | VX = "); Serial.print(getXVelocity());
-//    Serial.print(" | VY = "); Serial.print(getYVelocity());
-//    Serial.print(" | AX = "); Serial.print(getXAcc());
-//    Serial.print(" | AY = "); Serial.print(getYAcc());
-//    Serial.print(" | Tmp = "); Serial.println(Tmp/340.00+36.53);  //equation for temperature in degrees C from datasheet
-//    
-//    }
+
+//  Serial.print("TX = "); 
+//  Serial.print(getXTravel());
+//  Serial.print(" | TY = "); 
+//  Serial.print(getYTravel());
+//  Serial.print(" | VX = "); 
+//  Serial.print(getXVelocity());
+//  Serial.print(" | VY = "); 
+//  Serial.print(getYVelocity());
+//  Serial.print(" | AX = "); 
+//  Serial.print(getXAcc());
+//  Serial.print(" | AY = "); 
+//  Serial.print(getYAcc());
+//  Serial.print(" | calX = "); 
+//  Serial.print(calX);
+//  Serial.print(" | calY = "); 
+//  Serial.println(calY);
+  //Serial.print(" | Tmp = "); 
+  //Serial.println(Tmp/340.00+36.53);  //equation for temperature in degrees C from datasheet
+  //m=millis()-m;
+  //Serial.print("| time=");
+  //Serial.println(m);
+  //m=millis();
+  //delay(10);
 }
 
 void readBMP(){

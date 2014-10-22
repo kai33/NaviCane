@@ -6,52 +6,24 @@
 
 #include<Wire.h>
 //#include "kalman.h"
-
-void resetOffset() {
-  xOffsetAverageSum = yOffsetAverageSum = zOffsetAverageSum = 0;
-  xyzOffsetAverageDivider = 0;
-}
-
 void resetVelocity() {
-  xVelocity = yVelocity = zVelocity = 0.0;
+  xVelocity = yVelocity = 0.0;
 }
 
 void resetTravel() {
-  xTravel = yTravel = zTravel = 0.0;
+  xTravel = yTravel = 0.0;
 }
 // Quite unnecessary constructer
 void initAcc() {
-  resetOffset();
   resetVelocity();
   resetTravel();
 }
 
-// just the raw values from the accelerometer
-void addMeasurementsToOffset( short xAcceleration, short yAcceleration, short zAcceleration) {
-
-  xOffsetAverageSum += xAcceleration;
-  yOffsetAverageSum += yAcceleration;
-  zOffsetAverageSum += zAcceleration;
-  xyzOffsetAverageDivider++;
-}
-
 
 // just the raw values from the accelerometer
-void addMeasurementsToTravel( short xAcceleration, short yAcceleration) {
+void addMeasurementsToTravel(double ax, double ay) {
 
-  // (convert to double and) remove offset if there is any
-  double ax = xAcceleration;
-  double ay = yAcceleration;
-
-  // convert to g force
-  ax /= gDivider;
-  ay /= gDivider;
-
-  // convert to force [N]
-  ax *= 9.80665;
-  ay *= 9.80665;
-
-  if(abs(ax-calX)<=xThreshold){
+  if(abs(ax)<=xThreshold){
     ax=0;
   }
 
@@ -62,7 +34,7 @@ void addMeasurementsToTravel( short xAcceleration, short yAcceleration) {
     axUnchangeCount=0;
   }
 
-  if(abs(ay-calY)<=yThreshold){ 
+  if(abs(ay)<=yThreshold){ 
     ay=0;
   }
 
@@ -76,51 +48,58 @@ void addMeasurementsToTravel( short xAcceleration, short yAcceleration) {
   preAx = ax;
   preAy = ay;
 
-  if(axUnchangeCount>=10){
+  if(axUnchangeCount>=7){
     axUnchangeCount=0;
     xVelocity=0;
     calX+=preAx;
   }
   else{
-    xVelocity += ax * deltaTime *2; 
+    xVelocity += ax * deltaTime; 
   }
 
-  if(ayUnchangeCount>=10){
+  if(ayUnchangeCount>=7){
     ayUnchangeCount=0;
     yVelocity=0;
     calY+=preAy;
   }
   else{
-    yVelocity += ay * deltaTime *2;
+    yVelocity += ay * deltaTime;
   }
 
-  if(!(ax==0 && ay==0)){
-    xAcc=ax;
-    yAcc=ay;
-    // distance moved in deltaTime, s = 1/2 a t^2 + vt
-    double sx = min(2.2 * deltaTime, 0.5 * ax * deltaTime * deltaTime + min(xVelocity,1) * deltaTime);
-    double sy = min(2.2 * deltaTime, 0.5 * ay * deltaTime * deltaTime + min(yVelocity,1) * deltaTime);
-    xTravel += sx;
-    yTravel += sy;
+  if(prevYVelocity*yVelocity>0.0)
+    Vhide++;
+  else
+  {
+    if(Vhide>5) 
+      Vfactor=0;
+    Vhide=0;
   }
+  prevYVelocity=yVelocity;
+  if(yVelocity<0.02||yVelocity>-0.02)
+  {
+    Vreturn++;
+    if(Vreturn>10)
+    {
+      Vfactor=1;
+      Vreturn=0;
+    }
+  }
+  yVelocity=yVelocity*Vfactor;
+
+  // distance moved in deltaTime, s = 1/2 a t^2 + vt
+  double sx = min(1 * deltaTime, 0.5 * ax * deltaTime * deltaTime + xVelocity * deltaTime);
+  double sy = min(1 * deltaTime, 0.5 * ay * deltaTime * deltaTime + yVelocity * deltaTime);
+  xTravel += sx;
+  yTravel += sy;
 }
 
-// GETTERS  
-
-int getOffsetSampleCount() {
-  return xyzOffsetAverageDivider;
-}
-
+// GETTERS 
 float getXAcc(){
-  return (float)xAcc;
+  return preAx;
 }
 
 float getYAcc(){
-  return (float)yAcc;
-}
-
-float getVelocity() {
-  return sqrt( (float)(xVelocity * xVelocity + yVelocity * yVelocity + zVelocity * zVelocity));
+  return preAx;
 }
 
 float getXVelocity() {
@@ -131,13 +110,6 @@ float getYVelocity() {
   return (float)yVelocity;
 }
 
-float getZVelocity() {
-  return (float)zVelocity;
-}
-
-float getTravel() {
-  return sqrt( (float)(xTravel * xTravel + yTravel * yTravel + zTravel * zTravel));
-}
 
 float getXTravel() {
   return (float)xTravel;
@@ -146,8 +118,3 @@ float getXTravel() {
 float getYTravel() {
   return (float)yTravel;
 }
-
-float getZTravel() {
-  return (float)zTravel;
-}
-
