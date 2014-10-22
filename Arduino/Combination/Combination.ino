@@ -406,28 +406,28 @@ void readUltrasound() {
 
   case 5:
     sensorData[ultrasoundFrontRightIndex] = result;
-    if(*averageDistance>120)
+    if(*averageDistance<120)
         buzzer_1=1;
     else
         buzzer_1=0;
     break;
   case 7:
     sensorData[ultrasoundFrontLeftIndex] = result;
-    if(*averageDistance>120)
+    if(*averageDistance<120)
         buzzer_2=1;
     else
         buzzer_2=0;
     break;
   case 9:
     sensorData[ultrasoundRightIndex] = result;
-    if(*averageDistance>40)
+    if(*averageDistance<40)
         buzzer_3=1;
     else
         buzzer_3=0;
     break;
   case 11:
     sensorData[ultrasoundLeftIndex] = result;
-    if(*averageDistance>40)
+    if(*averageDistance<40)
         buzzer_4=1;
     else
         buzzer_4=0;
