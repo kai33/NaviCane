@@ -14,9 +14,28 @@ MPU6050 accelgyro;
 HMC5883L mag;
 
 //------------------------buzzer----------------------------
-//volatile int buzzer_start=0;
-//volatile int buzzer_toggle=0;
-
+volatile int buzzer_1=0;
+volatile int buzzer_2=0;
+volatile int buzzer_3=0;
+volatile int buzzer_4=0;
+volatile int buzzer_toggle=0;
+void setupBuz(){
+  pinMode(12, OUTPUT);
+}
+void buzzer(){
+  if(buzzer_1+buzzer_2+buzze_3+buzzer_4>=2){
+    if(buzzer_toggle==0)
+    {
+      digitalWrite(12,HIGH);
+      buzzer_toggle=1;
+    }
+    else
+    {
+      digitalWrite(12,LOW);
+      buzzer_toggle=0;
+    }
+  }
+}
 //------------------------end of buzzer-----------------------
 
 //----------------------key pad consts----------------------
@@ -671,25 +690,41 @@ void readUltrasound() {
 
   case 5:
     sensorData[ultrasoundFrontRightIndex] = result;
+    if(*averageDistance>120)
+    buzzer_1=1;
+    else
+    buzzer_1=0;
     break;
   case 7:
     sensorData[ultrasoundFrontLeftIndex] = result;
+    if(*averageDistance>120)
+    buzzer_2=1;
+    else
+    buzzer_2=0;
     break;
   case 9:
     sensorData[ultrasoundRightIndex] = result;
+    if(*averageDistance>40)
+    buzzer_3=1;
+    else
+    buzzer_3=0;
     break;
   case 11:
     sensorData[ultrasoundLeftIndex] = result;
+    if(*averageDistance>40)
+    buzzer_4=1;
+    else
+    buzzer_4=0;
     break;    
 
 
   default: 
     break;
   }
-  //Serial.print(initPin,DEC);
+  Serial.print(initPin,DEC);
   //Serial.print(" initPin value is: ");
   //Serial.println(lastValueRecorded[initPin/2 - 1], DEC);         // print out the average distance to the debugger
-  //Serial.println(*averageDistance, DEC);
+  Serial.println(*averageDistance, DEC);
   //delay(100);                                   // wait 100 milli seconds before looping again
 
 }
@@ -708,8 +743,10 @@ void setup() {
 void loop() {
   unsigned long testTime = millis(); 
   //Serial.println("Inside Loop");
-  readIMU();
+  buzzer();
   
+  readIMU();
+ 
   readUltrasound();
   //Serial.println("Inside Loop2");
   readHMC();
