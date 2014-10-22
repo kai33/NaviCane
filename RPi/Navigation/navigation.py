@@ -10,7 +10,9 @@ from map import Map
 class Navigation:
     DELIM = "||"
     REACHED_RANGE = 50  # 0.5 meters
-    INSTRUCTION = "going to ID {0}, at your {1} {2:.0f} degrees"
+    # just keep this short
+    INSTRUCTION = "going to ID {0}"
+    # turn where? go straight? complete this please
     ARRIVED_NOTIFICATION = "You have arrived the destination {0}"
 
     #Flyweight pattern
@@ -191,8 +193,7 @@ class Navigation:
         """
         dirRelativeNorth = Map.get_direction_relative_north(self.building, self.level, direction)
         relativeDir, dist, nextLocNode = self.get_next_location_by_direction(dirRelativeNorth)
-        side = "right hand side" if relativeDir >= 0 else "left hand side"
-        return Navigation.INSTRUCTION.format(nextLocNode['nodeId'], side, abs(relativeDir))
+        return Navigation.INSTRUCTION.format(nextLocNode['nodeId'])
 
     def is_reach_end(self):
         return self.is_reach_location(self.end, self.pos[0], self.pos[1])
