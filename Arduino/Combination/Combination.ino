@@ -325,11 +325,7 @@ void readHMC(){
   //Serial.print("heading:\t");
   //Serial.println(heading);
   
-  HMC_index++;
   
-  if(HMC_index>=5){
-     HMC_index=0;
-  }
   
   HMC_buffer[HMC_index]=heading;
   HMC_total+=HMC_buffer[HMC_index];
@@ -339,6 +335,11 @@ void readHMC(){
   //Serial.print("reading:\t");
   //Serial.println(reading);
   sensorData[compassIndex]=reading;// Passing data devided by 2
+  HMC_index++;
+  
+  if(HMC_index>=5){
+     HMC_index=0;
+  }
 }
 
 void readKP(){
@@ -444,6 +445,7 @@ void setup() {
   Wire.begin();
   Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
   Serial1.begin(9600);
+  setupBuz();
   setupIMU();
   setupBMP();
   setupHMC();

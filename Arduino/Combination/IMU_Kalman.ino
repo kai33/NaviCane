@@ -5,7 +5,7 @@
 */
 
 #include<Wire.h>
-#include "kalman.h"
+//#include "kalman.h"
 
 void resetOffset() {
   xOffsetAverageSum = yOffsetAverageSum = zOffsetAverageSum = 0;
