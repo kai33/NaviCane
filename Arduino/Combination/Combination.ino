@@ -1,4 +1,3 @@
-//#include <kalman.h>
 #include <time.h>
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
@@ -6,11 +5,12 @@
 #include <HMC5883L.h>
 #include <MPU6050.h>
 #include <Keypad.h>
+//#include <kalman.h>
 
 //initialize devices
+#define OUTPUT_READABLE_ACCELGYRO
 Adafruit_BMP085 bmp;
 MPU6050 accelgyro;
-#define OUTPUT_READABLE_ACCELGYRO
 HMC5883L mag;
 
 //------------------------buzzer----------------------------
@@ -18,25 +18,17 @@ HMC5883L mag;
 //volatile int buzzer_toggle=0;
 
 //------------------------end of buzzer-----------------------
+
 //----------------------key pad consts----------------------
 int v1 = 0;
-int v2 = 0;
-int v3 = 0;
 const byte ROWS = 4;
 const byte COLS = 3;
 
 char keys[ROWS][COLS] = {                    
-  {
-    '1','2','3'    }
-  ,
-  {
-    '4','5','6'    }
-  ,
-  {
-    '7','8','9'    }
-  ,
-  {
-    '*','0','#'    }
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
 };
 
 byte rowPins[ROWS] = { 
@@ -45,6 +37,7 @@ byte colPins[COLS] = {
   35, 33, 31 }; 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
 //--------------------keypad consts ends-----------------------
+
 //--------------------ultrasound consts starts-----------------------
 const int numOfReadings = 5;     // number of readings to take/ items in the buffer for mean filter
 int lastValueRecorded[5] = {
