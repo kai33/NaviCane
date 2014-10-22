@@ -14,32 +14,15 @@ Adafruit_BMP085 bmp;
 MPU6050 accelgyro;
 HMC5883L mag;
 
-//------------------------buzzer----------------------------
+//---------------------Buzzer variables starts-----------------------
 volatile int buzzer_1=0;
 volatile int buzzer_2=0;
 volatile int buzzer_3=0;
 volatile int buzzer_4=0;
 volatile int buzzer_toggle=0;
-void setupBuz(){
-  pinMode(12, OUTPUT);
-}
-void buzzer(){
-  if(buzzer_1+buzzer_2+buzzer_3+buzzer_4>=2){
-    if(buzzer_toggle==0)
-    {
-      digitalWrite(12,HIGH);
-      buzzer_toggle=1;
-    }
-    else
-    {
-      digitalWrite(12,LOW);
-      buzzer_toggle=0;
-    }
-  }
-}
-//------------------------end of buzzer-----------------------
+//---------------------Buzzer variables ends-----------------------
 
-//----------------------key pad variables----------------------
+//----------------------Keypad variables----------------------
 int v1 = 0;
 //const byte ROWS = 4;
 //const byte COLS = 3;
@@ -56,7 +39,7 @@ byte rowPins[ROWS] = {
 byte colPins[COLS] = { 
   35, 33, 31 }; 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
-//--------------------keypad variables ends-----------------------
+//--------------------Keypad variables ends-----------------------
 
 //--------------------ultrasound variables starts-----------------------
 
@@ -165,6 +148,10 @@ int dataCorrupted = -1;
 //--------------------UART Protocol variables ends-----------------------
 
 //------------------------------All Setup Functions-----------------------
+void setupBuz(){
+  pinMode(12, OUTPUT);
+}
+
 void setupIMU(){
     Wire.beginTransmission(MPU);
     Wire.write(0x6B);  // PWR_MGMT_1 register
@@ -183,7 +170,7 @@ void setupIMU(){
 
 void setupBMP() {
   if (!bmp.begin()) {
-    Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+    //Serial.println("Could not find a valid BMP085 sensor, check wiring!");
     while (1) {
     }
   }
@@ -217,8 +204,23 @@ void setupUltrasound() {
 } 
 
 //--------------------------All Help Functions----------------
+// Buzzer function
+void buzzer(){
+  if(buzzer_1+buzzer_2+buzzer_3+buzzer_4>=2){
+    if(buzzer_toggle==0)
+    {
+      digitalWrite(12,HIGH);
+      buzzer_toggle=1;
+    }
+    else
+    {
+      digitalWrite(12,LOW);
+      buzzer_toggle=0;
+    }
+  }
+}
 
-//Keypad Function
+// Keypad Function
 int GetNumber()
 {
   int num = 0;
@@ -227,7 +229,7 @@ int GetNumber()
   if(key == '*'){
     while(key != '#')
     {
-      Serial.println("Inside while");
+      //Serial.println("Inside while");
       switch (key)
       {
       case NO_KEY:
@@ -254,7 +256,7 @@ int GetNumber()
   return num;
 }
 
-//// reset IMU position every time RPI pulls data
+// reset IMU position every time RPI pulls data
 void resetIMU(){ 
     sensorData[distanceIndex] = ((int) (yTravel*10)%255);
     resetTravel();
