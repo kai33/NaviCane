@@ -152,9 +152,10 @@ def run():
         give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))  # next loc's direction
 
     faster_loop_time = now()
-    slower_loop_time = now()
+    runner = 0
     while is_running_mode:
         while not check_connection_status():
+            voice_output.speak('set up connection')
             initiate_connection()
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             print "enter faster loop"
@@ -190,22 +191,20 @@ def run():
                         give_current_instruction(REACH_END)
                 else:
                     give_current_instruction()
-            faster_loop_time = now()
-        if now() - slower_loop_time > SLOWER_LOOP_TIMER:
-            print "enter slower loop"
             # TODO: only get certain sensors data
-            is_data_corrupted, sensors_data = receive_data()
-            if not is_data_corrupted:
-                nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
-                if nav.is_reach_next_location():
-                    give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
-                    if not nav.is_reach_end():
-                        give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
+            if runner % 5 == 0:
+                if not is_data_corrupted:
+                    nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
+                    if nav.is_reach_next_location():
+                        give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
+                        if not nav.is_reach_end():
+                            give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
+                        else:
+                            give_current_instruction(REACH_END)
                     else:
-                        give_current_instruction(REACH_END)
-                else:
-                    give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
-            slower_loop_time = now()
+                        give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
+            runner = (runner + 1) % 5
+            faster_loop_time = now()
 
 
 if __name__ == '__main__':
