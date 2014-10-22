@@ -1,4 +1,3 @@
-#include <kalman.h>
 #include <time.h>
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
@@ -6,32 +5,49 @@
 #include <HMC5883L.h>
 #include <MPU6050.h>
 #include <Keypad.h>
+//#include <kalman.h>
 
 //initialize devices
+#define OUTPUT_READABLE_ACCELGYRO
 Adafruit_BMP085 bmp;
 MPU6050 accelgyro;
-#define OUTPUT_READABLE_ACCELGYRO
 HMC5883L mag;
+
+//------------------------buzzer----------------------------
+volatile int buzzer_1=0;
+volatile int buzzer_2=0;
+volatile int buzzer_3=0;
+volatile int buzzer_4=0;
+volatile int buzzer_toggle=0;
+void setupBuz(){
+  pinMode(12, OUTPUT);
+}
+void buzzer(){
+  if(buzzer_1+buzzer_2+buzze_3+buzzer_4>=2){
+    if(buzzer_toggle==0)
+    {
+      digitalWrite(12,HIGH);
+      buzzer_toggle=1;
+    }
+    else
+    {
+      digitalWrite(12,LOW);
+      buzzer_toggle=0;
+    }
+  }
+}
+//------------------------end of buzzer-----------------------
 
 //----------------------key pad consts----------------------
 int v1 = 0;
-int v2 = 0;
-int v3 = 0;
 const byte ROWS = 4;
 const byte COLS = 3;
 
 char keys[ROWS][COLS] = {                    
-  {
-    '1','2','3'    }
-  ,
-  {
-    '4','5','6'    }
-  ,
-  {
-    '7','8','9'    }
-  ,
-  {
-    '*','0','#'    }
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
 };
 
 byte rowPins[ROWS] = { 
@@ -40,6 +56,7 @@ byte colPins[COLS] = {
   35, 33, 31 }; 
 Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
 //--------------------keypad consts ends-----------------------
+
 //--------------------ultrasound consts starts-----------------------
 const int numOfReadings = 5;     // number of readings to take/ items in the buffer for mean filter
 int lastValueRecorded[5] = {
@@ -116,8 +133,8 @@ int calX=0,calY=0;
 int calFlag=0;
 double Ax[10],Ay[10];
 double q = 0.125, r = 1.0, p = 1.0, intial_value = 10.0; 
-kalman_state kalmanX;
-kalman_state kalmanY;
+//kalman_state kalmanX;
+//kalman_state kalmanY;
 
 //--------------------IMU consts ends-----------------------
 
@@ -444,8 +461,8 @@ void setupIMU(){
     Wire.write(0);     // set to zero (wakes up the MPU-6050)
     Wire.endTransmission(true);
     Serial.begin(9600);
-    kalmanX = kalman_init(q, r, p, intial_value);
-    kalmanY = kalman_init(q, r, p, intial_value);
+    //kalmanX = kalman_init(q, r, p, intial_value);
+    //kalmanY = kalman_init(q, r, p, intial_value);
     
     for(int i=0;i<10;i++)
     {
@@ -508,9 +525,9 @@ Wire.beginTransmission(MPU);
     GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
     GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
     
-    kalman_update(&kalmanX, AcX);
+    //kalman_update(&kalmanX, AcX);
     //AcX = kalmanX.x;
-    kalman_update(&kalmanY, AcY);
+    //kalman_update(&kalmanY, AcY);
     //AcY = kalmanY.x;
     
     totalX-=Ax[i];
@@ -546,7 +563,7 @@ Wire.beginTransmission(MPU);
 }
 
 void resetIMU(){
-    sensorData[distanceIndex] = ((int) (yTravel*10)%255;
+    sensorData[distanceIndex] = ((int) (yTravel*10)%255);
     resetTravel();
 }
 
@@ -582,11 +599,11 @@ void readHMC(){
   
   HMC_total+=HMC_buffer[HMC_index];
 
-//  Serial.print("heading:\t");
-//  Serial.println(HMC_total/5);
+  Serial.print("heading:\t");
+  Serial.println(HMC_total/5);
   uint8_t reading=(HMC_total)/10;
-  //Serial.print("reading:\t");
-  //Serial.println(reading);
+  Serial.print("reading:\t");
+  Serial.println(reading);
   sensorData[compassIndex]=reading;//devided by 2
 }
 
@@ -673,25 +690,41 @@ void readUltrasound() {
 
   case 5:
     sensorData[ultrasoundFrontRightIndex] = result;
+    if(*averageDistance>120)
+    buzzer_1=1;
+    else
+    buzzer_1=0;
     break;
   case 7:
     sensorData[ultrasoundFrontLeftIndex] = result;
+    if(*averageDistance>120)
+    buzzer_2=1;
+    else
+    buzzer_2=0;
     break;
   case 9:
     sensorData[ultrasoundRightIndex] = result;
+    if(*averageDistance>40)
+    buzzer_3=1;
+    else
+    buzzer_3=0;
     break;
   case 11:
     sensorData[ultrasoundLeftIndex] = result;
+    if(*averageDistance>40)
+    buzzer_4=1;
+    else
+    buzzer_4=0;
     break;    
 
 
   default: 
     break;
   }
-  //Serial.print(initPin,DEC);
+  Serial.print(initPin,DEC);
   //Serial.print(" initPin value is: ");
   //Serial.println(lastValueRecorded[initPin/2 - 1], DEC);         // print out the average distance to the debugger
-  //Serial.println(*averageDistance, DEC);
+  Serial.println(*averageDistance, DEC);
   //delay(100);                                   // wait 100 milli seconds before looping again
 
 }
@@ -710,8 +743,10 @@ void setup() {
 void loop() {
   unsigned long testTime = millis(); 
   //Serial.println("Inside Loop");
-  readIMU();
+  buzzer();
   
+  readIMU();
+ 
   readUltrasound();
   //Serial.println("Inside Loop2");
   readHMC();
@@ -724,7 +759,7 @@ void loop() {
   
   //Serial.print("time for one loop is: ");
   //Serial.println(millis()-testTime);
-
+///*
   switch(connectionState){
   case newConnection :
     {
@@ -813,6 +848,7 @@ void loop() {
       }
     }     
   }
+  //*/
 }
 
 
