@@ -2,6 +2,7 @@ from Navigation.navigation import Navigation
 from Navigation.map import Map
 from datetime import datetime
 from time import mktime
+from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from Speech.espeak_api import VoiceOutput
 from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
@@ -24,7 +25,6 @@ command_table = {
     UltrasonicData.TURN_LEFT_SLIGHTLY: 'turn left slightly',
     UltrasonicData.TURN_RIGHT: 'turn right',
     UltrasonicData.TURN_RIGHT_SLIGHTLY: 'turn right slightly',
-    UltrasonicData.TURN_LEFT_AND_RIGHT: 'turn left or right',
     UltrasonicData.TURN_BACK: 'move backwards please',
     REACH_END: 'you have reached your destination'
 }
@@ -105,9 +105,9 @@ def get_user_input():
     start = "1"
     end = "10"
     voice_output.speak('please input current building')
-    building = get_input()
+    get_input()
     voice_output.speak('please input current level')
-    level = get_input()
+    get_input()
     has_asked_current_question = False
     while True:
         if has_asked_current_question:
@@ -147,7 +147,6 @@ def run():
 
     faster_loop_time = now()
     slower_loop_time = now()
-    from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
     while is_running_mode:
         while not check_connection_status():
             initiate_connection()

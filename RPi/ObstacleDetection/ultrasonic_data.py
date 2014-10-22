@@ -9,10 +9,9 @@ class UltrasonicData(object):
     TURN_LEFT_SLIGHTLY = 2
     TURN_RIGHT = 3
     TURN_RIGHT_SLIGHTLY = 4
-    TURN_LEFT_AND_RIGHT = 5
-    TURN_BACK = 6
+    TURN_BACK = 5
 
-    def __init__(self, safe_limit=30, side_limit=10, turn_threshold=20):
+    def __init__(self, safe_limit=35, side_limit=15, turn_threshold=23):
         super(UltrasonicData, self).__init__()
         self._safe_limit = safe_limit
         self._side_limit = side_limit
