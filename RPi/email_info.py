@@ -9,7 +9,7 @@ def send_mail_with_ip_as_content():
     if is_connected():
         to = 'showmyway10@gmail.com'
         gmail_user = 'showmyway10@gmail.com'
-        gmail_password = '******'  # use our email password and fill this in: CG3002T10
+        gmail_password = 'CG3002T10'  # use our email password and fill this in: CG3002T10
         smtpserver = smtplib.SMTP('smtp.gmail.com', 587)
         smtpserver.ehlo()
         smtpserver.starttls()
