@@ -38,11 +38,11 @@ def now():  # return seconds since epoch
 
 
 def remap_direction(rawDir):
-    return rawDir * 2
+    return int(rawDir) * 2
 
 
 def remap_distance(rawDist):
-    return float(rawDist / 10)
+    return float(rawDist) / 10
 
 
 def give_current_instruction(status=None):
