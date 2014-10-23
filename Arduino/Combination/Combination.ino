@@ -209,6 +209,9 @@ void buzzer(){
       digitalWrite(12,LOW);
       buzzer_toggle=0;
     }
+  }else{
+      digitalWrite(12,LOW);
+      buzzer_toggle=0;
   }
 }
 
@@ -250,8 +253,13 @@ int GetNumber()
 
 // reset IMU position every time RPI pulls data
 void resetIMU(){ 
-    sensorData[distanceIndex] = ((int) (yTravel*10)%255);
-    resetTravel();
+    if(yTravel>0){
+      sensorData[distanceIndex] = ((uint8_t) (yTravel*100)%255);
+      resetTravel();
+    }else{
+      sensorData[distanceIndex] = 0;
+      resetTravel();
+    }
 }
 
 void resetKP(){
@@ -288,19 +296,19 @@ Wire.beginTransmission(MPU);
       AverageAy=totalY/numOfReadingsIMU;
       addMeasurementsToTravel(AverageAx-calX,AverageAy-calY);
     }
-
-//  Serial.print("TX = "); 
-//  Serial.print(getXTravel());
-//  Serial.print(" | TY = "); 
-//  Serial.print(getYTravel());
-//  Serial.print(" | VX = "); 
-//  Serial.print(getXVelocity());
-//  Serial.print(" | VY = "); 
-//  Serial.print(getYVelocity());
-//  Serial.print(" | AX = "); 
-//  Serial.print(getXAcc());
-//  Serial.print(" | AY = "); 
-//  Serial.print(getYAcc());
+//
+//    Serial.print("TX = "); 
+//    Serial.print(getXTravel());
+//    Serial.print(" | TY = "); 
+//    Serial.print(getYTravel());
+//    Serial.print(" | VX = "); 
+//    Serial.print(getXVelocity());
+//    Serial.print(" | VY = "); 
+//    Serial.print(getYVelocity());
+//    Serial.print(" | AX = "); 
+//    Serial.print(getXAcc());
+//    Serial.print(" | AY = "); 
+//    Serial.print(getYAcc());
 //  Serial.print(" | calX = "); 
 //  Serial.print(calX);
 //  Serial.print(" | calY = "); 
@@ -326,22 +334,24 @@ void readBMP(){
 void readHMC(){
   HMC_total-=HMC_buffer[HMC_index];
   mag.getHeading(&mx, &my, &mz);
-  double heading = atan2(my-80, mx+180);
+  double heading = atan2(my-yOffsetHMC, mx-xOffsetHMC);
+  Serial.print("my:\t");
+  Serial.println(my);
+  Serial.print("mx:\t");
+  Serial.println(mx);
   if(heading < 0)
     heading += 2 * M_PI;
   heading=heading * 180/M_PI;
-  //Serial.print("heading:\t");
-  //Serial.println(heading);
-  
-  
+  Serial.print("heading:\t");
+  Serial.println(heading);
   
   HMC_buffer[HMC_index]=heading;
   HMC_total+=HMC_buffer[HMC_index];
   //Serial.print("heading:\t");
   //Serial.println(HMC_total/5);
   uint8_t reading=(HMC_total)/10;
-  //Serial.print("reading:\t");
-  //Serial.println(reading);
+  Serial.print("reading:\t");
+  Serial.println(reading);
   sensorData[compassIndex]=reading;// Passing data devided by 2
   HMC_index++;
   
@@ -412,28 +422,28 @@ void readUltrasound() {
 
   case 5:
     sensorData[ultrasoundFrontRightIndex] = result;
-    if(*averageDistance<120)
+    if(*averageDistance<60)
         buzzer_1=1;
     else
         buzzer_1=0;
     break;
   case 7:
     sensorData[ultrasoundFrontLeftIndex] = result;
-    if(*averageDistance<120)
+    if(*averageDistance<60)
         buzzer_2=1;
     else
         buzzer_2=0;
     break;
   case 9:
     sensorData[ultrasoundRightIndex] = result;
-    if(*averageDistance<40)
+    if(*averageDistance<30)
         buzzer_3=1;
     else
         buzzer_3=0;
     break;
   case 11:
     sensorData[ultrasoundLeftIndex] = result;
-    if(*averageDistance<40)
+    if(*averageDistance<30)
         buzzer_4=1;
     else
         buzzer_4=0;
@@ -475,8 +485,8 @@ void loop() {
 
   readBMP();
   
-  //Serial.print("time for one loop is: ");
-  //Serial.println(millis()-testTime);
+//  Serial.print("time for one loop is: ");
+//  Serial.println(millis()-testTime);
   
   switch(connectionState){
   case newConnection :
@@ -511,6 +521,8 @@ void loop() {
 
       case READ_START: 
         {
+          //resetIMU before pass data to RPI
+          resetIMU();
           sendSensorValue(0);
           int sendingDataBool = 1;
           while(sendingDataBool){
@@ -535,8 +547,6 @@ void loop() {
         {
           sendToRpi(ACK_WRITE);
           int index = 0;
-          //resetIMU before pass data to RPI
-          resetIMU();
           while (index != actuatorLen+1){
             if( Serial1.available() ){
               incomingByte = Serial1.read();

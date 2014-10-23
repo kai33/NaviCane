@@ -12,6 +12,7 @@ void resetVelocity() {
 
 void resetTravel() {
   xTravel = yTravel = 0.0;
+  //xVelocity = yVelocity = 0.0;
 }
 // Quite unnecessary constructer
 void initAcc() {
@@ -48,43 +49,43 @@ void addMeasurementsToTravel(double ax, double ay) {
   preAx = ax;
   preAy = ay;
 
-  if(axUnchangeCount>=7){
+  if(axUnchangeCount>=axUnchangeCountIMU){
     axUnchangeCount=0;
     xVelocity=0;
     calX+=preAx;
   }
   else{
-    xVelocity += ax * deltaTime; 
+    xVelocity += min(ax,0.14) * deltaTime; 
   }
 
-  if(ayUnchangeCount>=7){
+  if(ayUnchangeCount>=ayUnchangeCountIMU){
     ayUnchangeCount=0;
     yVelocity=0;
     calY+=preAy;
   }
   else{
-    yVelocity += ay * deltaTime;
+    yVelocity += min(ay,0.14) * deltaTime;
   }
 
-  if(prevYVelocity*yVelocity>0.0)
-    Vhide++;
-  else
-  {
-    if(Vhide>5) 
-      Vfactor=0;
-    Vhide=0;
-  }
-  prevYVelocity=yVelocity;
-  if(yVelocity<0.02||yVelocity>-0.02)
-  {
-    Vreturn++;
-    if(Vreturn>10)
-    {
-      Vfactor=1;
-      Vreturn=0;
-    }
-  }
-  yVelocity=yVelocity*Vfactor;
+//  if(prevYVelocity>0.0 && prevYVelocity*yVelocity>0.0)
+//    Vhide++;
+//  else
+//  {
+//    if(Vhide>5) 
+//      Vfactor=0;
+//    Vhide=0;
+//  }
+//  prevYVelocity=yVelocity;
+//  if(yVelocity<0.02||yVelocity>-0.02)
+//  {
+//    Vreturn++;
+//    if(Vreturn>10)
+//    {
+//      Vfactor=1;
+//      Vreturn=0;
+//    }
+//  }
+//  yVelocity=yVelocity*Vfactor;
 
   // distance moved in deltaTime, s = 1/2 a t^2 + vt
   double sx = min(1 * deltaTime, 0.5 * ax * deltaTime * deltaTime + xVelocity * deltaTime);
