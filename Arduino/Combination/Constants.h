@@ -15,7 +15,7 @@ const int yOffsetHMC = 1300;
 const int gDivider = 16384;
 const float G = 9.80665;
 const double deltaTime = 0.1; // time between samples: 10 ms
-const double xThreshold = 0.02, yThreshold = 0.02;
+const double xThreshold = 0.015, yThreshold = 0.015;
 const double xChangeThreshold = 0.011, yChangeThreshold = 0.011;
 const int axUnchangeCountIMU = 5, ayUnchangeCountIMU = 5;
 

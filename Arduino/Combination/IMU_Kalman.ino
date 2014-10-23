@@ -24,6 +24,14 @@ void initAcc() {
 // just the raw values from the accelerometer
 void addMeasurementsToTravel(double ax, double ay) {
 
+  if(ax<0){
+      ax = 0;
+  } 
+  
+  if(ay<0){
+      ay = 0;
+  } 
+  
   if(abs(ax)<=xThreshold){
     ax=0;
   }
@@ -55,7 +63,7 @@ void addMeasurementsToTravel(double ax, double ay) {
     calX+=preAx;
   }
   else{
-    xVelocity += min(ax,0.14) * deltaTime; 
+    xVelocity += min(ax,0.14) * deltaTime*1.25; 
   }
 
   if(ayUnchangeCount>=ayUnchangeCountIMU){
@@ -64,7 +72,7 @@ void addMeasurementsToTravel(double ax, double ay) {
     calY+=preAy;
   }
   else{
-    yVelocity += min(ay,0.14) * deltaTime;
+    yVelocity += min(ay,0.14) * deltaTime*1.25;
   }
 
 //  if(prevYVelocity>0.0 && prevYVelocity*yVelocity>0.0)

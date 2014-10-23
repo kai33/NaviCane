@@ -296,19 +296,19 @@ Wire.beginTransmission(MPU);
       AverageAy=totalY/numOfReadingsIMU;
       addMeasurementsToTravel(AverageAx-calX,AverageAy-calY);
     }
-//
-//    Serial.print("TX = "); 
-//    Serial.print(getXTravel());
-//    Serial.print(" | TY = "); 
-//    Serial.print(getYTravel());
-//    Serial.print(" | VX = "); 
-//    Serial.print(getXVelocity());
-//    Serial.print(" | VY = "); 
-//    Serial.print(getYVelocity());
-//    Serial.print(" | AX = "); 
-//    Serial.print(getXAcc());
-//    Serial.print(" | AY = "); 
-//    Serial.print(getYAcc());
+
+    Serial.print("TX = "); 
+    Serial.print(getXTravel());
+    Serial.print(" | TY = "); 
+    Serial.print(getYTravel());
+    Serial.print(" | VX = "); 
+    Serial.print(getXVelocity());
+    Serial.print(" | VY = "); 
+    Serial.print(getYVelocity());
+    Serial.print(" | AX = "); 
+    Serial.print(getXAcc());
+    Serial.print(" | AY = "); 
+    Serial.println(getYAcc());
 //  Serial.print(" | calX = "); 
 //  Serial.print(calX);
 //  Serial.print(" | calY = "); 
@@ -335,23 +335,23 @@ void readHMC(){
   HMC_total-=HMC_buffer[HMC_index];
   mag.getHeading(&mx, &my, &mz);
   double heading = atan2(my-yOffsetHMC, mx-xOffsetHMC);
-  Serial.print("my:\t");
-  Serial.println(my);
-  Serial.print("mx:\t");
-  Serial.println(mx);
+  //Serial.print("my:\t");
+  //Serial.println(my);
+  //Serial.print("mx:\t");
+  //Serial.println(mx);
   if(heading < 0)
     heading += 2 * M_PI;
   heading=heading * 180/M_PI;
-  Serial.print("heading:\t");
-  Serial.println(heading);
+  //Serial.print("heading:\t");
+  //Serial.println(heading);
   
   HMC_buffer[HMC_index]=heading;
   HMC_total+=HMC_buffer[HMC_index];
   //Serial.print("heading:\t");
   //Serial.println(HMC_total/5);
   uint8_t reading=(HMC_total)/10;
-  Serial.print("reading:\t");
-  Serial.println(reading);
+  //Serial.print("reading:\t");
+  //Serial.println(reading);
   sensorData[compassIndex]=reading;// Passing data devided by 2
   HMC_index++;
   
