@@ -107,9 +107,9 @@ def get_user_input():
     start = '28'
     end = '15'
     voice_output.speak('please input current building')
-    get_input()
+    building = get_input()
     voice_output.speak('please input current level')
-    get_input()
+    level = get_input()
     has_asked_current_question = False
     while True:
         if has_asked_current_question:
