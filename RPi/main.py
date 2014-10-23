@@ -171,6 +171,10 @@ def run():
                 ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
                                             sensors_data[3], sensors_data[2])
                 nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
+                print "current pos is"  # TODO: remove this after eval 2 drill
+                print nav.get_pos()  # TODO: remove this after eval 2 drill
+                print "next location pos is"  # TODO: remove this after eval 2 drill
+                print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"  # TODO: remove this after eval 2 drill
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
@@ -180,7 +184,6 @@ def run():
                 else:
                     give_current_instruction()
                 if runner == 0:
-                    nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
                     if nav.is_reach_next_location():
                         give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                         if not nav.is_reach_end():
