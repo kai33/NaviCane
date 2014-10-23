@@ -154,6 +154,7 @@ def run():
 
     faster_loop_time = now()
     runner = 0
+    global is_running_mode
     while is_running_mode:
         while not check_connection_status():
             # voice_output.speak('set up connection')
@@ -181,6 +182,7 @@ def run():
                         give_current_instruction()
                     else:
                         give_current_instruction(REACH_END)
+                        is_running_mode = False
                 else:
                     give_current_instruction()
                 if runner == 0:
@@ -190,6 +192,7 @@ def run():
                             give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                         else:
                             give_current_instruction(REACH_END)
+                            is_running_mode = False
                     else:
                         give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
             runner = (runner + 1) % 5
@@ -197,4 +200,7 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    global is_running_mode
+    while True:
+        run()
+        is_running_mode = True
