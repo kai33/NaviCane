@@ -105,7 +105,7 @@ class Map:
         """
         params:
         distance - distance went through
-        direction - angles relative to the south (clockwise)
+        direction - angles relative to the west (clockwise)
 
         return:
         x - x relative to the map
@@ -143,9 +143,9 @@ class Map:
     def get_direction_relative_north(cls, building, level, direction):
         """
         params:
-        direction - angles relative to the south (clockwise)
+        direction - angles relative to the west (clockwise)
         """
-        newDirection = direction + 180  # relative to the North (clockwise)
+        newDirection = direction + 270  # relative to the North (clockwise)
         if newDirection > 360:
             newDirection -= 360
         return newDirection

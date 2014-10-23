@@ -36,7 +36,7 @@ class Navigation:
         """
         params:
         distance - distance went through
-        direction - angles relative to the south (clockwise)
+        direction - angles relative to the west (clockwise)
         """
         (x, y, newDir) = Map.get_direction_details(self.building, self.level, distance, direction)
         self.update_pos(x, y)
@@ -189,7 +189,7 @@ class Navigation:
 
     def get_next_instruction(self, direction):
         """
-        param: direction relative to the South
+        param: direction relative to the west
         """
         dirRelativeNorth = Map.get_direction_relative_north(self.building, self.level, direction)
         relativeDir, dist, nextLocNode = self.get_next_location_by_direction(dirRelativeNorth)
