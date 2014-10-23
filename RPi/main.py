@@ -107,9 +107,10 @@ def get_user_input():
     start = '28'
     end = '15'
     voice_output.speak('please input current building')
-    building = get_input()
+    # building = get_input()
     voice_output.speak('please input current level')
-    level = get_input()
+    # level = get_input()
+    '''
     has_asked_current_question = False
     while True:
         if has_asked_current_question:
@@ -130,6 +131,7 @@ def get_user_input():
         has_asked_current_question = True
         if Map.get_node_by_location_id(building, level, end):
             break
+    '''
     return building, level, start, end
 
 
@@ -158,7 +160,7 @@ def run():
     runner = 0
     while is_running_mode:
         while not check_connection_status():
-            voice_output.speak('set up connection')
+            # voice_output.speak('set up connection')
             initiate_connection()
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
