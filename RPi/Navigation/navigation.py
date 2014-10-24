@@ -9,7 +9,7 @@ from map import Map
 
 class Navigation:
     DELIM = "||"
-    REACHED_RANGE = 50  # 0.5 meters
+    REACHED_RANGE = 150  # 1.5 meters
     INSTRUCTION = "towards {0}"
     INSTRUCTION_ANGLE = "{0} {1:.0f} degrees"
     ARRIVED_NOTIFICATION = "You have reached the destination {0}"
@@ -261,6 +261,10 @@ if __name__ == '__main__':
     print nav.update_pos(100, -50)
     print nav.is_reach_next_location()
     print nav.get_next_instruction(270)
+    print "current pos is"
+    print nav.get_pos()
+    print "next location pos is"
+    print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"
 
     from Speech.espeak_api import VoiceOutput
     voice = VoiceOutput()

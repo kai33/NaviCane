@@ -38,11 +38,11 @@ def now():  # return seconds since epoch
 
 
 def remap_direction(rawDir):
-    return rawDir * 2
+    return int(rawDir) * 2
 
 
 def remap_distance(rawDist):
-    return float(rawDist / 10)
+    return float(rawDist) / 10
 
 
 def give_current_instruction(status=None):
@@ -107,10 +107,9 @@ def get_user_input():
     start = '4'
     end = '10'
     voice_output.speak('please input current building')
-    # building = get_input()
+    building = get_input()
     voice_output.speak('please input current level')
-    # level = get_input()
-    '''
+    level = get_input()
     has_asked_current_question = False
     while True:
         if has_asked_current_question:
@@ -131,24 +130,21 @@ def get_user_input():
         has_asked_current_question = True
         if Map.get_node_by_location_id(building, level, end):
             break
-    '''
     return building, level, start, end
 
 
 def run():
     voice_output.speak('welcome to navicane system')
     (building, level, start, end) = get_user_input()
-    voice_output.speak('You are going to building ' + building +
-                       ' level ' + level +
-                       ' from ' + start +
-                       ' to ' + end)
+    voice_output.speak('You are going to building {0} level {1} from {2} to {3}'.format(building, level,
+                                                                                        start, end))
+    startPtName = Map.get_node_by_location_id(building, level, start)['nodeName']
+    endPtName = Map.get_node_by_location_id(building, level, end)['nodeName']
+    nav = Navigation(building, level, startPtName, endPtName)
     if is_connected():
         voice_output.speak('downloaded the map from internet. ready to navigate')
     else:
         voice_output.speak('the internet is not available. use default map instead')
-    startPtName = Map.get_node_by_location_id(building, level, start)['nodeName']
-    endPtName = Map.get_node_by_location_id(building, level, end)['nodeName']
-    nav = Navigation(building, level, startPtName, endPtName)
 
     # at the beginning, say the nav instruction first
     is_data_corrupted, sensors_data = receive_data()
@@ -158,6 +154,7 @@ def run():
 
     faster_loop_time = now()
     runner = 0
+    global is_running_mode
     while is_running_mode:
         while not check_connection_status():
             # voice_output.speak('set up connection')
@@ -165,43 +162,37 @@ def run():
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
-                print "=============SENSORS==============="
-                print "front right ultrasonic sensors(us)"
-                print sensors_data[0]
-                print "front left ultrasonic sensors(us)"
-                print sensors_data[1]
-                print "right ultrasonic sensors(us)"
-                print sensors_data[2]
-                print "left ultrasonic sensors(us)"
-                print sensors_data[3]
-                print "compass"
-                print sensors_data[4]
-                print "barometer"
-                print sensors_data[5]
-                print "distance"
-                print sensors_data[6]
-                print "==================================="
-                logger.info('distance: ' + str(sensors_data[6]))
+                logger.info('front right: {0}; front left: {1};right: {2};left: {3}'.format(str(sensors_data[0]),
+                                                                                            str(sensors_data[1]),
+                                                                                            str(sensors_data[2]),
+                                                                                            str(sensors_data[3])))
+                logger.info('compass: {0}; barometer: {1};distance: {2}'.format(str(sensors_data[4]),
+                                                                                str(sensors_data[5]),
+                                                                                str(sensors_data[6])))
                 ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
                                             sensors_data[3], sensors_data[2])
                 nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
+                print "current pos is"  # TODO: remove this after eval 2 drill
+                print nav.get_pos()  # TODO: remove this after eval 2 drill
+                print "next location pos is"  # TODO: remove this after eval 2 drill
+                print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"  # TODO: remove this after eval 2 drill
                 if nav.is_reach_next_location():
                     give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
                         give_current_instruction()
                     else:
                         give_current_instruction(REACH_END)
+                        is_running_mode = False
                 else:
                     give_current_instruction()
-                # TODO: only get certain sensors data
                 if runner == 0:
-                    nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
                     if nav.is_reach_next_location():
                         give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
                         if not nav.is_reach_end():
                             give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                         else:
                             give_current_instruction(REACH_END)
+                            is_running_mode = False
                     else:
                         give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
             runner = (runner + 1) % 5
@@ -209,4 +200,7 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    global is_running_mode
+    while True:
+        run()
+        is_running_mode = True
