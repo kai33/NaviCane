@@ -11,24 +11,34 @@
             socket.emit('ready', { status: 'ready' });
         });
         socket.on('mapInfo', function (data) {
-            console.log(data);
-            var paper = Raphael(50, 50, 1228 + 64, 335 + 64);
+            var SIDE_LIMIT = 64;
+            var HALF_SIDE_LIMIT = SIDE_LIMIT / 2;
+            var RADIUS = 5;
+            var TEXT_OFF_BY = 8;
+            var SCALE_FACTOR = 0.1;
+            var paper = Raphael(50, 50, 1228 + SIDE_LIMIT, 335 + SIDE_LIMIT);
             for (var i = 0; i < data.map.length; i++) {
-                var objX = parseInt(data.map[i]['x']) / 10;
-                var objY = parseInt(data.map[i]['y']) / 10;
+                var objX = parseInt(data.map[i]['x']) * SCALE_FACTOR;
+                var objY = parseInt(data.map[i]['y']) * SCALE_FACTOR;
                 var nodeName = data.map[i]['nodeName'];
-                var circle = paper.circle(objX + 32, objY + 32, 5).attr("fill", "#f00");
-                var text = paper.text(objX + 32, objY + 24, nodeName);
+                var circle = paper.circle(objX + HALF_SIDE_LIMIT, objY + HALF_SIDE_LIMIT, RADIUS).attr("fill", "#f00");
+                var text = paper.text(objX + HALF_SIDE_LIMIT, objY + HALF_SIDE_LIMIT - TEXT_OFF_BY, nodeName);
+            }
+            for (var i = 0; i < data.map.length; i++) {
+                var objX = parseInt(data.map[i]['x']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
+                var objY = parseInt(data.map[i]['y']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
                 var neighbors = data.map[i]['linkTo'].split(',');
-                console.log(neighbors);
-                for (var i = 0; i < neighbors.length; i++) {
-                    var idx = parseInt(neighbors[i].trim()) - 1;
+                for (var j = 0; j < neighbors.length; j++) {
+                    var idx = parseInt(neighbors[j].trim()) - 1;
                     var neighbor = data.map[idx];
-                    var neighborX = parseInt(neighbor['x']) / 10;
-                    var neighborY = parseInt(neighbor['y']) / 10;
-                    var path = paper.path('M' + objX + ' ' + objY + 'L' + neighborX + ' ' + neighborY);
+                    var neighborX = parseInt(neighbor['x']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
+                    var neighborY = parseInt(neighbor['y']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
+                    var path = paper.path('M' + objX + ',' + objY + 'L' + neighborX + ',' + neighborY);
                 }
-            };
+            }
+        });
+        socket.on('userInfo', function (data) {
+            console.log(data);
         });
     </script>
 </head>
