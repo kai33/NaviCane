@@ -26,6 +26,8 @@ class Navigation:
         self.pos = [float(startPoint["x"]), float(startPoint["y"])]
         self.nextLoc = {}
         self.isGivingIdInstruction = True
+        self.reachedLoc = []
+        self.reachedLoc.append(start)
 
     @classmethod
     def flush_cache(cls):
@@ -156,7 +158,10 @@ class Navigation:
                     return nextNode
                 else:
                 # else return the nearest node
-                    return minDistNode
+                    if minDistNode["nodeName"] in self.reachedLoc:
+                        return nextNode
+                    else:
+                        return minDistNode
 
     def get_next_location_details(self, direction, x, y):
         """
@@ -213,7 +218,11 @@ class Navigation:
     def is_reach_node(self, node, x, y):
         """current x, and current y"""
         distance = Map.get_distance(node["x"], x, node["y"], y)
-        return distance <= Navigation.REACHED_RANGE
+        if distance <= Navigation.REACHED_RANGE:
+            self.reachedLoc.append(node["nodeName"])
+            return True
+        else:
+            return False
 
     def is_reach_next_location(self):
         if not self.nextLoc:
@@ -250,6 +259,7 @@ if __name__ == '__main__':
     nav = Navigation("DemoBuilding", "1",
                      "Entrance",
                      "TO level 2")
+    print "you reached " + str(nav.reachedLoc)
     print nav.get_pos()
     print nav.update_pos(100, 50)
     print nav.is_reach_next_location()
@@ -265,6 +275,7 @@ if __name__ == '__main__':
     print nav.get_pos()
     print "next location pos is"
     print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"
+    print "you reached " + str(nav.reachedLoc)
 
     from Speech.espeak_api import VoiceOutput
     voice = VoiceOutput()
