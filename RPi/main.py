@@ -178,15 +178,6 @@ def run():
                 print nav.get_pos()  # TODO: remove this after eval 2 drill
                 print "next location pos is"  # TODO: remove this after eval 2 drill
                 print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"  # TODO: remove this after eval 2 drill
-                if nav.is_reach_next_location():
-                    voice_output.speak('you just reached {0}'.format(str(nav.nextLoc["nodeId"])))
-                    if not nav.is_reach_end():
-                        give_current_instruction()
-                    else:
-                        give_current_instruction(REACH_END)
-                        is_running_mode = False
-                else:
-                    give_current_instruction()
                 if runner == 0:
                     if nav.is_reach_next_location():
                         voice_output.speak('you just reached {0}'.format(str(nav.nextLoc["nodeId"])))
@@ -197,6 +188,16 @@ def run():
                             is_running_mode = False
                     else:
                         give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
+                else:
+                    if nav.is_reach_next_location():
+                        voice_output.speak('you just reached {0}'.format(str(nav.nextLoc["nodeId"])))
+                        if not nav.is_reach_end():
+                            give_current_instruction()
+                        else:
+                            give_current_instruction(REACH_END)
+                            is_running_mode = False
+                    else:
+                        give_current_instruction()
             runner = (runner + 1) % 5
             faster_loop_time = now()
 
