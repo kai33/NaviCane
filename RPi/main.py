@@ -107,9 +107,10 @@ def get_user_input():
     start = '32'
     end = '28'
     voice_output.speak('please input current building')
-    building = get_input()
+    # building = get_input()
     voice_output.speak('please input current level')
-    level = get_input()
+    # level = get_input()
+    '''
     has_asked_current_question = False
     while True:
         if has_asked_current_question:
@@ -130,6 +131,7 @@ def get_user_input():
         has_asked_current_question = True
         if Map.get_node_by_location_id(building, level, end):
             break
+    '''
     return building, level, start, end
 
 
@@ -177,7 +179,7 @@ def run():
                 print "next location pos is"  # TODO: remove this after eval 2 drill
                 print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"  # TODO: remove this after eval 2 drill
                 if nav.is_reach_next_location():
-                    give_current_instruction(str('you just reached ' + nav.nextLoc["nodeId"]))
+                    voice_output.speak('you just reached ' + nav.nextLoc["nodeId"])
                     if not nav.is_reach_end():
                         give_current_instruction()
                     else:
@@ -187,7 +189,7 @@ def run():
                     give_current_instruction()
                 if runner == 0:
                     if nav.is_reach_next_location():
-                        give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
+                        voice_output.speak("you just reached " + nav.nextLoc["nodeId"])
                         if not nav.is_reach_end():
                             give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                         else:
