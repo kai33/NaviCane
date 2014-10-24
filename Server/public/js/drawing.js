@@ -1,6 +1,7 @@
 var socket = io.connect('http://localhost');
 var paper;
 var persons = {};
+var personNames = {};
 var indicatorPath = 'M21.871,9.814 15.684,16.001 21.871,22.188 18.335,25.725 8.612,16.001 18.335,6.276z';
 socket.on('greeting', function (data) {
     socket.emit('ready', { status: 'ready' });
@@ -48,14 +49,17 @@ socket.on('usersInfo', function (data) {
             if (obj.building === building && obj.level === level) {
                 if (!persons[prop]) {
                     persons[prop] = paper.path(indicatorPath).attr('fill', '#0ff').transform('r45');
+                    personNames[prop] = paper.text(10, 5, prop.toString()).attr('fill', '#f0f');
                 }
                 var person = persons[prop];
+                var personName = personNames[prop];
                 var personX = person.getBBox().x;
                 var personY = person.getBBox().y;
                 var transformX = obj.x - personX;
                 var transformY = obj.y - personY;
                 var transformRotation = obj.direction - person.attr('transform')[0][1];
                 person.transform('t' + transformX + ',' + transformY + 'r' + transformRotation);
+                personName.transform('t' + transformX + ',' + transformY);
                 paper.path('m' + personX + ',' + personY + 'l' + transformX + ',' + transformY);
             }
         }
