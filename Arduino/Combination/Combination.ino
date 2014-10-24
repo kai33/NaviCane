@@ -91,7 +91,7 @@ int* averageDistance;
 //--------------------ultrasound variables ends-----------------------
 
 //--------------------IMU variables starts-----------------------
-int calFlag = 0;
+int calFlag=0;
 volatile unsigned long m=0;
 double xVelocity, yVelocity; // in m/s
 double xTravel, yTravel;// in m
@@ -113,7 +113,7 @@ int Vfactor=1;
 //--------------------IMU variables ends-----------------------
 
 //--------------------HMC variables starts-----------------------
-double HMC_buffer[5]={0,0,0,0,0}; 
+double HMC_buffer[numOfReadingHMC]={0,0,0,0,0}; 
 int HMC_index=0;
 double HMC_total=0;
 
@@ -175,6 +175,18 @@ void setupHMC(){
   mag.initialize();
   //Serial.println("Testing device connections...");
   //Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
+  mag.getHeading(&mx, &my, &mz);
+  double heading = atan2(my-yOffsetHMC, mx-xOffsetHMC);
+  //Serial.print("my:\t");
+  //Serial.println(my);
+  //Serial.print("mx:\t");
+  //Serial.println(mx);
+  if(heading < 0)
+    heading += 2 * M_PI;
+  heading=heading * 180/M_PI;
+  for(int i=0; i<numOfReadingHMC; i++){
+     HMC_buffer[i] = heading;
+  }
 }
 
 void setupUltrasound() {
