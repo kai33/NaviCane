@@ -19,7 +19,7 @@ voice_output = VoiceOutput()
 user_input = VoiceRecognition()
 logger = get_local_logger()
 
-REACH_END = 7
+REACH_END = 6
 
 command_table = {
     UltrasonicData.TURN_STRAIGHT: 'keep straight',
@@ -177,7 +177,7 @@ def run():
                 print "next location pos is"  # TODO: remove this after eval 2 drill
                 print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"  # TODO: remove this after eval 2 drill
                 if nav.is_reach_next_location():
-                    give_current_instruction("you just reached " + nav.nextLoc["nodeId"])
+                    give_current_instruction(str('you just reached ' + nav.nextLoc["nodeId"]))
                     if not nav.is_reach_end():
                         give_current_instruction()
                     else:

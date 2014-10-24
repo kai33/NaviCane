@@ -19,6 +19,15 @@
                 var nodeName = data.map[i]['nodeName'];
                 var circle = paper.circle(objX + 32, objY + 32, 5).attr("fill", "#f00");
                 var text = paper.text(objX + 32, objY + 24, nodeName);
+                var neighbors = data.map[i]['linkTo'].split(',');
+                console.log(neighbors);
+                for (var i = 0; i < neighbors.length; i++) {
+                    var idx = parseInt(neighbors[i].trim()) - 1;
+                    var neighbor = data.map[idx];
+                    var neighborX = parseInt(neighbor['x']) / 10;
+                    var neighborY = parseInt(neighbor['y']) / 10;
+                    var path = paper.path('M' + objX + ' ' + objY + 'L' + neighborX + ' ' + neighborY);
+                }
             };
         });
     </script>
