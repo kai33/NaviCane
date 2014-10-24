@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var request = require("request");
 var serveStatic = require('serve-static');
+var bodyParser = require('body-parser');
 var path = require('path');
 var server = app.listen(3000, function () {
     var host = server.address().address;
@@ -13,6 +14,10 @@ var io = require('socket.io')(server);
 var mapInfo;
 var users = {T10: {building: '1', level: '2', x: 32, y: 40, direction: 270}};
 
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(bodyParser.json());
 app.use('/static', serveStatic(path.join(__dirname, 'public')));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'ejs');
@@ -32,9 +37,11 @@ app.get('/monitor/:building/:level', function (req, res) {
     res.render('monitor.ejs', {building: building, level: level});
 });
 
-app.get('/user/', function (req, res) {
-    users[req.body.user_id] = req.body;
-    res.send(200);
+app.post('/users/', function (req, res) {
+    var user = req.body;
+    users[user['user_id']] = user;
+    io.sockets.emit('usersInfo', users);
+    res.sendStatus(200);
 });
 
 io.on('connection', function (socket) {
@@ -42,11 +49,6 @@ io.on('connection', function (socket) {
     socket.on('ready', function (data) {
         if (mapInfo) {
             socket.emit('mapInfo', mapInfo);
-        }
-    });
-    socket.on('request', function (data) {
-        if (true) {
-            socket.emit('usersInfo', users);
         }
     });
 });

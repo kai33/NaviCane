@@ -1,5 +1,6 @@
 var socket = io.connect('http://localhost');
 var paper;
+var personObjs = {};
 var persons = {};
 var personNames = {};
 var indicatorPath = 'M21.871,9.814 15.684,16.001 21.871,22.188 18.335,25.725 8.612,16.001 18.335,6.276z';
@@ -36,7 +37,6 @@ socket.on('mapInfo', function (data) {
         var circle = paper.circle(objX + HALF_SIDE_LIMIT, objY + HALF_SIDE_LIMIT, RADIUS).attr("fill", "#f00");
         var text = paper.text(objX + HALF_SIDE_LIMIT, objY + HALF_SIDE_LIMIT - TEXT_OFF_BY, nodeName);
     }
-    socket.emit('request', { status: 'requestUserData'});
 });
 socket.on('usersInfo', function (data) {
     var url = window.location.href;
@@ -53,14 +53,16 @@ socket.on('usersInfo', function (data) {
                 }
                 var person = persons[prop];
                 var personName = personNames[prop];
-                var personX = person.getBBox().x;
-                var personY = person.getBBox().y;
-                var transformX = obj.x - personX;
-                var transformY = obj.y - personY;
-                var transformRotation = obj.direction - person.attr('transform')[0][1];
+                var transformX = obj.x;
+                var transformY = obj.y;
+                var transformRotation = obj.direction;
                 person.transform('t' + transformX + ',' + transformY + 'r' + transformRotation);
                 personName.transform('t' + transformX + ',' + transformY);
-                paper.path('m' + personX + ',' + personY + 'l' + transformX + ',' + transformY);
+                if (personObjs[prop]) {
+                    paper.path('M' + personObjs[prop].x + ',' + personObjs[prop].y + 'L' + obj.x + ',' + obj.y).attr('fill', '#a0a');
+                }
+                personObjs[prop] = obj;
+                console.log('updating');
             }
         }
     }
