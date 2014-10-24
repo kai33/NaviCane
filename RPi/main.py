@@ -105,7 +105,7 @@ def get_user_input():
     building = '1'
     level = '2'
     start = '32'
-    end = '28'
+    end = '11'
     voice_output.speak('please input current building')
     # building = get_input()
     voice_output.speak('please input current level')
