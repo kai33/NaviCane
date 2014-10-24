@@ -18,6 +18,9 @@ const double deltaTime = 0.1; // time between samples: 10 ms
 const double xThreshold = 0.015, yThreshold = 0.015;
 const double xChangeThreshold = 0.011, yChangeThreshold = 0.011;
 const int axUnchangeCountIMU = 5, ayUnchangeCountIMU = 5;
+const float MAX_SPEEDx = 1.4, MAX_SPEEDy = 1.4;
+const float SPEED_FACTORx = 1.25, SPEED_FACTORy = 1.25;
+const float MAX_TRAVELx = 1.1, MAX_TRAVELy = 1.1;
 
 // Buffer Sizer
 const int numOfReadingsIMU = 10;

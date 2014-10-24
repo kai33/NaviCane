@@ -63,7 +63,7 @@ void addMeasurementsToTravel(double ax, double ay) {
     calX+=preAx;
   }
   else{
-    xVelocity += min(ax,0.14) * deltaTime*1.25; 
+    xVelocity += min(ax,MAX_SPEEDx) * deltaTime * SPEED_FACTORx; 
   }
 
   if(ayUnchangeCount>=ayUnchangeCountIMU){
@@ -72,7 +72,7 @@ void addMeasurementsToTravel(double ax, double ay) {
     calY+=preAy;
   }
   else{
-    yVelocity += min(ay,0.14) * deltaTime*1.25;
+    yVelocity += min(ay,MAX_SPEEDy) * deltaTime * SPEED_FACTORy;
   }
 
 //  if(prevYVelocity>0.0 && prevYVelocity*yVelocity>0.0)
@@ -96,8 +96,8 @@ void addMeasurementsToTravel(double ax, double ay) {
 //  yVelocity=yVelocity*Vfactor;
 
   // distance moved in deltaTime, s = 1/2 a t^2 + vt
-  double sx = min(1 * deltaTime, 0.5 * ax * deltaTime * deltaTime + xVelocity * deltaTime);
-  double sy = min(1 * deltaTime, 0.5 * ay * deltaTime * deltaTime + yVelocity * deltaTime);
+  double sx = min(MAX_TRAVELx * deltaTime, 0.5 * ax * deltaTime * deltaTime + xVelocity * deltaTime);
+  double sy = min(MAX_TRAVELy * deltaTime, 0.5 * ay * deltaTime * deltaTime + yVelocity * deltaTime);
   xTravel += sx;
   yTravel += sy;
 }
