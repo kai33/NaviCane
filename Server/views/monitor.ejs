@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Real-time monitoring</title>
+    <script type="text/javascript" src="/static/js/raphael-min.js"></script>
+    <script type="text/javascript" src="/static/js/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://localhost');
+        socket.on('greeting', function (data) {
+            socket.emit('ready', { status: 'ready' });
+        });
+        socket.on('mapInfo', function (data) {
+            console.log(data);
+            var paper = Raphael(50, 50, 1228 + 64, 335 + 64);
+            for (var i = 0; i < data.map.length; i++) {
+                var objX = parseInt(data.map[i]['x']) / 10;
+                var objY = parseInt(data.map[i]['y']) / 10;
+                var nodeName = data.map[i]['nodeName'];
+                var circle = paper.circle(objX + 32, objY + 32, 5).attr("fill", "#f00");
+                var text = paper.text(objX + 32, objY + 24, nodeName);
+            };
+        });
+    </script>
+</head>
+<body>
+    <h2>Map for <%= building %>, <%= level %></h2>
+</body>
+</html>

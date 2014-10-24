@@ -1,0 +1,33 @@
+{
+  "name": "NaviCane",
+  "version": "1.0.0",
+  "description": "a server to monitor user's position with navigation system in building",
+  "main": "server.js",
+  "scripts": {
+    "test": "null",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kai33/NaviCane.git"
+  },
+  "keywords": [
+    "navigation",
+    "real",
+    "time",
+    "monitoring"
+  ],
+  "author": "franklingu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kai33/NaviCane/issues"
+  },
+  "homepage": "https://github.com/kai33/NaviCane",
+  "dependencies": {
+    "ejs": "^1.0.0",
+    "express": "^4.10.0",
+    "request": "^2.46.0",
+    "serve-static": "^1.7.1",
+    "socket.io": "^1.1.0"
+  }
+}
