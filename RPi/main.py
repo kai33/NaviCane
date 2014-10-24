@@ -42,7 +42,7 @@ def remap_direction(rawDir):
 
 
 def remap_distance(rawDist):
-    return float(rawDist) / 10
+    return float(rawDist)
 
 
 def give_current_instruction(status=None):
@@ -104,8 +104,8 @@ def get_input():
 def get_user_input():
     building = '1'
     level = '2'
-    start = '4'
-    end = '10'
+    start = '32'
+    end = '28'
     voice_output.speak('please input current building')
     building = get_input()
     voice_output.speak('please input current level')
@@ -201,6 +201,7 @@ def run():
 
 if __name__ == '__main__':
     global is_running_mode
+    is_running_mode = True
     while True:
         run()
         is_running_mode = True
