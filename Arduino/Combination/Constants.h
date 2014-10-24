@@ -12,15 +12,15 @@ const int xOffsetHMC = 205;
 const int yOffsetHMC = 1300;
 
 //IMU
-const int gDivider = 16384;
-const float G = 9.80665;
-const double deltaTime = 0.1; // time between samples: 10 ms
-const double xThreshold = 0.015, yThreshold = 0.015;
-const double xChangeThreshold = 0.011, yChangeThreshold = 0.011;
-const int axUnchangeCountIMU = 5, ayUnchangeCountIMU = 5;
-const float MAX_SPEEDx = 1.4, MAX_SPEEDy = 1.4;
-const float SPEED_FACTORx = 1.25, SPEED_FACTORy = 1.25;
-const float MAX_TRAVELx = 1.1, MAX_TRAVELy = 1.1;
+const int gDivider = 16384; // not to be changed
+const float G = 9.80665; // not to be changed
+const double deltaTime = 0.1; // time between samples: 100 ms (current main loop frequency)
+const double xThreshold = 0.015, yThreshold = 0.015; // Fill out all acceleration measuresd below this threshold
+const double xChangeThreshold = 0.011, yChangeThreshold = 0.011; // Threshold to judge if the speed is remaining a value(stop) or changing (moving)
+const int axUnchangeCountIMU = 5, ayUnchangeCountIMU = 5; // Sample window size for recalibrate
+const float MAX_SPEEDx = 1.4, MAX_SPEEDy = 1.4; // Constrain the speed to be smaller than MAX_SPEEDy
+const float SPEED_FACTORx = 1.25, SPEED_FACTORy = 1.25; // Rise up Speed by a factor of SPEED_FACTORy (rise sensitivity of sensor)
+const float MAX_TRAVELx = 1.1, MAX_TRAVELy = 1.1; // Constrain max travel per loop to MAX_TRAVELy * deltaTime (m)
 
 // Buffer Sizer
 const int numOfReadingsIMU = 10;
