@@ -17,4 +17,4 @@ def update_user_location(user_id, building, level, x, y, direction):
 
 
 if __name__ == '__main__':
-    print update_user_location('T10', '1', '2', 150, 40, 190)
+    print update_user_location('T10', '1', '2', 9910, 2230, 290)
