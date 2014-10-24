@@ -187,6 +187,8 @@ void setupHMC(){
   for(int i=0; i<numOfReadingHMC; i++){
      HMC_buffer[i] = heading;
   }
+  HMC_total = heading * numOfReadingHMC;
+  
 }
 
 void setupUltrasound() {
@@ -309,18 +311,18 @@ Wire.beginTransmission(MPU);
       addMeasurementsToTravel(AverageAx-calX,AverageAy-calY);
     }
 
-    Serial.print("TX = "); 
-    Serial.print(getXTravel());
-    Serial.print(" | TY = "); 
-    Serial.print(getYTravel());
-    Serial.print(" | VX = "); 
-    Serial.print(getXVelocity());
-    Serial.print(" | VY = "); 
-    Serial.print(getYVelocity());
-    Serial.print(" | AX = "); 
-    Serial.print(getXAcc());
-    Serial.print(" | AY = "); 
-    Serial.println(getYAcc());
+//    Serial.print("TX = "); 
+//    Serial.print(getXTravel());
+//    Serial.print(" | TY = "); 
+//    Serial.print(getYTravel());
+//    Serial.print(" | VX = "); 
+//    Serial.print(getXVelocity());
+//    Serial.print(" | VY = "); 
+//    Serial.print(getYVelocity());
+//    Serial.print(" | AX = "); 
+//    Serial.print(getXAcc());
+//    Serial.print(" | AY = "); 
+//    Serial.println(getYAcc());
 //  Serial.print(" | calX = "); 
 //  Serial.print(calX);
 //  Serial.print(" | calY = "); 
@@ -354,16 +356,16 @@ void readHMC(){
   if(heading < 0)
     heading += 2 * M_PI;
   heading=heading * 180/M_PI;
-  //Serial.print("heading:\t");
-  //Serial.println(heading);
+  Serial.print("heading:\t");
+  Serial.println(heading);
   
   HMC_buffer[HMC_index]=heading;
   HMC_total+=HMC_buffer[HMC_index];
   //Serial.print("heading:\t");
   //Serial.println(HMC_total/5);
   uint8_t reading=(HMC_total)/10;
-  //Serial.print("reading:\t");
-  //Serial.println(reading);
+  Serial.print("reading:\t");
+  Serial.println(reading);
   sensorData[compassIndex]=reading;// Passing data devided by 2
   HMC_index++;
   
