@@ -5,42 +5,7 @@
     <title>Real-time monitoring</title>
     <script type="text/javascript" src="/static/js/raphael-min.js"></script>
     <script type="text/javascript" src="/static/js/socket.io.js"></script>
-    <script>
-        var socket = io.connect('http://localhost');
-        socket.on('greeting', function (data) {
-            socket.emit('ready', { status: 'ready' });
-        });
-        socket.on('mapInfo', function (data) {
-            var SIDE_LIMIT = 64;
-            var HALF_SIDE_LIMIT = SIDE_LIMIT / 2;
-            var RADIUS = 5;
-            var TEXT_OFF_BY = 8;
-            var SCALE_FACTOR = 0.1;
-            var paper = Raphael(50, 50, 1228 + SIDE_LIMIT, 335 + SIDE_LIMIT);
-            for (var i = 0; i < data.map.length; i++) {
-                var objX = parseInt(data.map[i]['x']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
-                var objY = parseInt(data.map[i]['y']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
-                var neighbors = data.map[i]['linkTo'].split(',');
-                for (var j = 0; j < neighbors.length; j++) {
-                    var idx = parseInt(neighbors[j].trim()) - 1;
-                    var neighbor = data.map[idx];
-                    var neighborX = parseInt(neighbor['x']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
-                    var neighborY = parseInt(neighbor['y']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
-                    var path = paper.path('M' + objX + ',' + objY + 'L' + neighborX + ',' + neighborY);
-                }
-            }
-            for (var i = 0; i < data.map.length; i++) {
-                var objX = parseInt(data.map[i]['x']) * SCALE_FACTOR;
-                var objY = parseInt(data.map[i]['y']) * SCALE_FACTOR;
-                var nodeName = data.map[i]['nodeName'];
-                var circle = paper.circle(objX + HALF_SIDE_LIMIT, objY + HALF_SIDE_LIMIT, RADIUS).attr("fill", "#f00");
-                var text = paper.text(objX + HALF_SIDE_LIMIT, objY + HALF_SIDE_LIMIT - TEXT_OFF_BY, nodeName);
-            }
-        });
-        socket.on('userInfo', function (data) {
-            console.log(data);
-        });
-    </script>
+    <script type="text/javascript" src="/static/js/drawing.js"></script>
 </head>
 <body>
     <h2>Map for <%= building %>, <%= level %></h2>
