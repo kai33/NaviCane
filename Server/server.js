@@ -4,13 +4,14 @@ var request = require("request");
 var serveStatic = require('serve-static');
 var path = require('path');
 var server = app.listen(3000, function () {
-  var host = server.address().address;
-  var port = server.address().port;
+    var host = server.address().address;
+    var port = server.address().port;
 
-  console.log('app listening at http://%s:%s', host, port);
+    console.log('app listening at http://%s:%s', host, port);
 });
 var io = require('socket.io')(server);
 var mapInfo;
+var users = {T10: {building: '1', level: '2', x: 32, y: 40, direction: 270}};
 
 app.use('/static', serveStatic(path.join(__dirname, 'public')));
 app.engine('html', require('ejs').renderFile);
@@ -32,7 +33,8 @@ app.get('/monitor/:building/:level', function (req, res) {
 });
 
 app.get('/user/', function (req, res) {
-    
+    users[req.body.user_id] = req.body;
+    res.send(200);
 });
 
 io.on('connection', function (socket) {
@@ -44,7 +46,7 @@ io.on('connection', function (socket) {
     });
     socket.on('request', function (data) {
         if (true) {
-            socket.emit('userInfo', { building: '1', level: '2', x: 322, y: 400, direction: 45});
+            socket.emit('usersInfo', users);
         }
     });
 });
