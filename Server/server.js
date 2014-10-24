@@ -31,11 +31,20 @@ app.get('/monitor/:building/:level', function (req, res) {
     res.render('monitor.ejs', {building: building, level: level});
 });
 
+app.get('/user/', function (req, res) {
+    
+});
+
 io.on('connection', function (socket) {
-  socket.emit('greeting', { hello: 'ready' });
-  socket.on('ready', function (data) {
-    if (mapInfo) {
-        socket.emit('mapInfo', mapInfo);
-    }
-  });
+    socket.emit('greeting', { hello: 'ready' });
+    socket.on('ready', function (data) {
+        if (mapInfo) {
+            socket.emit('mapInfo', mapInfo);
+        }
+    });
+    socket.on('request', function (data) {
+        if (true) {
+            socket.emit('userInfo', { building: '1', level: '2', x: 322, y: 400, direction: 45});
+        }
+    });
 });
