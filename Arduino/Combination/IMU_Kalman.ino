@@ -20,10 +20,16 @@ void initAcc() {
   resetTravel();
 }
 
-
+int negativeCount;
+double tempAy;
 // just the raw values from the accelerometer
 void addMeasurementsToTravel(double ax, double ay) {
-
+  
+  if(ay<-0.6 && abs(ay - tempAy) < yChangeThreshold)
+    negativeCount++;
+  else negativeCount=0;
+  tempAy=ay;
+  
   if(ax<0){
       ax = 0;
   } 
@@ -56,7 +62,7 @@ void addMeasurementsToTravel(double ax, double ay) {
 
   preAx = ax;
   preAy = ay;
-
+  
   if(axUnchangeCount>=axUnchangeCountIMU){
     axUnchangeCount=0;
     xVelocity=0;
@@ -66,10 +72,18 @@ void addMeasurementsToTravel(double ax, double ay) {
     xVelocity += min(ax,MAX_SPEEDx) * deltaTime * SPEED_FACTORx; 
   }
 
-  if(ayUnchangeCount>=ayUnchangeCountIMU){
-    ayUnchangeCount=0;
-    yVelocity=0;
+  if(ayUnchangeCount>=ayUnchangeCountIMU|| negativeCount==5){
+    if(ayUnchangeCount>=ayUnchangeCountIMU)
+      ayUnchangeCount=0;
     calY+=preAy;
+    yVelocity=0;
+    if(negativeCount==5) 
+    { 
+      calY-=preAy;
+      calY+=tempAy;
+      negativeCount=0;
+    }
+    
   }
   else{
     yVelocity += min(ay,MAX_SPEEDy) * deltaTime * SPEED_FACTORy;
