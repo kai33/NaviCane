@@ -1,5 +1,7 @@
 var socket = io.connect('http://localhost');
-var person;
+var paper;
+var persons = {};
+var indicatorPath = 'M21.871,9.814 15.684,16.001 21.871,22.188 18.335,25.725 8.612,16.001 18.335,6.276z';
 socket.on('greeting', function (data) {
     socket.emit('ready', { status: 'ready' });
 });
@@ -10,11 +12,9 @@ socket.on('mapInfo', function (data) {
     var TEXT_OFF_BY = 8;
     var SCALE_FACTOR = 0.1;
     var arrowPath = 'M15.834,29.084 15.834,16.166 2.917,16.166 29.083,2.917z';
-    var paper = Raphael(50, 50, 1228 + SIDE_LIMIT, 335 + SIDE_LIMIT);
+    paper = Raphael(50, 50, 1228 + SIDE_LIMIT, 335 + SIDE_LIMIT);
     var northAt = parseInt(data.info.northAt) - 45;
     var arrow = paper.path(arrowPath).attr('fill', '#000').transform('r' + northAt);
-    var indicatorPath = 'M21.871,9.814 15.684,16.001 21.871,22.188 18.335,25.725 8.612,16.001 18.335,6.276z';
-    person = paper.path(indicatorPath).attr('fill', '#aaa').transform('r90');
     console.log(data);
     for (var i = 0; i < data.map.length; i++) {
         var objX = parseInt(data.map[i]['x']) * SCALE_FACTOR + HALF_SIDE_LIMIT;
@@ -37,14 +37,27 @@ socket.on('mapInfo', function (data) {
     }
     socket.emit('request', { status: 'requestUserData'});
 });
-socket.on('userInfo', function (data) {
+socket.on('usersInfo', function (data) {
     var url = window.location.href;
     var splitedUrl = url.split('/');
     var building = splitedUrl[splitedUrl.length - 2];
     var level = splitedUrl[splitedUrl.length - 1];
-    if (building === data.building && level === data.level) {
-        console.log(data.x);
-        console.log(data.y);
-        console.log(data.direction);
+    for (var prop in data) {
+        if (data.hasOwnProperty(prop)) {
+            var obj = data[prop];
+            if (obj.building === building && obj.level === level) {
+                if (!persons[prop]) {
+                    persons[prop] = paper.path(indicatorPath).attr('fill', '#0ff').transform('r45');
+                }
+                var person = persons[prop];
+                var personX = person.getBBox().x;
+                var personY = person.getBBox().y;
+                var transformX = obj.x - personX;
+                var transformY = obj.y - personY;
+                var transformRotation = obj.direction - person.attr('transform')[0][1];
+                person.transform('t' + transformX + ',' + transformY + 'r' + transformRotation);
+                paper.path('m' + personX + ',' + personY + 'l' + transformX + ',' + transformY);
+            }
+        }
     }
 });
