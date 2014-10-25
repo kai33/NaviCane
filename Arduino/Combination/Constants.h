@@ -9,17 +9,17 @@
 
 //HMC
 const int xOffsetHMC = -350;
-const int yOffsetHMC = 1040;
+const int yOffsetHMC = 900;
 
 //IMU
 const int gDivider = 16384; // not to be changed
 const float G = 9.80665; // not to be changed
 const double deltaTime = 0.1; // time between samples: 100 ms (current main loop frequency)
-const double xThreshold = 0.009, yThreshold = 0.009; // Fill out all acceleration measuresd below this threshold
+const double xThreshold = 0.010, yThreshold = 0.010; // Fill out all acceleration measuresd below this threshold
 const double xChangeThreshold = 0.011, yChangeThreshold = 0.011; // Threshold to judge if the speed is remaining a value(stop) or changing (moving)
 const int axUnchangeCountIMU = 5, ayUnchangeCountIMU = 5; // Sample window size for recalibrate
 const float MAX_SPEEDx = 1.0, MAX_SPEEDy = 1.0; // Constrain the speed to be smaller than MAX_SPEEDy
-const float SPEED_FACTORx = 1.5, SPEED_FACTORy = 1.5; // Rise up Speed by a factor of SPEED_FACTORy (rise sensitivity of sensor)
+const float SPEED_FACTORx = 1.4, SPEED_FACTORy = 1.4; // Rise up Speed by a factor of SPEED_FACTORy (rise sensitivity of sensor)
 const float MAX_TRAVELx = 0.6, MAX_TRAVELy = 0.6; // Constrain max travel per loop to MAX_TRAVELy * deltaTime (m)
 
 // Buffer Sizer
