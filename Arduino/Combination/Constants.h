@@ -8,8 +8,8 @@
 #define CONSTANTS_H
 
 //HMC
-const int xOffsetHMC = -200;
-const int yOffsetHMC = 800;
+const int xOffsetHMC = -350;
+const int yOffsetHMC = 1040;
 
 //IMU
 const int gDivider = 16384; // not to be changed
