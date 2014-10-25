@@ -19,7 +19,7 @@ voice_output = VoiceOutput()
 user_input = VoiceRecognition()
 logger = get_local_logger()
 
-REACH_END = 6
+REACH_END = UltrasonicData.TURN_BACK + 1
 
 command_table = {
     UltrasonicData.TURN_STRAIGHT: 'keep straight',
@@ -107,10 +107,9 @@ def get_user_input():
     start = '32'
     end = '11'
     voice_output.speak('please input current building')
-    # building = get_input()
+    building = get_input()
     voice_output.speak('please input current level')
-    # level = get_input()
-    '''
+    level = get_input()
     has_asked_current_question = False
     while True:
         if has_asked_current_question:
@@ -131,7 +130,6 @@ def get_user_input():
         has_asked_current_question = True
         if Map.get_node_by_location_id(building, level, end):
             break
-    '''
     return building, level, start, end
 
 
