@@ -107,9 +107,9 @@ class Navigation:
         routeLength = len(route)
         # base cases:
         if routeLength == 1:
-            return Map.get_node_by_location_name(route[0])
+            return Map.get_node_by_location_name(self.building, self.level, route[0])
         elif routeLength == 2:
-            return Map.get_node_by_location_name(route[1])
+            return Map.get_node_by_location_name(self.building, self.level, route[1])
 
         minDist = sys.maxint
         minDistNode = {}
