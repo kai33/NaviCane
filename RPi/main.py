@@ -77,27 +77,25 @@ def get_input():
     accumulated_input = 0
     is_input_done = False
     while not is_input_done:
-        user_command = user_input.get_command()
-        if user_command is not None:
-            intepreted_command = command_lookup.get(user_command.strip(), None)
-            if intepreted_command is not None and type(intepreted_command) is int:
-                accumulated_input = accumulated_input * 10 + intepreted_command
-            elif intepreted_command is not None and type(intepreted_command) is bool:
-                if intepreted_command:
-                    is_input_done = True
-                else:
-                    accumulated_input = accumulated_input / 10
-            else:
-                voice_output.speak('input is not valid. please try again')
-                continue
+        user_commands = user_input.get_command()
+        if user_commands is not None:
+            commands = user_commands.split(' ')
+            for cmd in commands:
+                intepreted_command = command_lookup.get(cmd.strip(), None)
+                if intepreted_command is not None and type(intepreted_command) is int:
+                    accumulated_input = accumulated_input * 10 + intepreted_command
         else:
             voice_output.speak('input is not valid. please try again')
             continue
-        if is_input_done:
-            voice_output.speak('input {0} is confirmed'.format(str(accumulated_input)))
+        voice_output.speak('input is {0}'.format(user_commands.strip().lower()))
+        voice_output.speak('confirm or cancel the input')
+        final_cmd = user_input.get_command()
+        is_input_done = command_lookup.get(final_cmd.strip(), False)
+        if type(is_input_done) is bool and is_input_done:
+            voice_output.speak('input {0} is confirmed'.format(user_commands.strip().lower()))
         else:
-            voice_output.speak('input is {0} so far'.format(str(accumulated_input)))
-            voice_output.speak('you can input next digit, confirm input or cancel last digit')
+            is_input_done = False
+            voice_output.speak('please redo the input')
     return str(accumulated_input)
 
 
@@ -108,6 +106,7 @@ def get_user_input():
     end = '11'
     voice_output.speak('please input current building')
     building = get_input()
+    print building
     voice_output.speak('please input current level')
     level = get_input()
     has_asked_current_question = False

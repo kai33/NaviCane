@@ -8,7 +8,7 @@ class VoiceRecognition(object):
     lm_file_path = os.path.dirname(os.path.abspath(__file__)) + '/dictionary.lm'
     dic_file_path = os.path.dirname(os.path.abspath(__file__)) + '/dictionary.dic'
     POCKETSPHINX_SHELL_CALL = 'pocketsphinx_continuous -lm ' + lm_file_path + ' -dict ' + dic_file_path
-    REGEX_MATCH_STRING = '^\d{9}:\s?(((:?ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|CANCEL|CONFIRM)\s))\s?$'
+    REGEX_MATCH_STRING = '^\d{9}:\s?((?:(?:ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|CANCEL|CONFIRM)\s)+)\s?$'
     REGEX_MATCH_READY = '^READY....\s?$'
 
     def __init__(self):
