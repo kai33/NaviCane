@@ -96,7 +96,7 @@ volatile unsigned long m=0;
 double xVelocity, yVelocity; // in m/s
 double xTravel, yTravel;// in m
 int axUnchangeCount = 0, ayUnchangeCount = 0;
-double MeasuredAx, MeasuredAy;
+int16_t MeasuredAx, MeasuredAy;
 int Tmp;
 int i=0;
 double totalX=0,totalY=0;
@@ -116,12 +116,12 @@ int Vfactor=1;
 double HMC_buffer[numOfReadingHMC]={0,0,0,0,0}; 
 int HMC_index=0;
 double HMC_total=0;
+int16_t mx, my, mz;
 
 //--------------------HMC variables ends-----------------------
 
 //--------------------UART Protocol variables starts--------------
 uint8_t incomingByte = 0;  
-int16_t mx, my, mz;
 
 enum STATE connectionState = newConnection;
 
@@ -292,8 +292,8 @@ Wire.beginTransmission(MPU);
 
   totalX-=Ax[i];
   totalY-=Ay[i];
-  Ax[i]=MeasuredAx/gDivider*G;
-  Ay[i]=MeasuredAy/gDivider*G;
+  Ax[i]=MeasuredAx/(double)gDivider*G;
+  Ay[i]=MeasuredAy/(double)gDivider*G;
   totalX+=Ax[i];
   totalY+=Ay[i];
   i++;
@@ -356,8 +356,8 @@ void readHMC(){
   if(heading < 0)
     heading += 2 * M_PI;
   heading=heading * 180/M_PI;
-  //Serial.print("heading:\t");
-  //Serial.println(heading);
+  Serial.print("heading:\t");
+  Serial.println(heading);
   
   HMC_buffer[HMC_index]=heading;
   HMC_total+=HMC_buffer[HMC_index];
