@@ -100,7 +100,7 @@ def get_input():
 
 
 def get_user_input():
-    building = '1'
+    building = 'COM1'
     level = '2'
     start = '32'
     end = '11'
