@@ -70,10 +70,16 @@ class Guidance:
                 mapRouteIdx += 1
         return nav
 
+# TODO:
+# get_next_instruction
+# update_pos_by_dist_and_dir
+# get_pos
+# nextLoc
+# is_reach_next_location
+# is_reach_end
 
 if __name__ == '__main__':
     Guidance("COM1", "2", "1", "COM1", "2", "4").get_nav()
     nav = Guidance("COM1", "2", "28", "COM2", "3", "1").get_nav()
     for n in nav:
         print n.get_route()
-        
