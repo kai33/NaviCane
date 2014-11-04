@@ -74,6 +74,16 @@ class Map:
         return {}
 
     @classmethod
+    def get_node_by_connected_map(cls, building, level, map):
+        rawData = cls.get_map(building, level)
+        mapData = rawData.get("map", {})
+        for node in mapData:
+            nodeName = node["nodeName"]
+            if ("TO " + map) in nodeName:
+                return node
+        return {}
+
+    @classmethod
     def get_north_at(cls, building, level):
         rawData = cls.get_map(building, level)
         infoData = rawData.get("info", {})

@@ -45,14 +45,35 @@ class Guidance:
         return route
 
     def get_nav(self):
+        nav = []
         if(self.is_same_map()):
             startName = Map.get_node_by_location_id(self.startBuilding, self.startLevel, self.startId)['nodeName']
             endName = Map.get_node_by_location_id(self.endBuilding, self.endLevel, self.endId)['nodeName']
-            print Navigation(self.startBuilding, self.startLevel, startName, endName).get_route()
+            nav.append(Navigation(self.startBuilding, self.startLevel, startName, endName).get_route())
         else:
-            print self.get_map_route()
+            mapRoute = self.get_map_route()
+            mapRouteIdx = 0
+            for map in mapRoute:
+                building, level = map.split("-")
+                startName = ""
+                endName = ""
+                if mapRouteIdx == 0:
+                    startName = Map.get_node_by_location_id(self.startBuilding, self.startLevel, self.startId)['nodeName']
+                    endName = Map.get_node_by_connected_map(self.startBuilding, self.startLevel, mapRoute[mapRouteIdx + 1])['nodeName']
+                elif mapRouteIdx == (len(mapRoute) - 1):
+                    startName = Map.get_node_by_connected_map(self.endBuilding, self.endLevel, mapRoute[mapRouteIdx - 1])['nodeName']
+                    endName = Map.get_node_by_location_id(self.endBuilding, self.endLevel, self.endId)['nodeName']
+                else:
+                    startName = Map.get_node_by_connected_map(building, level, mapRoute[mapRouteIdx - 1])['nodeName']
+                    endName = Map.get_node_by_connected_map(building, level, mapRoute[mapRouteIdx + 1])['nodeName']
+                nav.append(Navigation(building, level, startName, endName))
+                mapRouteIdx += 1
+        return nav
 
 
 if __name__ == '__main__':
     Guidance("COM1", "2", "1", "COM1", "2", "4").get_nav()
-    Guidance("COM1", "2", "1", "COM2", "3", "1").get_nav()
+    nav = Guidance("COM1", "2", "28", "COM2", "3", "1").get_nav()
+    for n in nav:
+        print n.get_route()
+        
