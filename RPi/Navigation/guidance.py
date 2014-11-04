@@ -15,6 +15,8 @@ class Guidance:
         self.endBuilding = endBuilding
         self.endLevel = endLevel
         self.endId = endId
+        self.nav = []
+        self.navIdx = 0
 
     def is_same_map(self):
         return (self.startBuilding == self.endBuilding) and (self.startLevel == self.endLevel)
@@ -37,7 +39,6 @@ class Guidance:
                     parent[nextBuilding + "-" + nextLevel] = building + "-" + level
         route = [self.endBuilding + "-" + self.endLevel]
         tmp = self.endBuilding + "-" + self.endLevel
-        print parent
         while tmp != (self.startBuilding + "-" + self.startLevel):
             route.append(parent[tmp])
             tmp = parent[tmp]
@@ -45,11 +46,12 @@ class Guidance:
         return route
 
     def get_nav(self):
-        nav = []
+        if self.nav:
+            return self.nav
         if(self.is_same_map()):
             startName = Map.get_node_by_location_id(self.startBuilding, self.startLevel, self.startId)['nodeName']
             endName = Map.get_node_by_location_id(self.endBuilding, self.endLevel, self.endId)['nodeName']
-            nav.append(Navigation(self.startBuilding, self.startLevel, startName, endName).get_route())
+            self.nav.append(Navigation(self.startBuilding, self.startLevel, startName, endName).get_route())
         else:
             mapRoute = self.get_map_route()
             mapRouteIdx = 0
@@ -66,20 +68,70 @@ class Guidance:
                 else:
                     startName = Map.get_node_by_connected_map(building, level, mapRoute[mapRouteIdx - 1])['nodeName']
                     endName = Map.get_node_by_connected_map(building, level, mapRoute[mapRouteIdx + 1])['nodeName']
-                nav.append(Navigation(building, level, startName, endName))
+                self.nav.append(Navigation(building, level, startName, endName))
                 mapRouteIdx += 1
-        return nav
+        return self.nav
 
-# TODO:
-# get_next_instruction
-# update_pos_by_dist_and_dir
-# get_pos
-# nextLoc
-# is_reach_next_location
-# is_reach_end
+    def get_next_instruction(self, dir):
+        currentNav = self.get_nav()[self.navIdx]
+        isReachEnd = currentNav.is_reach_end()
+        if isReachEnd:
+            self.navIdx += 1
+        return currentNav.get_next_instruction(dir)
+
+    def update_pos_by_dist_and_dir(self, dist, dir):
+        currentNav = self.get_nav()[self.navIdx]
+        return currentNav.update_pos_by_dist_and_dir(dist, dir)
+
+    def get_pos(self):
+        currentNav = self.get_nav()[self.navIdx]
+        return currentNav.get_pos()
+
+    def get_next_loc(self):
+        currentNav = self.get_nav()[self.navIdx]
+        return currentNav.nextLoc
+
+    def is_reach_next_location(self):
+        currentNav = self.get_nav()[self.navIdx]
+        return currentNav.is_reach_next_location()
+
+    def is_reach_end(self):
+        currentNav = self.get_nav()[self.navIdx]
+        isReachEnd = currentNav.is_reach_end()
+        if isReachEnd:
+            self.navIdx += 1
+        return isReachEnd
 
 if __name__ == '__main__':
     Guidance("COM1", "2", "1", "COM1", "2", "4").get_nav()
-    nav = Guidance("COM1", "2", "28", "COM2", "3", "1").get_nav()
+    guide = Guidance("COM1", "2", "28", "COM2", "3", "1")
+    nav = guide.get_nav()
     for n in nav:
         print n.get_route()
+    # to P29
+    print guide.get_next_instruction(10)
+    print guide.get_next_instruction(10)
+    guide.update_pos_by_dist_and_dir(500, 270)
+    print guide.get_next_instruction(10)
+    print guide.get_next_instruction(10)
+    print guide.get_pos()
+    print guide.is_reach_next_location()
+    print guide.get_next_loc()
+    # to TO COM2-2-1
+    print guide.get_next_instruction(10)
+    print guide.get_next_instruction(10)
+    guide.update_pos_by_dist_and_dir(500, 270)
+    print guide.get_next_instruction(10)
+    print guide.get_next_instruction(10)
+    print guide.get_pos()
+    print guide.is_reach_next_location()
+    print guide.get_next_loc()
+    # to TO COM2-2-1
+    print guide.get_next_instruction(10)
+    print guide.get_next_instruction(10)
+    guide.update_pos_by_dist_and_dir(320, 220)
+    print guide.get_next_instruction(10)
+    print guide.get_next_instruction(10)
+    print guide.get_pos()
+    print guide.is_reach_next_location()
+    print guide.get_next_loc()
