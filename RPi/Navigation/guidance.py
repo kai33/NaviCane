@@ -77,6 +77,7 @@ class Guidance:
         isReachEnd = currentNav.is_reach_end()
         if isReachEnd:
             self.navIdx += 1
+            currentNav = self.get_nav()[self.navIdx]
         return currentNav.get_next_instruction(dir)
 
     def update_pos_by_dist_and_dir(self, dist, dir):
@@ -96,11 +97,10 @@ class Guidance:
         return currentNav.is_reach_next_location()
 
     def is_reach_end(self):
-        currentNav = self.get_nav()[self.navIdx]
-        isReachEnd = currentNav.is_reach_end()
-        if isReachEnd:
-            self.navIdx += 1
-        return isReachEnd
+        if self.navIdx == (len(self.get_nav) - 1):
+            lastNav = self.get_nav()[self.navIdx]
+            return lastNav.is_reach_end()
+        return False
 
 if __name__ == '__main__':
     Guidance("COM1", "2", "1", "COM1", "2", "4").get_nav()
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     # to P29
     print guide.get_next_instruction(10)
     print guide.get_next_instruction(10)
-    guide.update_pos_by_dist_and_dir(500, 270)
+    guide.update_pos_by_dist_and_dir(500, 315)
     print guide.get_next_instruction(10)
     print guide.get_next_instruction(10)
     print guide.get_pos()
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     print guide.get_pos()
     print guide.is_reach_next_location()
     print guide.get_next_loc()
-    # to TO COM2-2-1
+    # to TO P2 (COM2 lv2)
     print guide.get_next_instruction(10)
     print guide.get_next_instruction(10)
     guide.update_pos_by_dist_and_dir(320, 220)
