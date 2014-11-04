@@ -151,6 +151,16 @@ class Map:
         return newDirection
 
     @classmethod
+    def get_connected_maps(cls, building, level):
+        rawData = cls.get_map(building, level)
+        mapData = rawData.get("map", {})
+        connectedMaps = []
+        for node in mapData:
+            if node["nodeName"].lower().startswith("to ") and (len(node["nodeName"].split("-")) == 3):
+                connectedMaps.append(node["nodeName"][3:])
+        return connectedMaps
+
+    @classmethod
     def flush_cache(cls):
         cls.__map = {}
         cls.__graph = {}
