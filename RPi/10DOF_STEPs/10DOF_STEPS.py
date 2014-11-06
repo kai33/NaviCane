@@ -148,7 +148,7 @@ WRITE_ACCEL(LSM303_REGISTER_ACCEL_CTRL_REG4_A, 0x40)
 WRITE_MAG(LSM303_REGISTER_MAG_MR_REG_M, 0x00) #initialise the Magnetometer
 
 AccelYThreshold = 0.12
-StepTimeThreshold = 0.1
+StepTimeThreshold = 0.3
 
 caliResultsY = []
 offsetY = caliAccelY()
@@ -180,4 +180,4 @@ while True:
             if endT - startT >StepTimeThreshold and not startT == 0:
                 stepCount += 1
 
-        time.sleep(0.1)
+        #time.sleep(0.1)
