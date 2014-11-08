@@ -9,7 +9,7 @@ from map import Map
 
 class Navigation:
     DELIM = "||"
-    REACHED_RANGE = 250  # 2.5 meters
+    REACHED_RANGE = 150  # 1.5 meters
     INSTRUCTION = "towards {0}"
     INSTRUCTION_ANGLE = "{0} {1:.0f} degrees"
     ARRIVED_NOTIFICATION = "You have reached the destination {0}"
@@ -148,8 +148,10 @@ class Navigation:
             nextDist = Map.get_distance(nextNode["x"], x, nextNode["y"], y)
             if nextDist <= prevDist:
             # if nearer to the next node
-            # return next node
-                return nextNode
+                if minDistNode["nodeName"] in self.reachedLoc:
+                    return nextNode
+                else:
+                    return minDistNode
             else:
             # nextDist > prevDist -- nearer to the previous node
                 if self.is_reach_node(minDistNode, x, y):

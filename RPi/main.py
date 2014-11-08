@@ -1,4 +1,4 @@
-from Navigation.navigation import Navigation
+from Navigation.guidance import Guidance
 from Navigation.map import Map
 from datetime import datetime
 from time import mktime
@@ -6,10 +6,9 @@ from Communication.Uart.uart_communication import receive_data, initiate_connect
 from Speech.espeak_api import VoiceOutput
 from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
-from Communication.WiFi.ping_internet import is_connected
 from local_logger import get_local_logger
 
-FASTER_LOOP_TIMER = 2
+FASTER_LOOP_TIMER = 1
 SLOWER_LOOP_TIMER = 10
 
 is_running_mode = True
@@ -70,9 +69,7 @@ def get_input():
         'EIGHT': 8,
         'NINE': 9,
         'CONFIRM': True,
-        'CANCEL': False,
-        'PREVIOUS': 'previous',
-        'NEXT': 'next'
+        'CANCEL': False
     }
     accumulated_input = 0
     is_input_done = False
@@ -85,7 +82,7 @@ def get_input():
                 if intepreted_command is not None and type(intepreted_command) is int:
                     accumulated_input = accumulated_input * 10 + intepreted_command
         else:
-            voice_output.speak('input is not valid. please try again')
+            voice_output.speak('please try again')
             continue
         voice_output.speak('input is {0}'.format(user_commands.strip().lower()))
         voice_output.speak('confirm or cancel the input')
@@ -100,51 +97,38 @@ def get_input():
 
 
 def get_user_input():
-    building = 'COM1'
-    level = '2'
-    start = '32'
-    end = '11'
-    voice_output.speak('please input current building')
-    building = get_input()
-    print building
-    voice_output.speak('please input current level')
-    level = get_input()
-    has_asked_current_question = False
-    while True:
-        if has_asked_current_question:
-            voice_output.speak('sorry, cannot find given position. please input current position again')
-        else:
-            voice_output.speak('please input current position')
-        start = get_input()
-        has_asked_current_question = True
-        if Map.get_node_by_location_id(building, level, start):
-            break
-    has_asked_current_question = False
-    while True:
-        if has_asked_current_question:
-            voice_output.speak('sorry, cannot find given position. please input your destination again')
-        else:
-            voice_output.speak('please input your destination')
-        end = get_input()
-        has_asked_current_question = True
-        if Map.get_node_by_location_id(building, level, end):
-            break
-    return building, level, start, end
+    starting_building = 'COM1'
+    starting_level = '2'
+    starting_point = '32'
+    ending_building = 'COM2'
+    ending_level = '3'
+    ending_point = '11'
+    voice_output.speak('building')
+    starting_building = 'COM' + get_input()
+    voice_output.speak('level')
+    starting_level = get_input()
+    voice_output.speak('start')
+    starting_point = get_input()
+    voice_output.speak('building')
+    ending_building = 'COM' + get_input()
+    voice_output.speak('level')
+    ending_level = get_input()
+    voice_output.speak('end')
+    ending_point = get_input()
+    return starting_building, starting_level, starting_point, ending_building, ending_level, ending_point
 
 
 def run():
     voice_output.speak('welcome to navicane system')
-    (building, level, start, end) = get_user_input()
-    voice_output.speak('You are going to building {0} level {1} from {2} to {3}'.format(building, level,
-                                                                                        start, end))
-    startPtName = Map.get_node_by_location_id(building, level, start)['nodeName']
-    endPtName = Map.get_node_by_location_id(building, level, end)['nodeName']
-    nav = Navigation(building, level, startPtName, endPtName)
-    if is_connected():
-        voice_output.speak('downloaded the map from internet. ready to navigate')
-    else:
-        voice_output.speak('the internet is not available. use default map instead')
+    (starting_building, starting_level, starting_point,
+     ending_building, ending_level, ending_point) = get_user_input()
+    # TODO: may get NONE if input param is incorrect, if incorrect should re-input
+    startPtName = Map.get_node_by_location_id(starting_building, starting_level, starting_point)['nodeName']
+    endPtName = Map.get_node_by_location_id(ending_building, ending_level, ending_point)['nodeName']
+    nav = Guidance(starting_building, starting_level, startPtName, ending_building, ending_level, endPtName)
+    voice_output.speak('start navigation')
 
+    # value got at the start does not seem to be reliable???
     # at the beginning, say the nav instruction first
     is_data_corrupted, sensors_data = receive_data()
     if not is_data_corrupted:
@@ -174,10 +158,10 @@ def run():
                 print "current pos is"  # TODO: remove this after eval 2 drill
                 print nav.get_pos()  # TODO: remove this after eval 2 drill
                 print "next location pos is"  # TODO: remove this after eval 2 drill
-                print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"  # TODO: remove this after eval 2 drill
+                print "[" + nav.get_next_loc()["x"] + ", " + nav.get_next_loc()["y"] + "]"  # TODO: remove this after eval 2 drill
                 if runner == 0:
                     if nav.is_reach_next_location():
-                        voice_output.speak('you just reached {0}'.format(str(nav.nextLoc["nodeId"])))
+                        voice_output.speak('you just reached {0}'.format(str(nav.get_next_loc()["nodeId"])))
                         if not nav.is_reach_end():
                             give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                         else:
@@ -187,7 +171,7 @@ def run():
                         give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                 else:
                     if nav.is_reach_next_location():
-                        voice_output.speak('you just reached {0}'.format(str(nav.nextLoc["nodeId"])))
+                        voice_output.speak('you just reached {0}'.format(str(nav.get_next_loc()["nodeId"])))
                         if not nav.is_reach_end():
                             give_current_instruction()
                         else:
