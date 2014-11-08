@@ -152,6 +152,7 @@ if __name__ == '__main__':
     dir = dir - 90
     guide.update_pos_by_dist_and_dir(600, dir)
     print guide.is_reach_next_location()
+    print guide.get_next_loc()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 12
     guide.update_pos_by_dist_and_dir(400, dir)

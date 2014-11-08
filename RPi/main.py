@@ -1,4 +1,4 @@
-from Navigation.navigation import Navigation
+from Navigation.guidance import Guidance
 from Navigation.map import Map
 from datetime import datetime
 from time import mktime
@@ -122,10 +122,10 @@ def run():
     voice_output.speak('welcome to navicane system')
     (starting_building, starting_level, starting_point,
      ending_building, ending_level, ending_point) = get_user_input()
+    # TODO: may get NONE if input param is incorrect, if incorrect should re-input
     startPtName = Map.get_node_by_location_id(starting_building, starting_level, starting_point)['nodeName']
     endPtName = Map.get_node_by_location_id(ending_building, ending_level, ending_point)['nodeName']
-    # the way of doing this is wrong
-    nav = Navigation(starting_building, starting_level, startPtName, endPtName)
+    nav = Guidance(starting_building, starting_level, startPtName, ending_building, ending_level, endPtName)
     voice_output.speak('start navigation')
 
     # value got at the start does not seem to be reliable???
@@ -158,10 +158,10 @@ def run():
                 print "current pos is"  # TODO: remove this after eval 2 drill
                 print nav.get_pos()  # TODO: remove this after eval 2 drill
                 print "next location pos is"  # TODO: remove this after eval 2 drill
-                print "[" + nav.nextLoc["x"] + ", " + nav.nextLoc["y"] + "]"  # TODO: remove this after eval 2 drill
+                print "[" + nav.get_next_loc()["x"] + ", " + nav.get_next_loc()["y"] + "]"  # TODO: remove this after eval 2 drill
                 if runner == 0:
                     if nav.is_reach_next_location():
-                        voice_output.speak('you just reached {0}'.format(str(nav.nextLoc["nodeId"])))
+                        voice_output.speak('you just reached {0}'.format(str(nav.get_next_loc()["nodeId"])))
                         if not nav.is_reach_end():
                             give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                         else:
@@ -171,7 +171,7 @@ def run():
                         give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                 else:
                     if nav.is_reach_next_location():
-                        voice_output.speak('you just reached {0}'.format(str(nav.nextLoc["nodeId"])))
+                        voice_output.speak('you just reached {0}'.format(str(nav.get_next_loc()["nodeId"])))
                         if not nav.is_reach_end():
                             give_current_instruction()
                         else:
