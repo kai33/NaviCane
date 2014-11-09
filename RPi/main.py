@@ -123,9 +123,9 @@ def run():
     (starting_building, starting_level, starting_point,
      ending_building, ending_level, ending_point) = get_user_input()
     # TODO: may get NONE if input param is incorrect, if incorrect should re-input
-    startPtName = Map.get_node_by_location_id(starting_building, starting_level, starting_point)['nodeName']
-    endPtName = Map.get_node_by_location_id(ending_building, ending_level, ending_point)['nodeName']
-    nav = Guidance(starting_building, starting_level, startPtName, ending_building, ending_level, endPtName)
+    # startPtName = Map.get_node_by_location_id(starting_building, starting_level, starting_point)['nodeName']
+    # endPtName = Map.get_node_by_location_id(ending_building, ending_level, ending_point)['nodeName']
+    nav = Guidance(starting_building, starting_level, starting_point, ending_building, ending_level, ending_point)
     voice_output.speak('start navigation')
 
     # value got at the start does not seem to be reliable???
