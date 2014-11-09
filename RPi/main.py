@@ -47,7 +47,7 @@ def remap_distance(rawDist):
 def give_current_instruction(status=None):
     # if navigation has something, output navigation
     ultrasonic_status = ultrasonic_handle.get_instruction()
-    if status and type(status) is str:
+    if status and type(status) is not int:
         current_command = status
     elif status:
         current_command = command_table[status]
