@@ -69,7 +69,7 @@ void loop()
   lsm_total_y -= lsm_buffer_y[lsm_index_counter];
   lsm_buffer_y[lsm_index_counter] = compass.a.y - lsm_offset_y;
   lsm_total_y += lsm_buffer_y[lsm_index_counter];
-  float current_a_y = (lsm_total_y-lsm_offset_y)*a_factor;
+  float current_a_y = lsm_total_y*a_factor;
   Serial.println(current_a_y);
   
   if(lsm_step_up_flag == 0 && abs(current_a_y) > lsm_up_threshold_y){

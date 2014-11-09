@@ -5,6 +5,8 @@
 #include <HMC5883L.h>
 #include <MPU6050.h>
 #include <Keypad.h>
+#include <Wire.h>
+#include <LSM303.h>
 #include "Constants.h"
 //#include <kalman.h>
 
@@ -13,6 +15,17 @@
 Adafruit_BMP085 bmp;
 MPU6050 accelgyro;
 HMC5883L mag;
+LSM303 compass;
+
+//---------------------StepCounter variables starts-------------------
+int lsm_buffer_y[lsm_buffer_size];
+int lsm_total_y = 0; 
+int lsm_offset_y = 0;
+int lsm_index_counter = 0;
+int lsm_step_up_flag = 0;
+int lsm_step_count = 0;
+long last_step_up_time_y = 0;
+//---------------------StepCounter variables ends-------------------
 
 //---------------------Buzzer variables starts-----------------------
 volatile int buzzer_1=0;
@@ -140,6 +153,22 @@ int dataCorrupted = -1;
 //--------------------UART Protocol variables ends-----------------------
 
 //------------------------------All Setup Functions-----------------------
+void setupStep(){
+  compass.init();
+  compass.enableDefault();
+  for(int i=0; i<lsm_buffer_size; i++){
+      compass.read();
+      lsm_buffer_y[i] = compass.a.y;
+      lsm_total_y += lsm_buffer_y[i];
+  }
+  lsm_offset_y = lsm_total_y/5;
+  lsm_total_y = 0;
+  for(int i=0; i<lsm_buffer_size; i++){
+      lsm_buffer_y[i] -= lsm_offset_y;
+      lsm_total_y += lsm_buffer_y[i];
+  } 
+}
+
 void setupBuz(){
   pinMode(12, OUTPUT);
 }
@@ -280,7 +309,39 @@ void resetKP(){
     sensorData[keypadIndex] =  NO_KEY;
 }
 
+void resetStep(){
+    sensorData[distanceIndex] = lsm_step_count;
+    lsm_step_count = 0;
+}
+
 //------------------------All Functions in Main Loop--------------------
+void readStep(){
+  compass.read();
+  lsm_total_y -= lsm_buffer_y[lsm_index_counter];
+  lsm_buffer_y[lsm_index_counter] = compass.a.y - lsm_offset_y;
+  lsm_total_y += lsm_buffer_y[lsm_index_counter];
+  float current_a_y = lsm_total_y*a_factor;
+  Serial.println(current_a_y);
+  
+  if(lsm_step_up_flag == 0 && abs(current_a_y) > lsm_up_threshold_y){
+    lsm_step_up_flag = 1;
+    Serial.println("Step Up!");
+    last_step_up_time_y = millis();
+  }
+  else if(lsm_step_up_flag == 1 && abs(current_a_y) < lsm_down_threshold_y && (millis() - last_step_up_time_y) >= lsm_time_threshold){
+    lsm_step_up_flag = 0;
+    lsm_step_count++;
+    Serial.println("1 Step Finished!\n Step count:");
+    Serial.println(lsm_step_count);
+  }
+
+  lsm_index_counter++;
+  if(lsm_index_counter > 4)
+      lsm_index_counter = 0;
+  //delay(100);
+}
+
+
 void readIMU(){
 Wire.beginTransmission(MPU);
   Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
@@ -356,16 +417,16 @@ void readHMC(){
   if(heading < 0)
     heading += 2 * M_PI;
   heading=heading * 180/M_PI;
-  Serial.print("heading:\t");
-  Serial.println(heading);
+//  Serial.print("heading:\t");
+//  Serial.println(heading);
   
   HMC_buffer[HMC_index]=heading;
   HMC_total+=HMC_buffer[HMC_index];
   //Serial.print("heading:\t");
   //Serial.println(HMC_total/5);
   uint8_t reading=(HMC_total)/10;
-  Serial.print("reading:\t");
-  Serial.println(reading);
+//  Serial.print("reading:\t");
+//  Serial.println(reading);
   sensorData[compassIndex]=reading;// Passing data devided by 2
   HMC_index++;
   
@@ -477,6 +538,7 @@ void setup() {
   Wire.begin();
   Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
   Serial1.begin(9600);
+  setupStep();
   setupBuz();
   setupIMU();
   setupBMP();
@@ -489,7 +551,8 @@ void loop() {
 
   buzzer();
   
-  readIMU();
+  readStep();
+  //readIMU();
  
   readUltrasound();
 
@@ -536,7 +599,8 @@ void loop() {
       case READ_START: 
         {
           //resetIMU before pass data to RPI
-          resetIMU();
+          //resetIMU();
+          resetStep();
           sendSensorValue(0);
           int sendingDataBool = 1;
           while(sendingDataBool){
