@@ -317,11 +317,12 @@ void resetStep(){
 //------------------------All Functions in Main Loop--------------------
 void readStep(){
   compass.read();
+  //Serial.println("reading from compass");
   lsm_total_y -= lsm_buffer_y[lsm_index_counter];
   lsm_buffer_y[lsm_index_counter] = compass.a.y - lsm_offset_y;
   lsm_total_y += lsm_buffer_y[lsm_index_counter];
   float current_a_y = lsm_total_y*a_factor;
- // Serial.println(current_a_y);
+  Serial.println(current_a_y);
   
   if(lsm_step_up_flag == 0 && abs(current_a_y) > lsm_up_threshold_y){
     lsm_step_up_flag = 1;
@@ -332,6 +333,7 @@ void readStep(){
     if( (millis() - last_step_up_time_y) <= lsm_time_threshold){
       lsm_step_up_flag = 0;
     }else{
+    //Serial.println(millis() - last_step_up_time_y);
     lsm_step_up_flag = 0;
     lsm_step_count++;
     Serial.println("1 Step Finished!\n Step count:");
