@@ -321,18 +321,22 @@ void readStep(){
   lsm_buffer_y[lsm_index_counter] = compass.a.y - lsm_offset_y;
   lsm_total_y += lsm_buffer_y[lsm_index_counter];
   float current_a_y = lsm_total_y*a_factor;
-  Serial.println(current_a_y);
+ // Serial.println(current_a_y);
   
   if(lsm_step_up_flag == 0 && abs(current_a_y) > lsm_up_threshold_y){
     lsm_step_up_flag = 1;
     Serial.println("Step Up!");
     last_step_up_time_y = millis();
   }
-  else if(lsm_step_up_flag == 1 && abs(current_a_y) < lsm_down_threshold_y && (millis() - last_step_up_time_y) >= lsm_time_threshold){
+  else if(lsm_step_up_flag == 1 && abs(current_a_y) < lsm_down_threshold_y){
+    if( (millis() - last_step_up_time_y) <= lsm_time_threshold){
+      lsm_step_up_flag = 0;
+    }else{
     lsm_step_up_flag = 0;
     lsm_step_count++;
     Serial.println("1 Step Finished!\n Step count:");
     Serial.println(lsm_step_count);
+    }
   }
 
   lsm_index_counter++;

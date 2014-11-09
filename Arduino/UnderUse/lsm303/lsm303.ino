@@ -31,8 +31,8 @@ at this FS setting, so the value of -1009 corresponds to -1009 * 1 =
 
 LSM303 compass;
 
-const float lsm_up_threshold_y = 0.08;
-const float lsm_down_threshold_y = 0.03;
+const float lsm_up_threshold_y = 0.06;
+const float lsm_down_threshold_y = 0.04;
 const float lsm_time_threshold = 500;
 const int lsm_buffer_size = 5;
 const float a_factor = 1.0/9.8/16384;
@@ -77,11 +77,15 @@ void loop()
     Serial.println("Step Up!");
     last_step_up_time_y = millis();
   }
-  else if(lsm_step_up_flag == 1 && abs(current_a_y) < lsm_down_threshold_y && (millis() - last_step_up_time_y) >= lsm_time_threshold){
+  else if(lsm_step_up_flag == 1 && abs(current_a_y) < lsm_down_threshold_y){
+    if( (millis() - last_step_up_time_y) >= lsm_time_threshold){
+      lsm_step_up_flag = 0;
+    }else{
     lsm_step_up_flag = 0;
     lsm_step_count++;
     Serial.println("1 Step Finished!\n Step count:");
     Serial.println(lsm_step_count);
+    }
   }
 
   lsm_index_counter++;
