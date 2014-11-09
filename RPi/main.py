@@ -41,7 +41,7 @@ def remap_direction(rawDir):
 
 
 def remap_distance(rawDist):
-    return float(rawDist)
+    return float(rawDist * 40)  # step count * 40cm per step
 
 
 def give_current_instruction(status=None):
