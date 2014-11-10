@@ -21,7 +21,9 @@ class Guidance:
     def is_same_map(self):
         return (self.startBuilding == self.endBuilding) and (self.startLevel == self.endLevel)
 
-    """ simply BFS """
+    """
+    simply run BFS to find out the connection between maps
+    """
     def get_map_route(self):
         visited = set()
         visited.add(self.startBuilding + "-" + self.startLevel)
@@ -45,6 +47,9 @@ class Guidance:
         route.reverse()
         return route
 
+    """
+    return an array of Navigation, starting from the start building/level/pt, ending at the end building/level/pt
+    """
     def get_nav(self):
         if self.nav:
             return self.nav
@@ -84,6 +89,9 @@ class Guidance:
                 mapRouteIdx += 1
         return self.nav
 
+    """
+    the name of end node of previous map contains the node id of next map's starting point
+    """
     def extract_id_from_name(self, nodeName):
         if nodeName.lower().startswith("to ") and (len(nodeName.split("-")) == 3):
             return nodeName.split("-")[2]
