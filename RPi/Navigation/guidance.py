@@ -63,14 +63,31 @@ class Guidance:
                     startName = Map.get_node_by_location_id(self.startBuilding, self.startLevel, self.startId)['nodeName']  # start is given
                     endName = Map.get_node_by_connected_map(self.startBuilding, self.startLevel, mapRoute[mapRouteIdx + 1])['nodeName']
                 elif mapRouteIdx == (len(mapRoute) - 1):  # end map
-                    startName = Map.get_node_by_connected_map(self.endBuilding, self.endLevel, mapRoute[mapRouteIdx - 1])['nodeName']
+                    # print "the end"
+                    prevNav = self.nav[mapRouteIdx - 1]
+                    # print "prev nav end is " + prevNav.end
+                    startId = self.extract_id_from_name(prevNav.end)
+                    # print "id is " + startId
+                    startName = Map.get_node_by_location_id(self.endBuilding, self.endLevel, startId)['nodeName']
+                    # print "start name is " + startName
                     endName = Map.get_node_by_location_id(self.endBuilding, self.endLevel, self.endId)['nodeName']  # end is given
                 else:  # in the mid
-                    startName = Map.get_node_by_connected_map(building, level, mapRoute[mapRouteIdx - 1])['nodeName']
+                    # print "in the mid"
+                    prevNav = self.nav[mapRouteIdx - 1]
+                    # print "prev nav end is " + prevNav.end
+                    startId = self.extract_id_from_name(prevNav.end)
+                    # print "id is " + startId
+                    startName = Map.get_node_by_location_id(building, level, startId)['nodeName']
+                    # print "start name is " + startName
                     endName = Map.get_node_by_connected_map(building, level, mapRoute[mapRouteIdx + 1])['nodeName']
                 self.nav.append(Navigation(building, level, startName, endName))
                 mapRouteIdx += 1
         return self.nav
+
+    def extract_id_from_name(self, nodeName):
+        if nodeName.lower().startswith("to ") and (len(nodeName.split("-")) == 3):
+            return nodeName.split("-")[2]
+        return -1
 
     def get_next_instruction(self, dir):
         route = self.get_nav()
