@@ -23,7 +23,8 @@ int lsm_total_y = 0;
 int lsm_offset_y = 0;
 int lsm_index_counter = 0;
 int lsm_step_up_flag = 0;
-int lsm_step_count = 0;
+//int lsm_step_count = 0;
+int lsm_step_count_total = 0;
 long last_step_up_time_y = 0;
 //---------------------StepCounter variables ends-------------------
 
@@ -310,8 +311,8 @@ void resetKP(){
 }
 
 void resetStep(){
-    sensorData[distanceIndex] = lsm_step_count;
-    lsm_step_count = 0;
+    sensorData[distanceIndex] = lsm_step_count_total%256;
+    //lsm_step_count = 0;
 }
 
 //------------------------All Functions in Main Loop--------------------
@@ -322,11 +323,11 @@ void readStep(){
   lsm_buffer_y[lsm_index_counter] = compass.a.y - lsm_offset_y;
   lsm_total_y += lsm_buffer_y[lsm_index_counter];
   float current_a_y = lsm_total_y*a_factor;
-  Serial.println(current_a_y);
+  //Serial.println(current_a_y);
   
   if(lsm_step_up_flag == 0 && abs(current_a_y) > lsm_up_threshold_y){
     lsm_step_up_flag = 1;
-    Serial.println("Step Up!");
+    //Serial.println("Step Up!");
     last_step_up_time_y = millis();
   }
   else if(lsm_step_up_flag == 1 && abs(current_a_y) < lsm_down_threshold_y){
@@ -335,9 +336,10 @@ void readStep(){
     }else{
     //Serial.println(millis() - last_step_up_time_y);
     lsm_step_up_flag = 0;
-    lsm_step_count++;
+    //lsm_step_count++;
+    lsm_step_count_total++;
     Serial.println("1 Step Finished!\n Step count:");
-    Serial.println(lsm_step_count);
+    Serial.println(lsm_step_count_total);
     }
   }
 

@@ -12,8 +12,8 @@ Adafruit_BMP085 bmp;
 MPU6050 accelgyro;
 HMC5883L mag;
 
-const int xOffsetHMC = -97;
-const int yOffsetHMC = -49;
+int xOffsetHMC = -101; // 20
+int yOffsetHMC = 132; // -36
 //--------------------HMC variables starts-----------------------
 int16_t X_MAX_buffer[10]={0,0,0,0,0,0,0,0,0,0}; 
 int16_t X_MIN_buffer[10]={0,0,0,0,0,0,0,0,0,0}; 
@@ -29,32 +29,32 @@ int tempSum=0;
 
 //--------------------HMC variables ends-----------------------
 
-//void readHMC(){
-//  for(int i=0; i<5000; i++){  
-//      mag.getHeading(&mx, &my, &mz);
-//      insertToMaxBuffer(X_MAX_buffer,mx);
-//      insertToMaxBuffer(Y_MAX_buffer,mx);
-//      insertToMinBuffer(X_MIN_buffer,my);
-//      insertToMinBuffer(Y_MIN_buffer,my);
-//  }
-//  
-//  for(int i=0; i<10; i++){
-//    tempSum+=X_MAX_buffer[i];
-//    tempSum+=X_MIN_buffer[i];
-//  }
-//  xOffsetHMC=tempSum/20.0;
-//  tempSum=0;
-//  for(int i=0; i<10; i++){
-//    tempSum+=Y_MAX_buffer[i];
-//    tempSum+=Y_MIN_buffer[i];
-//  }
-//  yOffsetHMC=tempSum/20.0;
-//  
-//  Serial.print("xOffset for HMC is: ");
-//  Serial.println(xOffsetHMC);
-//  Serial.print("yOffset for HMC is: ");
-//  Serial.println(yOffsetHMC);
-//}
+void readHMC(){
+  for(int i=0; i<20000; i++){  
+      mag.getHeading(&mx, &my, &mz);
+      insertToMaxBuffer(X_MAX_buffer,mx);
+      insertToMaxBuffer(Y_MAX_buffer,mx);
+      insertToMinBuffer(X_MIN_buffer,my);
+      insertToMinBuffer(Y_MIN_buffer,my);
+  }
+  
+  for(int i=0; i<10; i++){
+    tempSum+=X_MAX_buffer[i];
+    tempSum+=X_MIN_buffer[i];
+  }
+  xOffsetHMC=tempSum/20.0;
+  tempSum=0;
+  for(int i=0; i<10; i++){
+    tempSum+=Y_MAX_buffer[i];
+    tempSum+=Y_MIN_buffer[i];
+  }
+  yOffsetHMC=tempSum/20.0;
+  
+  Serial.print("xOffset for HMC is: ");
+  Serial.println(xOffsetHMC);
+  Serial.print("yOffset for HMC is: ");
+  Serial.println(yOffsetHMC);
+}
 
 void setupHMC(){
   accelgyro.initialize();
@@ -107,6 +107,9 @@ void readHMCValue(){
   heading=heading * 180/M_PI;
   Serial.print("heading:\t");
   Serial.println(heading);
+  Serial.print("mx&my:\t");
+  Serial.println(mx);
+  Serial.println(my);
 }
 
 void setup() {
@@ -117,7 +120,7 @@ void setup() {
 }
 
 void loop(){
-  //readHMC();
+    //readHMC();
   while(1){
     readHMCValue();
   }

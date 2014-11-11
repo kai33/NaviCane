@@ -15,14 +15,14 @@ void setupConnection(){
 
   } 
   if(incomingByte == SYN){
-    Serial.write("Received SYN\n");
+    //Serial.write("Received SYN\n");
     sendToRpi(ACK);
-    Serial.write("Sent ACK\n");
+    //Serial.write("Sent ACK\n");
 
   } 
   else if(incomingByte == ACK){
-    Serial.write("Received ACK\n");
-    Serial.write("---Connection Established---\n\n\n");
+    //Serial.write("Received ACK\n");
+    //Serial.write("---Connection Established---\n\n\n");
     connectionState = establishedConnection;
   }
 
@@ -33,14 +33,14 @@ void sendSensorValue(uint8_t index){
   uint8_t value = sensorData[index];
   sendToRpi(value);
   if (index == 0){
-    Serial.print("[");  
+    //Serial.print("[");  
   }
 
-  Serial.print(value);
-  Serial.print(", ");
+  //Serial.print(value);
+  //Serial.print(", ");
 
   if(index == 9){
-    Serial.print("]\n");
+    //Serial.print("]\n");
   }
 }
 
@@ -54,10 +54,10 @@ void sendCheckSum(){
   temp = temp/10;
   int tens = temp % 10;
 
-  Serial.write("CheckSum ");
-  Serial.write(char(tens+48));
-  Serial.write(char(ones+48));
-  Serial.write(" Sent\n");
+  //Serial.write("CheckSum ");
+  //Serial.write(char(tens+48));
+  //Serial.write(char(ones+48));
+  //Serial.write(" Sent\n");
 }
 
 int computeChecksumSensor(){
@@ -76,14 +76,14 @@ int computeChecksumSensor(){
 void storeTempActuatorData(uint8_t incomingByte, uint8_t index){
   actuatorDataTemp[index] = incomingByte;  
   if(index == 0){
-    Serial.print("[");
+    //Serial.print("[");
   }
 
-  Serial.print(incomingByte);
-  Serial.print(", ");
+  //Serial.print(incomingByte);
+  //Serial.print(", ");
 
   if(index == 9){
-    Serial.print("]\n");
+    //Serial.print("]\n");
   }
 }
 

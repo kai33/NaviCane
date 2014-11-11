@@ -8,13 +8,13 @@
 #define CONSTANTS_H
 
 //HMC
-const int xOffsetHMC = -200;
-const int yOffsetHMC = 800;
+const int xOffsetHMC = -101;
+const int yOffsetHMC = 132;
 
 //Step Counter
 const float lsm_up_threshold_y = 0.06;
-const float lsm_down_threshold_y = 0.02;
-const float lsm_time_threshold = 330;
+const float lsm_down_threshold_y = 0.03;
+const float lsm_time_threshold = 320;
 const int lsm_buffer_size = 5;
 const float a_factor = 1.0/9.8/16384;
 
