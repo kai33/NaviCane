@@ -1,5 +1,6 @@
 #ref: http://ownagezone.wordpress.com/2013/02/25/sssps-shortest-path-algorithm-python-implementation/
 import sys
+import re
 if __name__ == '__main__':
     import os
     sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -17,6 +18,9 @@ class Navigation:
     #Flyweight pattern
     __route = {}
 
+    '''
+    start and end here are node name
+    '''
     def __init__(self, building, level, start, end):
         self.building = building
         self.level = level
@@ -28,6 +32,8 @@ class Navigation:
         self.isGivingIdInstruction = True
         self.reachedLoc = []
         self.reachedLoc.append(start)
+        self.spokenList = []
+        self.spokenList.append(start)
 
     @classmethod
     def flush_cache(cls):
@@ -216,7 +222,12 @@ class Navigation:
         side = "right hand side" if relativeDir >= 0 else "left hand side"
         if self.isGivingIdInstruction:
             self.isGivingIdInstruction = False
-            return Navigation.INSTRUCTION.format(nextLocNode['nodeId'])
+            nextNode = nextLocNode['nodeId']
+            uselessNodeNamePattern = re.compile("^P\d+$")
+            if nextLocNode['nodeName'] not in self.spokenList and not uselessNodeNamePattern.match(nextLocNode['nodeName']):
+                nextNode += " " + nextLocNode['nodeName']
+                self.spokenList.append(nextLocNode['nodeName'])
+            return Navigation.INSTRUCTION.format(nextNode)
         else:
             self.isGivingIdInstruction = True
             return Navigation.INSTRUCTION_ANGLE.format(side, abs(relativeDir))
