@@ -17,6 +17,7 @@ ultrasonic_handle = UltrasonicData()
 voice_output = VoiceOutput()
 user_input = VoiceRecognition()
 logger = get_local_logger()
+totalSteps = 0
 
 REACH_END = UltrasonicData.TURN_BACK + 1
 
@@ -37,11 +38,19 @@ def now():  # return seconds since epoch
 
 
 def remap_direction(rawDir):
-    return int(rawDir) * 2
+    return (int(rawDir) * 2 + 180) % 360
 
 
-def remap_distance(rawDist):
-    return float(rawDist * 40)  # step count * 40cm per step
+def remap_distance(steps):
+    global totalSteps
+    deltaSteps = 0
+    if steps >= totalSteps:  # normal case
+        deltaSteps = steps - totalSteps
+        totalSteps = steps
+    else:  # reset already
+        deltaSteps = steps + 255 - totalSteps
+        totalSteps = steps
+    return float(deltaSteps * 70)  # step count * 70cm per step
 
 
 def give_current_instruction(status=None):
@@ -99,10 +108,11 @@ def get_input():
 def get_user_input():
     starting_building = 'COM1'
     starting_level = '2'
-    starting_point = '32'
+    starting_point = '16'
     ending_building = 'COM2'
-    ending_level = '3'
-    ending_point = '11'
+    ending_level = '2'
+    ending_point = '8'
+    '''
     voice_output.speak('building')
     starting_building = 'COM' + get_input()
     voice_output.speak('level')
@@ -115,6 +125,7 @@ def get_user_input():
     ending_level = get_input()
     voice_output.speak('end')
     ending_point = get_input()
+    '''
     return starting_building, starting_level, starting_point, ending_building, ending_level, ending_point
 
 
@@ -154,7 +165,9 @@ def run():
                                                                                 str(sensors_data[6])))
                 ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
                                             sensors_data[3], sensors_data[2])
-                nav.update_pos_by_dist_and_dir(remap_distance(sensors_data[6]), remap_direction(sensors_data[4]))
+                deltaDist = remap_distance(sensors_data[6])
+                print "delta dist is " + deltaDist
+                nav.update_pos_by_dist_and_dir(deltaDist, remap_direction(sensors_data[4]))
                 print "current pos is"  # TODO: remove this after eval 2 drill
                 print nav.get_pos()  # TODO: remove this after eval 2 drill
                 print "next location pos is"  # TODO: remove this after eval 2 drill
