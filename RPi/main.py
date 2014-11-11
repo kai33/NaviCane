@@ -50,7 +50,7 @@ def remap_distance(steps):
     else:  # reset already
         deltaSteps = steps + 255 - totalSteps
         totalSteps = steps
-    return float(deltaSteps * 70)  # step count * 70cm per step
+    return float(deltaSteps * 80)  # step count * 80cm per step
 
 
 def give_current_instruction(status=None):
