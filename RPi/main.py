@@ -186,13 +186,13 @@ def run():
                     if nav.is_reach_next_location():
                         voice_output.speak('you just reached {0}'.format(str(nav.get_next_loc()["nodeId"])))
                         if not nav.is_reach_end():
-                            give_current_instruction()
+                            give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))
                         else:
                             give_current_instruction(REACH_END)
                             is_running_mode = False
                     else:
                         give_current_instruction()
-            runner = (runner + 1) % 5
+            runner = (runner + 1) % 4
             faster_loop_time = now()
 
 
