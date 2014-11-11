@@ -40,7 +40,20 @@ class Navigation:
         distance - distance went through
         direction - angles relative to the west (clockwise)
         """
-        (x, y, newDir) = Map.get_direction_details(self.building, self.level, distance, direction)
+        dirRelativeNorth = Map.get_direction_relative_north(self.building, self.level, direction)
+        northAt = Map.get_north_at(self.building, self.level)
+        userDir = dirRelativeNorth + northAt  # relative to map
+        if userDir > 360:
+            userDir -= 360
+        movingDir = Map.get_direction(self.pos[0], self.nextLoc["x"],
+                                      self.pos[1], self.nextLoc["y"])  # relative to map
+        relativeDir = movingDir - userDir
+        # if relativeDir > 0, it's at user's rhs, else lhs
+        if relativeDir > 180:
+            relativeDir -= 360
+        if relativeDir < -180:
+            relativeDir += 360
+        (x, y, newDir) = Map.get_direction_details(self.building, self.level, distance, direction + relativeDir)
         self.update_pos(x, y)
 
     def update_pos(self, deltaX, deltaY):

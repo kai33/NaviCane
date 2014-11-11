@@ -144,24 +144,24 @@ if __name__ == '__main__':
     dir = 10
     print guide.get_next_instruction(dir)  # assume the start angle to be 10 deg
     print guide.get_next_instruction(dir)  # lhs 55 deg
-    dir = dir - 55 + 360
+
     print guide.get_next_instruction(dir)  # turn left 55 deg
     print guide.get_next_instruction(dir)
     guide.update_pos_by_dist_and_dir(500, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards p29
-    dir = dir - 87
+
     guide.update_pos_by_dist_and_dir(500, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards p31
-    dir = dir + 43
+
     guide.update_pos_by_dist_and_dir(400, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 2 (next nav)
-    dir = dir + 8
+
     guide.update_pos_by_dist_and_dir(2100, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 11
-    dir = dir - 90
+
     guide.update_pos_by_dist_and_dir(600, dir)
     print guide.is_reach_next_location()
     print guide.get_next_loc()
@@ -184,38 +184,38 @@ if __name__ == '__main__':
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 13
-    dir = dir + 30
+
     guide.update_pos_by_dist_and_dir(400, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 14
-    dir = dir - 36
+
     guide.update_pos_by_dist_and_dir(400, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 15
-    dir = dir - 87
+
     guide.update_pos_by_dist_and_dir(600, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 16
-    dir = dir - 70
+
     guide.update_pos_by_dist_and_dir(100, dir)
     print guide.is_reach_next_location()
     print guide.is_reach_end()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 10 (next nav)
-    dir = dir - 106
+
     guide.update_pos_by_dist_and_dir(600, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 9
-    dir = dir + 44
+
     guide.update_pos_by_dist_and_dir(150, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 8
-    dir = dir + 60
+
     guide.update_pos_by_dist_and_dir(400, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
@@ -224,19 +224,19 @@ if __name__ == '__main__':
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 2
-    dir = dir - 18
+
     guide.update_pos_by_dist_and_dir(600, dir)
     print guide.is_reach_next_location()
     print guide.is_reach_end()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 1
-    dir = dir + 90
+
     guide.update_pos_by_dist_and_dir(4000, dir)
     print guide.is_reach_next_location()
     print guide.is_reach_end()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)
-    dir = dir + 53
+
     guide.update_pos_by_dist_and_dir(200, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)  # reach end
