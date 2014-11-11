@@ -139,8 +139,10 @@ def run():
     nav = Guidance(starting_building, starting_level, starting_point, ending_building, ending_level, ending_point)
     voice_output.speak('start navigation')
 
-    # value got at the start does not seem to be reliable???
-    # at the beginning, say the nav instruction first
+    voice_output.speak('set up u art connection')
+    while not check_connection_status():
+        initiate_connection()
+    voice_output.speak('set up ok')
     is_data_corrupted, sensors_data = receive_data()
     if not is_data_corrupted:
         give_current_instruction(nav.get_next_instruction(remap_direction(sensors_data[4])))  # next loc's ID
@@ -150,9 +152,6 @@ def run():
     runner = 0
     global is_running_mode
     while is_running_mode:
-        while not check_connection_status():
-            # voice_output.speak('set up connection')
-            initiate_connection()
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
