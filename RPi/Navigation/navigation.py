@@ -10,7 +10,7 @@ from map import Map
 
 class Navigation:
     DELIM = "||"
-    REACHED_RANGE = 150  # 1.5 meters
+    REACHED_RANGE = 100  # 1.5 meters
     INSTRUCTION = "towards {0}"
     INSTRUCTION_ANGLE = "{0} {1:.0f} degrees"
     ARRIVED_NOTIFICATION = "You have reached the destination {0}"
