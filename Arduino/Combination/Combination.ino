@@ -242,7 +242,7 @@ void setupUltrasound() {
 //--------------------------All Help Functions----------------
 // Buzzer function
 void buzzer(){
-  if(buzzer_1+buzzer_2+buzzer_3+buzzer_4>=2){
+  if(buzzer_1+buzzer_2+buzzer_3+buzzer_4>=1){
     if(buzzer_toggle==0)
     {
       digitalWrite(12,HIGH);
