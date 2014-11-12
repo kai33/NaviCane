@@ -140,71 +140,85 @@ if __name__ == '__main__':
     print "the navigation path is"
     for n in nav:
         print n.get_route()
+    # pass when REACHED_RANGE = 150 (defined in navigation.py)
     # start from p28, towards p26
     dir = 10
     print guide.get_next_instruction(dir)  # assume the start angle to be 10 deg
     print guide.get_next_instruction(dir)  # lhs 55 deg
+    print guide.get_pos()
 
     print guide.get_next_instruction(dir)  # turn left 55 deg
     print guide.get_next_instruction(dir)
-    guide.update_pos_by_dist_and_dir(500, dir)
+    guide.update_pos_by_dist_and_dir(700, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards p29
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(500, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards p31
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(400, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 2 (next nav)
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(2100, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 5
+    print guide.get_pos()
     guide.update_pos_by_dist_and_dir(500, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 6 (next nav)
+    print guide.get_pos()
     guide.update_pos_by_dist_and_dir(1500, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 11
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(600, dir)
     print guide.is_reach_next_location()
     print guide.get_next_loc()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 12
+    print guide.get_pos()
     guide.update_pos_by_dist_and_dir(400, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 13
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(400, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 14
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(400, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 15
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(600, dir)
     print guide.is_reach_next_location()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 16
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(100, dir)
     print guide.is_reach_next_location()
     print guide.is_reach_end()
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)  # towards 10 (next nav)
+    print guide.get_pos()
 
     guide.update_pos_by_dist_and_dir(600, dir)
     print guide.is_reach_next_location()
@@ -237,8 +251,9 @@ if __name__ == '__main__':
     print guide.get_next_instruction(dir)
     print guide.get_next_instruction(dir)
 
-    guide.update_pos_by_dist_and_dir(200, dir)
+    guide.update_pos_by_dist_and_dir(1000, dir)
     print guide.is_reach_next_location()
+    print guide.is_reach_end()
     print guide.get_next_instruction(dir)  # reach end
     print "test get pos"
     print guide.get_pos()
