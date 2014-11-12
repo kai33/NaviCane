@@ -126,7 +126,7 @@ class Map:
         direction = float(direction)
         newDirection = cls.get_direction_relative_north(building, level, direction)
         userDirection = newDirection + cls.get_north_at(building, level)  # relative to map (clockwise)
-        if userDirection > 360:
+        if userDirection >= 360:
             userDirection -= 360
 
         x = y = 0

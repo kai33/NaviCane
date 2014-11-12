@@ -165,7 +165,7 @@ def run():
                 ultrasonic_handle.feed_data(sensors_data[1], sensors_data[0],
                                             sensors_data[3], sensors_data[2])
                 deltaDist = remap_distance(sensors_data[6])
-                print "delta dist is " + deltaDist
+                print "delta dist is " + str(deltaDist)
                 nav.update_pos_by_dist_and_dir(deltaDist, remap_direction(sensors_data[4]))
                 print "current pos is"  # TODO: remove this after eval 2 drill
                 print nav.get_pos()  # TODO: remove this after eval 2 drill
