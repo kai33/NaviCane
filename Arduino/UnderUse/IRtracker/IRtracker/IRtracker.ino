@@ -5,6 +5,6 @@ void setup()
 }
 void loop()
 {
-  Serial.println(digitalRead(2)); // print the data from the sensor
-  delay(500);
+  Serial.println(digitalRead(3)); // print the data from the sensor
+  delay(50);
 }
