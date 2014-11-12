@@ -70,13 +70,9 @@ class Navigation:
         isSameDirection = (vec1X * vec2X + vec1Y * vec2Y > 0)
         isReachNextLoc = self.is_reach_node(self.nextLoc, self.pos[0] + x, self.pos[1] + y)
         isWentPass = not isSameDirection and not isReachNextLoc
-        prevNextLoc = self.nextLoc
         if isWentPass:
             self.reachedLoc.append(self.nextLoc["nodeName"])
-            self.nextLoc = self.get_next_location(self.pos[0] + x, self.pos[1] + y)
-
         self.update_pos(x, y)
-        return isWentPass, prevNextLoc  # is went pass
 
     def update_pos(self, deltaX, deltaY):
         self.pos[0] += deltaX
@@ -269,7 +265,7 @@ class Navigation:
     def is_reach_next_location(self):
         if not self.nextLoc:
             return False
-        return self.is_reach_node(self.nextLoc, self.pos[0], self.pos[1])
+        return self.is_reach_node(self.nextLoc, self.pos[0], self.pos[1]) or self.nextLoc['nodeName'] in self.reachedLoc
 
 SPEAK_STRING = "Turn {0:.0f} degrees and walk {1:.0f} metres. You are heading towards {2}"
 

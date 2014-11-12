@@ -166,9 +166,7 @@ def run():
                                             sensors_data[3], sensors_data[2])
                 deltaDist = remap_distance(sensors_data[6])
                 print "delta dist is " + str(deltaDist)
-                isWentPass, prevNextLoc = nav.update_pos_by_dist_and_dir(deltaDist, remap_direction(sensors_data[4]))
-                if isWentPass:
-                    voice_output.speak('you just reached {0}'.format(str(prevNextLoc["nodeId"])))
+                nav.update_pos_by_dist_and_dir(deltaDist, remap_direction(sensors_data[4]))
                 print "current pos is"  # TODO: remove this after eval 2 drill
                 print nav.get_pos()  # TODO: remove this after eval 2 drill
                 print "next location pos is"  # TODO: remove this after eval 2 drill
