@@ -54,6 +54,7 @@ connectionStatus = -1 #connectionStatus is set to 1 when connection established,
 dataCorrupted 	 = -1 #dataCorrupted is set to 1 if data incoming does not match, otherwise set to 0
 divisor		 = 17 # Common divisor known by both sides
 timeout 	 = 0  # To check if timeout has occured
+timeOutValue = 2
 
 sensorData     = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	#SensorData holds actual data
 sensorDataTemp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]		#SensorDataTemp holds the temporary data 
@@ -67,6 +68,7 @@ def sendToArdunio(value):
 # timeouts used to ensure communications are smooth based on known input and known output
 def timeout_transmission(send, expected):
 	global timeout
+	global timeOutValue
 	charReceived = ''
 	timeout = 0
 	
@@ -74,11 +76,11 @@ def timeout_transmission(send, expected):
 	start = time.time()
 	end = start
 	
-	while end-start < 1 and charReceived != chr(expected) :
+	while end-start < timeOutValue and charReceived != chr(expected) :
 		charReceived = port.read(1)
 		end = time.time()
 		
-	if end-start > 1:
+	if end-start > timeOutValue:
 		timeout = 1
 		#print('timeout')
 
@@ -86,16 +88,17 @@ def timeout_transmission(send, expected):
 def timeout_sensor_receive(send):
 	sendToArdunio(send)
 	global timeout 
+	global timeOutValue
 	charRecevied = ''
 	timeout = 0
 
 	start = time.time()
 	end = start
-	while end-start < 1 and len(charRecevied) == 0 :
+	while end-start < timeOutValue and len(charRecevied) == 0 :
 		charRecevied = port.read(1)
 		end = time.time()
 
-	if end-start > 1:
+	if end-start > timeOutValue:
 		timeout = 1
 
 	return charRecevied
