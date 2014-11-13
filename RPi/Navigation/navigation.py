@@ -10,7 +10,7 @@ from map import Map
 
 class Navigation:
     DELIM = "||"
-    REACHED_RANGE = 150  # 1.5 meters
+    REACHED_RANGE = 80  # 0.8 meters
     INSTRUCTION = "towards {0}"
     INSTRUCTION_ANGLE = "{0} {1:.0f} degrees"
     ARRIVED_NOTIFICATION = "You have reached the destination {0}"
@@ -51,6 +51,8 @@ class Navigation:
         userDir = dirRelativeNorth + northAt  # relative to map
         if userDir > 360:
             userDir -= 360
+        if not self.nextLoc:
+            self.nextLoc = self.get_next_location(self.pos[0], self.pos[1])
         movingDir = Map.get_direction(self.pos[0], self.nextLoc["x"],
                                       self.pos[1], self.nextLoc["y"])  # relative to map
         relativeDir = movingDir - userDir
@@ -60,6 +62,16 @@ class Navigation:
         if relativeDir < -180:
             relativeDir += 360
         (x, y, newDir) = Map.get_direction_details(self.building, self.level, distance, direction + relativeDir)
+
+        vec1X = self.pos[0] - float(self.nextLoc["x"])
+        vec1Y = self.pos[1] - float(self.nextLoc["y"])
+        vec2X = self.pos[0] + x - float(self.nextLoc["x"])
+        vec2Y = self.pos[1] + y - float(self.nextLoc["y"])
+        isSameDirection = (vec1X * vec2X + vec1Y * vec2Y > 0)
+        isReachNextLoc = self.is_reach_node(self.nextLoc, self.pos[0] + x, self.pos[1] + y)
+        isWentPass = not isSameDirection and not isReachNextLoc
+        if isWentPass:
+            self.reachedLoc.append(self.nextLoc["nodeName"])
         self.update_pos(x, y)
 
     def update_pos(self, deltaX, deltaY):
@@ -233,7 +245,7 @@ class Navigation:
             return Navigation.INSTRUCTION_ANGLE.format(side, abs(relativeDir))
 
     def is_reach_end(self):
-        return self.is_reach_location(self.end, self.pos[0], self.pos[1])
+        return self.is_reach_location(self.end, self.pos[0], self.pos[1]) or self.end in self.reachedLoc
 
     def is_reach_location(self, location_name, x, y):
         """current x, and current y"""
@@ -253,7 +265,7 @@ class Navigation:
     def is_reach_next_location(self):
         if not self.nextLoc:
             return False
-        return self.is_reach_node(self.nextLoc, self.pos[0], self.pos[1])
+        return self.is_reach_node(self.nextLoc, self.pos[0], self.pos[1]) or self.nextLoc['nodeName'] in self.reachedLoc
 
 SPEAK_STRING = "Turn {0:.0f} degrees and walk {1:.0f} metres. You are heading towards {2}"
 

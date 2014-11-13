@@ -54,7 +54,7 @@ connectionStatus = -1 #connectionStatus is set to 1 when connection established,
 dataCorrupted 	 = -1 #dataCorrupted is set to 1 if data incoming does not match, otherwise set to 0
 divisor		 = 17 # Common divisor known by both sides
 timeout 	 = 0  # To check if timeout has occured
-timeOutValue = 2
+timeOutValue = 1.5
 
 sensorData     = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	#SensorData holds actual data
 sensorDataTemp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]		#SensorDataTemp holds the temporary data 

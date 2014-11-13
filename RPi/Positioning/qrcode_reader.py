@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import os
-import subprocess
+import picamera
 from qrtools import QR
 
 
@@ -9,8 +9,6 @@ def decode_image(filename='default.png'):
     my_code = QR(filename=os.path.dirname(os.path.abspath(__file__)) + '/' + filename)
     if my_code.decode():
         print my_code.data
-        print my_code.data_type
-        print my_code.data_to_string()
         return my_code.data
     else:
         return None
@@ -23,10 +21,17 @@ def decode_from_webcam():
 
 
 def decode_from_taken_picture():
-    shell_process = subprocess.Popen('raspistill -vf -hf -o cam.png', shell=True)
-    shell_process.wait()
-    return decode_image('cam.png')
+    with picamera.PiCamera() as camera:
+        camera.resolution = (320, 240)
+        camera.start_preview()
+        try:
+            for i, filename in enumerate(camera.capture_continuous('image.jpg')):
+                print i
+                decode_image('image.jpg')
+        finally:
+            pass # camera.stop_preview()
+    return None
 
 
 if __name__ == '__main__':
-    decode_image()
+    decode_from_taken_picture()

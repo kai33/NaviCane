@@ -27,7 +27,7 @@ command_table = {
     UltrasonicData.TURN_LEFT_SLIGHTLY: 'turn left slightly',
     UltrasonicData.TURN_RIGHT: 'turn right',
     UltrasonicData.TURN_RIGHT_SLIGHTLY: 'turn right slightly',
-    UltrasonicData.TURN_BACK: 'move backwards please',
+    UltrasonicData.TURN_BACK: 'backwards',
     REACH_END: 'you have reached your destination'
 }
 
@@ -50,7 +50,7 @@ def remap_distance(steps):
     else:  # reset already
         deltaSteps = steps + 255 - totalSteps
         totalSteps = steps
-    return float(deltaSteps * 80)  # step count * 80cm per step
+    return float(deltaSteps * 88)  # step count * 80cm per step
 
 
 def give_current_instruction(status=None):
@@ -108,10 +108,10 @@ def get_input():
 def get_user_input():
     starting_building = 'COM1'
     starting_level = '2'
-    starting_point = '16'
+    starting_point = '26'
     ending_building = 'COM2'
     ending_level = '2'
-    ending_point = '8'
+    ending_point = '14'
     '''
     voice_output.speak('building')
     starting_building = 'COM' + get_input()
@@ -152,6 +152,8 @@ def run():
     runner = 0
     global is_running_mode
     while is_running_mode:
+        while not check_connection_status():
+            initiate_connection()
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
