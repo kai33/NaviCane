@@ -27,7 +27,7 @@ command_table = {
     UltrasonicData.TURN_LEFT_SLIGHTLY: 'turn left slightly',
     UltrasonicData.TURN_RIGHT: 'turn right',
     UltrasonicData.TURN_RIGHT_SLIGHTLY: 'turn right slightly',
-    UltrasonicData.TURN_BACK: 'move backwards please',
+    UltrasonicData.TURN_BACK: 'backwards',
     REACH_END: 'you have reached your destination'
 }
 
@@ -152,6 +152,8 @@ def run():
     runner = 0
     global is_running_mode
     while is_running_mode:
+        while not check_connection_status():
+            initiate_connection()
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
