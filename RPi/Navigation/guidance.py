@@ -56,7 +56,7 @@ class Guidance:
         if(self.is_same_map()):  # normal same-map navigation
             startName = Map.get_node_by_location_id(self.startBuilding, self.startLevel, self.startId)['nodeName']
             endName = Map.get_node_by_location_id(self.endBuilding, self.endLevel, self.endId)['nodeName']
-            self.nav.append(Navigation(self.startBuilding, self.startLevel, startName, endName).get_route())
+            self.nav.append(Navigation(self.startBuilding, self.startLevel, startName, endName))
         else:  # inter-building or inter-level navigation
             mapRoute = self.get_map_route()
             mapRouteIdx = 0
@@ -135,14 +135,27 @@ class Guidance:
         return False
 
 if __name__ == '__main__':
+    dir = 10
+
+    # pass when REACHED_RANGE = 10 (defined in navigation.py)
+    simpleGuide = Guidance("COM2", "2", "5", "COM2", "2", "6")
+    simpleGuide.update_pos_by_dist_and_dir(1000, dir)
+    print simpleGuide.get_next_instruction(dir)
+    print simpleGuide.get_next_instruction(dir)
+    simpleGuide.update_pos_by_dist_and_dir(500, dir)
+    print simpleGuide.get_pos()
+    print simpleGuide.get_next_instruction(dir)
+    print simpleGuide.get_next_instruction(dir)
+    print simpleGuide.is_reach_next_location()
+    print simpleGuide.is_reach_end()
+
     guide = Guidance("COM1", "2", "28", "COM2", "3", "1")
     nav = guide.get_nav()
     print "the navigation path is"
     for n in nav:
         print n.get_route()
-    # pass when REACHED_RANGE = 150 (defined in navigation.py)
+    # TC pass when REACHED_RANGE = 150 (defined in navigation.py)
     # start from p28, towards p26
-    dir = 10
     print guide.get_next_instruction(dir)  # assume the start angle to be 10 deg
     print guide.get_next_instruction(dir)  # lhs 55 deg
     print guide.get_pos()
