@@ -1,7 +1,6 @@
 from datetime import datetime
 from time import mktime
 import multiprocessing
-import Queue
 from Navigation.guidance import Guidance
 from Navigation.special_node import SpecialNode
 from Navigation.map import Map
@@ -161,10 +160,8 @@ def run():
     while is_running_mode:
         state = 0
         isJustCalibrated = False
-        try:
+        if not ir_reading_queue.empty():
             state = ir_reading_queue.get(block=False)
-        except Queue.Empty:
-            pass
         while not check_connection_status():
             initiate_connection()
         if state == 1:  # special pattern recognized! the actual pos for the special node
