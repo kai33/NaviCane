@@ -1,6 +1,7 @@
 from datetime import datetime
 from time import mktime
-from multiprocessing import Process, Queue
+import multiprocessing
+import Queue
 from Navigation.guidance import Guidance
 from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from Speech.espeak_api import VoiceOutput
@@ -31,8 +32,9 @@ command_table = {
     REACH_END: 'you have reached your destination'
 }
 
-ir_reading_queue = Queue()
-ir_reading_process = Process(target=ir_read, args=(ir_reading_queue,))
+ir_reading_queue = multiprocessing.Queue()
+ir_reading_process = multiprocessing.Process(target=ir_read, args=(ir_reading_queue,))
+ir_reading_process.start()
 
 
 def now():  # return seconds since epoch
@@ -155,12 +157,17 @@ def run():
     runner = 0
     global is_running_mode
     while is_running_mode:
-        state = ir_reading_queue.get()
+        state = 0
+        try:
+            state = ir_reading_queue.get(block=False)
+        except Queue.Empty:
+            pass
         while not check_connection_status():
             initiate_connection()
-            state = ir_reading_queue.get()
         if state == 1:
-            pass  # deal with this signal
+            print '1'
+        else:
+            print '0'
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
