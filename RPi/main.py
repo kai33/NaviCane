@@ -1,15 +1,15 @@
-from Navigation.guidance import Guidance
-from Navigation.map import Map
 from datetime import datetime
 from time import mktime
+from multiprocessing import Process, Queue
+from Navigation.guidance import Guidance
 from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from Speech.espeak_api import VoiceOutput
 from Speech.voice_recognition import VoiceRecognition
 from ObstacleDetection.ultrasonic_data import UltrasonicData
+from Positioning.ir_reading import ir_read
 from local_logger import get_local_logger
 
-FASTER_LOOP_TIMER = 1
-SLOWER_LOOP_TIMER = 10
+FASTER_LOOP_TIMER = 2
 
 is_running_mode = True
 
@@ -31,6 +31,9 @@ command_table = {
     REACH_END: 'you have reached your destination'
 }
 
+ir_reading_queue = Queue()
+ir_reading_process = Process(target=ir_read, args=(ir_reading_queue,))
+
 
 def now():  # return seconds since epoch
     dt = datetime.now()
@@ -50,7 +53,7 @@ def remap_distance(steps):
     else:  # reset already
         deltaSteps = steps + 255 - totalSteps
         totalSteps = steps
-    return float(deltaSteps * 88)  # step count * 80cm per step
+    return float(deltaSteps * 88)
 
 
 def give_current_instruction(status=None):
@@ -152,8 +155,12 @@ def run():
     runner = 0
     global is_running_mode
     while is_running_mode:
+        state = ir_reading_queue.get()
         while not check_connection_status():
             initiate_connection()
+            state = ir_reading_queue.get()
+        if state == 1:
+            pass  # deal with this signal
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
