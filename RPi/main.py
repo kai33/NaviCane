@@ -160,6 +160,7 @@ def run():
     global is_running_mode
     while is_running_mode:
         state = 0
+        isJustCalibrated = False
         try:
             state = ir_reading_queue.get(block=False)
         except Queue.Empty:
@@ -172,10 +173,12 @@ def run():
             if SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_next_loc()):
                 # reach the actual important loc but not reach the virtual one
                 nav.reach_special_node(nav.get_next_loc())
+                isJustCalibrated = True
             elif SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_prev_loc()):
                 # reach the actual important loc but already pass it (within 3 meters)
                 if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 300:
                     nav.reach_special_node(nav.get_prev_loc())
+                    isJustCalibrated = True
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
@@ -190,7 +193,8 @@ def run():
                                             sensors_data[3], sensors_data[2])
                 deltaDist = remap_distance(sensors_data[6])
                 print "delta dist is " + str(deltaDist)
-                nav.update_pos_by_dist_and_dir(deltaDist, remap_direction(sensors_data[4]))
+                if not isJustCalibrated:
+                    nav.update_pos_by_dist_and_dir(deltaDist, remap_direction(sensors_data[4]))
                 print "current pos is"  # TODO: remove this after eval 2 drill
                 print nav.get_pos()  # TODO: remove this after eval 2 drill
                 print "next location pos is"  # TODO: remove this after eval 2 drill
