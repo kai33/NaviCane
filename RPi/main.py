@@ -3,6 +3,8 @@ from time import mktime
 import multiprocessing
 import Queue
 from Navigation.guidance import Guidance
+from Navigation.special_node import SpecialNode
+from Navigation.map import Map
 from Communication.Uart.uart_communication import receive_data, initiate_connection, check_connection_status
 from Speech.espeak_api import VoiceOutput
 from Speech.voice_recognition import VoiceRecognition
@@ -164,10 +166,16 @@ def run():
             pass
         while not check_connection_status():
             initiate_connection()
-        if state == 1:
-            print '1'
-        else:
-            print '0'
+        if state == 1:  # special pattern recognized! the actual pos for the special node
+            pos = nav.get_pos()
+            print 'pattern is 1'
+            if SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_next_loc()):
+                # reach the actual important loc but not reach the virtual one
+                nav.reach_special_node(nav.get_next_loc())
+            elif SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_prev_loc()):
+                # reach the actual important loc but already pass it (within 3 meters)
+                if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 300:
+                    nav.reach_special_node(nav.get_prev_loc())
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:

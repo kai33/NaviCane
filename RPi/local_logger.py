@@ -1,7 +1,7 @@
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.ERROR)
 
 file_handler = logging.FileHandler('NaviCane.log')
 file_handler.setLevel(logging.DEBUG)

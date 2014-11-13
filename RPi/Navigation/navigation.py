@@ -29,6 +29,7 @@ class Navigation:
         startPoint = Map.get_node_by_location_name(building, level, start)
         self.pos = [float(startPoint["x"]), float(startPoint["y"])]
         self.nextLoc = {}
+        self.prevLoc = startPoint
         self.isGivingIdInstruction = True
         self.reachedLoc = []
         self.reachedLoc.append(start)
@@ -52,6 +53,7 @@ class Navigation:
         if userDir > 360:
             userDir -= 360
         if not self.nextLoc:
+            self.prevLoc = self.nextLoc
             self.nextLoc = self.get_next_location(self.pos[0], self.pos[1])
         movingDir = Map.get_direction(self.pos[0], self.nextLoc["x"],
                                       self.pos[1], self.nextLoc["y"])  # relative to map
@@ -204,6 +206,7 @@ class Navigation:
         distance to next loc, direction to next loc (relative to user) & next loc's node
         """
         nextLocNode = self.get_next_location(x, y)
+        self.prevLoc = self.nextLoc
         self.nextLoc = nextLocNode
         dist = Map.get_distance(nextLocNode["x"], x, nextLocNode["y"], y)
 
