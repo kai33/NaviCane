@@ -124,9 +124,26 @@ class Guidance:
         currentNav = self.get_nav()[self.navIdx]
         return currentNav.nextLoc
 
+    def get_prev_loc(self):
+        return self.get_nav()[self.navIdx].prevLoc
+
+    def get_curr_building(self):
+        return self.get_nav()[self.navIdx].building
+
+    def get_curr_level(self):
+        return self.get_nav()[self.navIdx].level
+
     def is_reach_next_location(self):
         currentNav = self.get_nav()[self.navIdx]
         return currentNav.is_reach_next_location()
+
+    # used for calibration
+    def reach_special_node(self, node):
+        currentNav = self.get_nav()[self.navIdx]
+        currentNav.pos[0] = node['x']
+        currentNav.pos[1] = node['y']
+        if node['nodeName'] not in currentNav.reachedLoc:
+            currentNav.reachedLoc.append(node['nodeName'])
 
     def is_reach_end(self):
         if self.navIdx == (len(self.get_nav()) - 1):
