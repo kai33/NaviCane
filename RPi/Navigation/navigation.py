@@ -50,8 +50,7 @@ class Navigation:
         dirRelativeNorth = Map.get_direction_relative_north(self.building, self.level, direction)
         northAt = Map.get_north_at(self.building, self.level)
         userDir = dirRelativeNorth + northAt  # relative to map
-        if userDir > 360:
-            userDir -= 360
+        userDir = userDir % 360
         if not self.nextLoc:
             self.prevLoc = self.nextLoc
             self.nextLoc = self.get_next_location(self.pos[0], self.pos[1])
@@ -212,8 +211,7 @@ class Navigation:
 
         northAt = Map.get_north_at(self.building, self.level)
         userDir = direction + northAt  # relative to map
-        if userDir > 360:
-            userDir -= 360
+        userDir = userDir % 360
         movingDir = Map.get_direction(x, nextLocNode["x"],
                                       y, nextLocNode["y"])  # relative to map
         relativeDir = movingDir - userDir

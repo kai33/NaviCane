@@ -126,8 +126,7 @@ class Map:
         direction = float(direction)
         newDirection = cls.get_direction_relative_north(building, level, direction)
         userDirection = newDirection + cls.get_north_at(building, level)  # relative to map (clockwise)
-        if userDirection >= 360:
-            userDirection -= 360
+        userDirection = userDirection % 360
 
         x = y = 0
         if userDirection >= 0 and userDirection < 90:
@@ -156,9 +155,7 @@ class Map:
         direction - angles relative to the west (clockwise)
         """
         newDirection = direction + 270  # relative to the North (clockwise)
-        if newDirection > 360:
-            newDirection -= 360
-        return newDirection
+        return (newDirection % 360)
 
     @classmethod
     def get_connected_maps(cls, building, level):
