@@ -12,7 +12,7 @@ const int xOffsetHMC = -101;
 const int yOffsetHMC = 132;
 
 //Step Counter
-const float lsm_up_threshold_y = 0.06;
+const float lsm_up_threshold_y = 0.065;
 const float lsm_down_threshold_y = 0.03;
 const float lsm_time_threshold = 320;
 const int lsm_buffer_size = 5;
