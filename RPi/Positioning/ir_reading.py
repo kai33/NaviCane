@@ -20,12 +20,12 @@ def ir_read(q):
         if (GPIO.input(23) == 1):
             count_zero = 0
             count_one += 1
-            if (count_one > 20):
+            if (count_one > 12):
                 pattern_detected = 0
         else:
             count_zero += 1
             count_one = 0
-            if (count_zero > 20):
+            if (count_zero > 12):
                 if pattern_detected == 0:
                     q.put(1)
                 pattern_detected = 1
