@@ -5,8 +5,7 @@ class SpecialNode:
         'com2-2-6',  # COM2-2 junction towards stairwell
         'com2-2-13',  # another door, just bf stairwell
         'com2-2-14',  # start of stairwell (lvl2)
-        'com2-3-10',  # end of stairwell (lvl3)
-        'com2-3-11'  # COM2 lvl2~lvl3 connection
+        'com2-3-10'  # end of stairwell (lvl3)
     }
 
     @classmethod
