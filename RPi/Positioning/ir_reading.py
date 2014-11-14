@@ -1,6 +1,7 @@
 __author__ = 'Roastedbill'
 
 import RPi.GPIO as GPIO
+import time
 
 GPIO.setmode(GPIO.BCM)
 
@@ -28,4 +29,5 @@ def ir_read(q):
                 if pattern_detected == 0:
                     q.put(1)
                 pattern_detected = 1
+        time.sleep(0.05)
     GPIO.cleanup()
