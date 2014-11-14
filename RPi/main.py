@@ -176,6 +176,8 @@ def run():
                 if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 300:
                     nav.reach_special_node(nav.get_prev_loc())
                     isJustCalibrated = True
+        if isJustCalibrated:
+            voice_output.speak('calibrated')
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
