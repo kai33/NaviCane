@@ -172,17 +172,21 @@ def run():
         if state == 1:  # special pattern recognized! the actual pos for the special node
             pos = nav.get_pos()
             print '\npattern is 1\n'
+            print nav.get_next_loc()
+            print nav.get_prev_loc()
             if SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_next_loc()):
                 # reach the actual important loc but not reach the point on the map
-                if Map.get_distance(pos[0], nav.get_next_loc()['x'], pos[1], nav.get_next_loc()['y']) < 300 and \
+                if Map.get_distance(pos[0], nav.get_next_loc()['x'], pos[1], nav.get_next_loc()['y']) < 500 and \
                    nav.get_next_loc()['nodeName'] not in calibratedNodes:
                     calibratedNodes.append(nav.get_next_loc()['nodeName'])
                     nav.reach_special_node(nav.get_next_loc())
                     isJustCalibrated = True
             elif SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_prev_loc()):
+                print 'prev is special'
                 # reach the actual important loc but map shows passed the node already
-                if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 300 and \
+                if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 500 and \
                    nav.get_prev_loc()['nodeName'] not in calibratedNodes:
+                    print nav.get_prev_loc()['nodeName']
                     calibratedNodes.append(nav.get_prev_loc()['nodeName'])
                     nav.reach_special_node(nav.get_prev_loc())
                     isJustCalibrated = True
