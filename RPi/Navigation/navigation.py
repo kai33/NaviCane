@@ -204,7 +204,7 @@ class Navigation:
         distance to next loc, direction to next loc (relative to user) & next loc's node
         """
         nextLocNode = self.get_next_location(x, y)
-        if self.nextLoc in self.reachedLoc:
+        if self.nextLoc['nodeName'] in self.reachedLoc:
             self.prevLoc = self.nextLoc
         self.nextLoc = nextLocNode
         dist = Map.get_distance(nextLocNode["x"], x, nextLocNode["y"], y)
