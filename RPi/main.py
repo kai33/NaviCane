@@ -108,6 +108,7 @@ def get_input():
             voice_output.speak('input {0} is confirmed'.format(user_commands.strip().lower()))
         else:
             is_input_done = False
+            accumulated_input = 0
             voice_output.speak('please redo the input')
     return str(accumulated_input)
 
@@ -121,11 +122,13 @@ def get_user_input():
     ending_point = '14'
     voice_output.speak('start')
     user_input = get_input()
+    # print user_input
     starting_building = 'COM' + user_input[0]
     starting_level = user_input[1]
     starting_point = user_input[2:]
     voice_output.speak('end')
     user_input = get_input()
+    # print user_input
     ending_building = 'COM' + user_input[0]
     ending_level = user_input[1]
     ending_point = user_input[2:]

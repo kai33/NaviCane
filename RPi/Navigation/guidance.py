@@ -140,8 +140,8 @@ class Guidance:
     # used for calibration
     def reach_special_node(self, node):
         currentNav = self.get_nav()[self.navIdx]
-        currentNav.pos[0] = node['x']
-        currentNav.pos[1] = node['y']
+        currentNav.pos[0] = float(node['x'])
+        currentNav.pos[1] = float(node['y'])
         if node['nodeName'] not in currentNav.reachedLoc:
             currentNav.reachedLoc.append(node['nodeName'])
 
