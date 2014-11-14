@@ -104,7 +104,7 @@ def get_input():
         voice_output.speak('confirm or cancel the input')
         final_cmd = user_input.get_command()
         is_input_done = command_lookup.get(final_cmd.strip(), False)
-        if type(is_input_done) is bool and is_input_done:
+        if type(is_input_done) is bool and is_input_done and len(str(accumulated_input)) > 2:
             voice_output.speak('input {0} is confirmed'.format(user_commands.strip().lower()))
         else:
             is_input_done = False
@@ -119,20 +119,16 @@ def get_user_input():
     ending_building = 'COM2'
     ending_level = '2'
     ending_point = '14'
-    '''
-    voice_output.speak('building')
-    starting_building = 'COM' + get_input()
-    voice_output.speak('level')
-    starting_level = get_input()
     voice_output.speak('start')
-    starting_point = get_input()
-    voice_output.speak('building')
-    ending_building = 'COM' + get_input()
-    voice_output.speak('level')
-    ending_level = get_input()
+    user_input = get_input()
+    starting_building = 'COM' + user_input[0]
+    starting_level = user_input[1]
+    starting_point = user_input[2:]
     voice_output.speak('end')
-    ending_point = get_input()
-    '''
+    user_input = get_input()
+    ending_building = 'COM' + user_input[0]
+    ending_level = user_input[1]
+    ending_point = user_input[2:]
     return starting_building, starting_level, starting_point, ending_building, ending_level, ending_point
 
 
