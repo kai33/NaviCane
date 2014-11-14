@@ -52,7 +52,6 @@ class Navigation:
         userDir = dirRelativeNorth + northAt  # relative to map
         userDir = userDir % 360
         if not self.nextLoc:
-            self.prevLoc = self.nextLoc
             self.nextLoc = self.get_next_location(self.pos[0], self.pos[1])
         movingDir = Map.get_direction(self.pos[0], self.nextLoc["x"],
                                       self.pos[1], self.nextLoc["y"])  # relative to map
@@ -205,7 +204,8 @@ class Navigation:
         distance to next loc, direction to next loc (relative to user) & next loc's node
         """
         nextLocNode = self.get_next_location(x, y)
-        self.prevLoc = self.nextLoc
+        if self.nextLoc in self.reachedLoc:
+            self.prevLoc = self.nextLoc
         self.nextLoc = nextLocNode
         dist = Map.get_distance(nextLocNode["x"], x, nextLocNode["y"], y)
 
