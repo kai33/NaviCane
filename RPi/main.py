@@ -104,7 +104,7 @@ def get_input():
         voice_output.speak('confirm or cancel the input')
         final_cmd = user_input.get_command()
         is_input_done = command_lookup.get(final_cmd.strip(), False)
-        if type(is_input_done) is bool and is_input_done and len(str(accumulated_input)) > 2:
+        if is_input_done and len(str(accumulated_input)) > 2:
             voice_output.speak('input {0} is confirmed'.format(user_commands.strip().lower()))
         else:
             is_input_done = False
@@ -122,13 +122,13 @@ def get_user_input():
     ending_point = '14'
     voice_output.speak('start')
     user_input = get_input()
-    # print user_input
+    print user_input
     starting_building = 'COM' + user_input[0]
     starting_level = user_input[1]
     starting_point = user_input[2:]
     voice_output.speak('end')
     user_input = get_input()
-    # print user_input
+    print user_input
     ending_building = 'COM' + user_input[0]
     ending_level = user_input[1]
     ending_point = user_input[2:]
@@ -224,7 +224,7 @@ def run():
                             is_running_mode = False
                     else:
                         give_current_instruction()
-            runner = (runner + 1) % 4
+            runner = (runner + 1) % 2
             faster_loop_time = now()
 
 
