@@ -20,6 +20,7 @@ voice_output = VoiceOutput()
 user_input = VoiceRecognition()
 logger = get_local_logger()
 totalSteps = 0
+calibratedNodes = []
 
 REACH_END = UltrasonicData.TURN_BACK + 1
 
@@ -167,13 +168,17 @@ def run():
         if state == 1:  # special pattern recognized! the actual pos for the special node
             pos = nav.get_pos()
             print 'pattern is 1'
-            if SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_next_loc()):
+            if SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_next_loc()) and \
+               nav.get_next_loc()['nodeName'] not in calibratedNodes:
                 # reach the actual important loc but not reach the virtual one
+                calibratedNodes.append(nav.get_next_loc()['nodeName'])
                 nav.reach_special_node(nav.get_next_loc())
                 isJustCalibrated = True
             elif SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_prev_loc()):
                 # reach the actual important loc but already pass it (within 3 meters)
-                if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 300:
+                if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 300 and \
+                   nav.get_prev_loc()['nodeName'] not in calibratedNodes:
+                    calibratedNodes.append(nav.get_prev_loc()['nodeName'])
                     nav.reach_special_node(nav.get_prev_loc())
                     isJustCalibrated = True
         if isJustCalibrated:
