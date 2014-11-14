@@ -11,7 +11,7 @@ from ObstacleDetection.ultrasonic_data import UltrasonicData
 from Positioning.ir_reading import ir_read
 from local_logger import get_local_logger
 
-FASTER_LOOP_TIMER = 2
+FASTER_LOOP_TIMER = 1
 
 is_running_mode = True
 
