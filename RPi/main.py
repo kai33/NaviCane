@@ -121,7 +121,7 @@ def get_user_input():
     ending_level = '2'
     ending_point = '14'
     voice_output.speak('start')
-    '''
+
     user_input = get_input()
     print user_input
     starting_building = 'COM' + user_input[0]
@@ -133,7 +133,7 @@ def get_user_input():
     ending_building = 'COM' + user_input[0]
     ending_level = user_input[1]
     ending_point = user_input[2:]
-    '''
+
     return starting_building, starting_level, starting_point, ending_building, ending_level, ending_point
 
 
