@@ -1,7 +1,6 @@
 from datetime import datetime
 from time import mktime
 import multiprocessing
-import Queue
 from Navigation.guidance import Guidance
 from Navigation.special_node import SpecialNode
 from Navigation.map import Map
@@ -12,7 +11,7 @@ from ObstacleDetection.ultrasonic_data import UltrasonicData
 from Positioning.ir_reading import ir_read
 from local_logger import get_local_logger
 
-FASTER_LOOP_TIMER = 2
+FASTER_LOOP_TIMER = 1
 
 is_running_mode = True
 
@@ -21,6 +20,7 @@ voice_output = VoiceOutput()
 user_input = VoiceRecognition()
 logger = get_local_logger()
 totalSteps = 0
+calibratedNodes = []
 
 REACH_END = UltrasonicData.TURN_BACK + 1
 
@@ -159,23 +159,32 @@ def run():
     runner = 0
     global is_running_mode
     while is_running_mode:
-        state = 0
-        try:
+        isJustCalibrated = False
+        if not ir_reading_queue.empty():
             state = ir_reading_queue.get(block=False)
-        except Queue.Empty:
-            pass
+        else:
+            state = 0
         while not check_connection_status():
             initiate_connection()
         if state == 1:  # special pattern recognized! the actual pos for the special node
             pos = nav.get_pos()
-            print 'pattern is 1'
+            print '\npattern is 1\n'
             if SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_next_loc()):
-                # reach the actual important loc but not reach the virtual one
-                nav.reach_special_node(nav.get_next_loc())
+                # reach the actual important loc but not reach the point on the map
+                if Map.get_distance(pos[0], nav.get_next_loc()['x'], pos[1], nav.get_next_loc()['y']) < 300 and \
+                   nav.get_next_loc()['nodeName'] not in calibratedNodes:
+                    calibratedNodes.append(nav.get_next_loc()['nodeName'])
+                    nav.reach_special_node(nav.get_next_loc())
+                    isJustCalibrated = True
             elif SpecialNode.is_special_node(nav.get_curr_building(), nav.get_curr_level(), nav.get_prev_loc()):
-                # reach the actual important loc but already pass it (within 3 meters)
-                if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 300:
+                # reach the actual important loc but map shows passed the node already
+                if Map.get_distance(pos[0], nav.get_prev_loc()['x'], pos[1], nav.get_prev_loc()['y']) < 300 and \
+                   nav.get_prev_loc()['nodeName'] not in calibratedNodes:
+                    calibratedNodes.append(nav.get_prev_loc()['nodeName'])
                     nav.reach_special_node(nav.get_prev_loc())
+                    isJustCalibrated = True
+        if isJustCalibrated:
+            voice_output.speak('calibrated')
         if now() - faster_loop_time > FASTER_LOOP_TIMER:
             is_data_corrupted, sensors_data = receive_data()
             if not is_data_corrupted:
@@ -190,11 +199,12 @@ def run():
                                             sensors_data[3], sensors_data[2])
                 deltaDist = remap_distance(sensors_data[6])
                 print "delta dist is " + str(deltaDist)
-                nav.update_pos_by_dist_and_dir(deltaDist, remap_direction(sensors_data[4]))
+                if not isJustCalibrated:
+                    nav.update_pos_by_dist_and_dir(deltaDist, remap_direction(sensors_data[4]))
                 print "current pos is"  # TODO: remove this after eval 2 drill
                 print nav.get_pos()  # TODO: remove this after eval 2 drill
                 print "next location pos is"  # TODO: remove this after eval 2 drill
-                print "[" + nav.get_next_loc()["x"] + ", " + nav.get_next_loc()["y"] + "]"  # TODO: remove this after eval 2 drill
+                print "[" + nav.get_next_loc()["x"] + ", " + nav.get_next_loc()["y"] + "]"
                 if runner == 0:
                     if nav.is_reach_next_location():
                         voice_output.speak('you just reached {0}'.format(str(nav.get_next_loc()["nodeId"])))

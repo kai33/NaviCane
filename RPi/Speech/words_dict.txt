@@ -10,5 +10,4 @@ eight
 nine
 confirm
 cancel
-previous
-next
+
